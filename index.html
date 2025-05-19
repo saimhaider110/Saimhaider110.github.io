@@ -100,3 +100,29 @@
     });
   }
 </script>
+// Add to your script
+function drawBackground() {
+  ctx.fillStyle = 'rgba(10, 10, 20, 0.2)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  // Floating stars
+  ctx.fillStyle = 'white';
+  for(let i = 0; i < 50; i++) {
+    ctx.globalAlpha = Math.random();
+    ctx.fillRect(
+      Math.random() * canvas.width,
+      Math.random() * canvas.height,
+      1, 1
+    );
+  }
+  ctx.globalAlpha = 1;
+}
+
+// Update game loop
+function gameLoop() {
+  drawBackground();
+  drawCoin();
+  updateParticles();
+  requestAnimationFrame(gameLoop);
+}
+gameLoop();
