@@ -92,6 +92,7 @@
         const ctx = canvas.getContext('2d');
         const dpr = window.devicePixelRatio || 1;
         const baseSize = 300;
+        let coinRotation = 0;
 
         // High DPI Setup
         canvas.width = baseSize * dpr;
@@ -164,7 +165,48 @@
         }));
 
         const coinImg = new Image();
-        coinImg.src = 'uascoin.png?v=3';
+        coinImg.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0MCIgZmlsbD0iI0ZGREMwMCIgc3Ryb2tlPSIjQ0M5RTAwIiBzdHJva2Utd2lkdGg9IjUiLz48cGF0aCBkPSJNNTAgMTBDNzcuNiAxMCAxMCAyNy42IDEwIDUwczY3LjYgNDAgNDAgNDAgNDAtMTcuNiA0MC00MFMyMi40IDEwIDUwIDEweiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkZGRkZGIiBzdHJva2Utd2lkdGg9IjIiLz48dGV4dCB4PSI1MCIgeT0iNTUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzAwMCI+VUFTQ09JTjwvdGV4dD48L3N2Zz4=';
+
+        // Ambient particles system
+        const ambientParticles = [];
+        const MAX_PARTICLES = 200;
+
+        function createAmbientParticle() {
+            return {
+                x: Math.random() * baseSize,
+                y: Math.random() * baseSize,
+                size: Math.random() * 3 + 1,
+                color: `hsla(${Math.random() * 360}, 70%, 50%, ${Math.random() * 0.5 + 0.3})`,
+                speedX: (Math.random() - 0.5) * 2,
+                speedY: (Math.random() - 0.5) * 2,
+                life: 1
+            };
+        }
+
+        function updateAmbientParticles() {
+            while(ambientParticles.length < MAX_PARTICLES) {
+                ambientParticles.push(createAmbientParticle());
+            }
+
+            ambientParticles.forEach((p, i) => {
+                p.x += p.speedX;
+                p.y += p.speedY;
+                p.life -= 0.002;
+
+                if(p.x < 0 || p.x > baseSize || 
+                   p.y < 0 || p.y > baseSize ||
+                   p.life <= 0) {
+                    ambientParticles[i] = createAmbientParticle();
+                }
+
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            ctx.globalAlpha = 1;
+        }
 
         function drawBackground() {
             const gradient = ctx.createLinearGradient(0, 0, 0, baseSize);
@@ -245,6 +287,7 @@
             drawBackground();
             drawCoin();
             updateParticles();
+            updateAmbientParticles();
             
             document.getElementById('scoreDisplay').textContent = Math.floor(userData.score);
             const energyPercent = (userData.energy / userData.maxEnergy) * 100;
@@ -254,123 +297,3 @@
             
             requestAnimationFrame(gameLoop);
         }
-
-        // ======================
-        // 👆 INPUT HANDLING
-        // ======================
-        canvas.addEventListener('click', (e) => {
-            if(!useEnergy(1)) {
-                alert("Not enough energy!");
-                return;
-            }
-
-            const rect = canvas.getBoundingClientRect();
-            const scale = baseSize / rect.width;
-            const x = (e.clientX - rect.left) * scale;
-            const y = (e.clientY - rect.top) * scale;
-            
-            const dx = x - baseSize/2;
-            const dy = y - baseSize/2;
-            if(Math.sqrt(dx*dx + dy*dy) < 45) {
-                userData.score += 1 + Math.floor(userData.score/100);
-                createParticles(x, y);
-                saveData();
-            }
-        });
-
-        // ======================
-        // 🚀 INITIALIZE
-        // ======================
-        loadData();
-        gameLoop();
-    </script>
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <!-- Keep previous meta tags and styles -->
-    <style>
-        /* Add full-screen particle container */
-        .particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-        }
-    </style>
-</head>
-<body>
-    <!-- Previous HTML elements -->
-
-    <script>
-        // ======================
-        // 🌟 PARTICLE SYSTEM MOD
-        // ======================
-        const ambientParticles = [];
-        const MAX_PARTICLES = 200;
-
-        function createAmbientParticle() {
-            return {
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                size: Math.random() * 3 + 1,
-                color: `hsla(${Math.random() * 360}, 70%, 50%, ${Math.random() * 0.5 + 0.3})`,
-                speedX: (Math.random() - 0.5) * 2,
-                speedY: (Math.random() - 0.5) * 2,
-                life: 1
-            };
-        }
-
-        function updateAmbientParticles() {
-            // Add new particles until we reach MAX_PARTICLES
-            while(ambientParticles.length < MAX_PARTICLES) {
-                ambientParticles.push(createAmbientParticle());
-            }
-
-            ambientParticles.forEach((p, i) => {
-                // Update position
-                p.x += p.speedX;
-                p.y += p.speedY;
-                p.life -= 0.002;
-
-                // Reset particles that go off-screen
-                if(p.x < 0 || p.x > canvas.width || 
-                   p.y < 0 || p.y > canvas.height ||
-                   p.life <= 0) {
-                    ambientParticles[i] = createAmbientParticle();
-                }
-
-                // Draw particles
-                ctx.globalAlpha = p.life;
-                ctx.fillStyle = p.color;
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                ctx.fill();
-            });
-            ctx.globalAlpha = 1;
-        }
-
-        // ======================
-        // 🎮 MODIFIED GAME LOOP
-        // ======================
-        function gameLoop() {
-            // Existing code...
-            
-            // Add this line before requestAnimationFrame
-            updateAmbientParticles();
-            
-            requestAnimationFrame(gameLoop);
-        }
-
-        // Remove original particle creation from click handler
-        canvas.addEventListener('click', (e) => {
-            // ... (keep energy and score logic)
-            
-            // Remove createParticles(x, y) call
-        });
-    </script>
-</body>
-</html>
