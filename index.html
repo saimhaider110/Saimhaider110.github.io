@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <canvas id="gameCanvas" width="300" height="300"></canvas>
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    let score = 0;
+    function drawCoin() {
+      ctx.fillStyle = "gold";
+      ctx.beginPath();
+      ctx.arc(150, 150, 50, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "black";
+      ctx.fillText(`Score: ${score}`, 10, 20);
+    }
+    canvas.addEventListener("click", () => { score++; drawCoin(); });
+    drawCoin();
+  </script>
+</body>
+</html>
