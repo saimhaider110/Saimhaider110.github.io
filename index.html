@@ -19,3 +19,84 @@
   </script>
 </body>
 </html>
+<style>
+  /* Modern UI */
+  body {
+    margin: 0;
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    font-family: 'Arial', sans-serif;
+    overflow: hidden;
+    touch-action: manipulation;
+  }
+  
+  canvas {
+    display: block;
+    margin: 20px auto;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(5px);
+  }
+
+  /* Animated coin */
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+  }
+</style>
+
+<script>
+  // Enhanced coin drawing
+  function drawCoin() {
+    // Glowing effect
+    ctx.shadowColor = 'gold';
+    ctx.shadowBlur = 20;
+    
+    // Metallic gradient
+    const gradient = ctx.createRadialGradient(150, 150, 30, 150, 150, 50);
+    gradient.addColorStop(0, '#FFD700');
+    gradient.addColorStop(1, '#D4AF37');
+    
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.arc(150, 150, 50, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Coin details
+    ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    
+    // Score display
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 24px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(`💰 ${score}`, 150, 40);
+  }
+
+  // Add particle effects on click
+  canvas.addEventListener('click', (e) => {
+    score++;
+    
+    // Explosion effect
+    for(let i = 0; i < 10; i++) {
+      createParticle(e.offsetX, e.offsetY);
+    }
+    
+    drawCoin();
+  });
+
+  // Particle system
+  const particles = [];
+  function createParticle(x, y) {
+    particles.push({
+      x, y,
+      size: Math.random() * 10 + 5,
+      color: `hsl(${Math.random() * 60 + 30}, 100%, 50%)`,
+      speedX: Math.random() * 6 - 3,
+      speedY: Math.random() * 6 - 3,
+      life: 30
+    });
+  }
+</script>
