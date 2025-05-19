@@ -229,3 +229,147 @@
     </script>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Keep previous meta tags and styles -->
+    <style>
+        /* Add energy bar styling */
+        .energy-bar {
+            width: 90vmin;
+            height: 3vmin;
+            background: rgba(0,0,0,0.3);
+            border-radius: 5px;
+            margin-bottom: 2vmin;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .energy-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff88, #00ccff);
+            transition: width 0.3s ease;
+        }
+
+        .energy-text {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            color: white;
+            font-size: 2vmin;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="score-display">UAScoins: <span id="scoreDisplay">0</span></div>
+    <div class="energy-bar">
+        <div class="energy-fill" id="energyFill"></div>
+        <div class="energy-text" id="energyText">Energy: 1000/1000</div>
+    </div>
+    <div class="game-container">
+        <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <script>
+        // ======================
+        // 💾 USER DATA MANAGEMENT
+        // ======================
+        let userData = {
+            score: 0,
+            energy: 1000,
+            maxEnergy: 1000,
+            lastUpdate: Date.now()
+        };
+
+        // Load saved data
+        function loadData() {
+            const saved = localStorage.getItem('uascoinData');
+            if(saved) {
+                userData = JSON.parse(saved);
+                userData.lastUpdate = parseInt(userData.lastUpdate);
+                updateEnergy(); // Recalculate energy when loading
+            }
+        }
+
+        // Save data
+        function saveData() {
+            userData.lastUpdate = Date.now();
+            localStorage.setItem('uascoinData', JSON.stringify(userData));
+        }
+
+        // ======================
+        // ⚡ ENERGY SYSTEM
+        // ======================
+        function updateEnergy() {
+            const now = Date.now();
+            const timeDiff = now - userData.lastUpdate;
+            const minutesPassed = timeDiff / (1000 * 60);
+            const energyGain = Math.floor(minutesPassed / 3);
+            
+            if(energyGain > 0) {
+                userData.energy = Math.min(
+                    userData.maxEnergy,
+                    userData.energy + energyGain
+                );
+                userData.lastUpdate = now;
+                saveData();
+            }
+        }
+
+        function useEnergy(amount = 1) {
+            if(userData.energy >= amount) {
+                userData.energy -= amount;
+                return true;
+            }
+            return false;
+        }
+
+        // ======================
+        // 🕹️ MODIFIED GAME LOGIC
+        // ======================
+        function gameLoop() {
+            updateEnergy();
+            updateUI();
+            
+            // Existing rendering code...
+            requestAnimationFrame(gameLoop);
+        }
+
+        function updateUI() {
+            // Update score display
+            document.getElementById('scoreDisplay').textContent = userData.score;
+            
+            // Update energy display
+            const energyPercent = (userData.energy / userData.maxEnergy) * 100;
+            document.getElementById('energyFill').style.width = `${energyPercent}%`;
+            document.getElementById('energyText').textContent = 
+                `Energy: ${userData.energy}/${userData.maxEnergy}`;
+        }
+
+        // Modified click handler
+        canvas.addEventListener('click', (e) => {
+            if(!useEnergy(1)) {
+                alert("Not enough energy!");
+                return;
+            }
+
+            const rect = canvas.getBoundingClientRect();
+            const scale = size / rect.width;
+            const x = (e.clientX - rect.left) * scale;
+            const y = (e.clientY - rect.top) * scale;
+            
+            // Existing click detection...
+            if(Math.sqrt(dx*dx + dy*dy) < 45) {
+                userData.score += 1 + Math.floor(userData.score/100);
+                createParticles(x, y);
+                saveData();
+            }
+        });
+
+        // Initialize
+        loadData();
+        gameLoop();
+    </script>
+</body>
+</html>
