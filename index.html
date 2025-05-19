@@ -100,3 +100,184 @@
     });
   }
 </script>
+// ======================
+// 🎇 ENHANCED VISUAL SYSTEM
+// ======================
+
+// 🌟 Starfield Background
+const stars = Array.from({length: 200}, () => ({
+  x: Math.random() * canvas.width,
+  y: Math.random() * canvas.height,
+  size: Math.random() * 1.5 + 0.5,
+  speed: Math.random() * 0.2 + 0.05,
+  alpha: Math.random() * 0.8 + 0.2
+}));
+
+function drawBackground() {
+  // Gradient sky
+  const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  gradient.addColorStop(0, '#0a0a1a');
+  gradient.addColorStop(1, '#1a1a3a');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Animated stars
+  ctx.fillStyle = 'white';
+  stars.forEach(star => {
+    star.y += star.speed;
+    if (star.y > canvas.height) {
+      star.y = 0;
+      star.x = Math.random() * canvas.width;
+    }
+    ctx.globalAlpha = star.alpha;
+    ctx.beginPath();
+    ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+    ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+}
+
+// 💫 Particle System
+const particles = [];
+function createParticles(x, y, count = 15) {
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      x, y,
+      size: Math.random() * 8 + 2,
+      color: `hsl(${Math.random() * 60 + 30}, 100%, 50%)`,
+      speedX: Math.random() * 6 - 3,
+      speedY: Math.random() * 6 - 3,
+      life: Math.random() * 30 + 20,
+      decay: Math.random() * 0.1 + 0.05
+    });
+  }
+}
+
+function updateParticles() {
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.x += p.speedX;
+    p.y += p.speedY;
+    p.life -= p.decay;
+    p.size *= 0.98;
+
+    ctx.globalAlpha = p.life / 30;
+    ctx.fillStyle = p.color;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (p.life <= 0) particles.splice(i, 1);
+  }
+  ctx.globalAlpha = 1;
+}
+
+// 🪙 UAScoin with Advanced Effects
+let coinRotation = 0;
+function drawCoin() {
+  // Shadow
+  ctx.shadowColor = 'rgba(255, 215, 0, 0.5)';
+  ctx.shadowBlur = 20;
+  ctx.shadowOffsetY = 5;
+
+  // Metallic gradient
+  const gradient = ctx.createRadialGradient(150, 150, 20, 150, 150, 50);
+  gradient.addColorStop(0, '#FFD700');
+  gradient.addColorStop(0.7, '#D4AF37');
+  gradient.addColorStop(1, '#B8860B');
+
+  // Bounce animation
+  const scale = 1 + Math.sin(Date.now() / 200) * 0.05;
+  
+  ctx.save();
+  ctx.translate(150, 150);
+  ctx.scale(scale, scale);
+  ctx.rotate(coinRotation += 0.005);
+  
+  // Draw coin
+  ctx.fillStyle = gradient;
+  ctx.beginPath();
+  ctx.arc(0, 0, 50, 0, Math.PI * 2);
+  ctx.fill();
+  
+  // Coin edge
+  ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+  
+  // Crown icon (simplified)
+  ctx.fillStyle = '#FFDF00';
+  ctx.beginPath();
+  ctx.moveTo(-20, -30);
+  ctx.lineTo(0, -50);
+  ctx.lineTo(20, -30);
+  ctx.lineTo(15, -30);
+  ctx.lineTo(15, -10);
+  ctx.lineTo(-15, -10);
+  ctx.lineTo(-15, -30);
+  ctx.closePath();
+  ctx.fill();
+  
+  // UAScoin text
+  ctx.fillStyle = '#000';
+  ctx.font = 'bold 14px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText('UAScoin', 0, 10);
+  
+  ctx.restore();
+}
+
+// ✨ Score Display with Animation
+let displayScore = 0;
+function drawScore() {
+  // Smooth score counter
+  displayScore += (score - displayScore) * 0.1;
+  
+  ctx.fillStyle = '#FFF';
+  ctx.font = 'bold 28px Arial';
+  ctx.textAlign = 'left';
+  ctx.fillText(`💰 ${Math.floor(displayScore)}`, 20, 40);
+  
+  // Score glow effect
+  if (score > displayScore) {
+    ctx.shadowColor = 'gold';
+    ctx.shadowBlur = 15;
+    ctx.fillText(`💰 ${Math.floor(displayScore)}`, 20, 40);
+    ctx.shadowBlur = 0;
+  }
+}
+
+// 🎮 Enhanced Game Loop
+let lastTime = 0;
+function gameLoop(timestamp) {
+  // Calculate delta time for smooth animations
+  const deltaTime = timestamp - lastTime;
+  lastTime = timestamp;
+  
+  // Clear with fade effect
+  ctx.fillStyle = 'rgba(10, 10, 20, 0.1)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  drawBackground();
+  drawCoin();
+  updateParticles();
+  drawScore();
+  
+  requestAnimationFrame(gameLoop);
+}
+
+// Start the game
+gameLoop(0);
+
+// 💥 Click Handler with Bonus Effects
+canvas.addEventListener('click', (e) => {
+  score += 1 + Math.floor(score/100); // Bonus every 100 clicks
+  createParticles(e.offsetX, e.offsetY);
+  
+  // Click ripple effect
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+  ctx.beginPath();
+  ctx.arc(e.offsetX, e.offsetY, 5, 0, Math.PI * 2);
+  ctx.fill();
+});
+    
