@@ -122,11 +122,11 @@
         // 🏆 PREMIUM GAME ENGINE
         // ======================
         
-        // 🔥 THREE.js Configuration
+        // THREE.js Configuration
         const container = document.getElementById('gameContainer');
         let scene, camera, renderer, composer, bloomPass, uasCoin;
         
-        // 💾 Database Simulation
+        // Game Data
         const gameData = {
             score: 0,
             energy: 1000,
@@ -138,7 +138,7 @@
             }
         };
 
-        // 🔄 Initialize Game
+        // Initialize Game
         function init() {
             createScene();
             createCamera();
@@ -152,14 +152,14 @@
             animate();
         }
 
-        // 🌌 Create 3D Scene
+        // Scene Setup
         function createScene() {
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0x000000);
             scene.fog = new THREE.FogExp2(0x110033, 0.001);
         }
 
-        // 🎥 Create Camera
+        // Camera Setup
         function createCamera() {
             camera = new THREE.PerspectiveCamera(
                 75, 
@@ -170,7 +170,7 @@
             camera.position.z = 30;
         }
 
-        // 🖌️ Create WebGL Renderer
+        // Renderer Setup
         function createRenderer() {
             renderer = new THREE.WebGLRenderer({
                 antialias: true,
@@ -183,7 +183,7 @@
             container.appendChild(renderer.domElement);
         }
 
-        // 💡 Create Lighting
+        // Lighting Setup
         function createLighting() {
             const ambientLight = new THREE.AmbientLight(0x6633ff, 0.5);
             scene.add(ambientLight);
@@ -197,7 +197,7 @@
             scene.add(pointLight);
         }
 
-        // 🪙 Load Coin Texture
+        // Load UAScoin Texture
         function loadCoinTexture() {
             return new Promise((resolve) => {
                 const loader = new THREE.TextureLoader();
@@ -207,19 +207,17 @@
                     resolve(texture);
                 }, undefined, (err) => {
                     console.error("Error loading coin texture:", err);
-                    // Fallback to programmatic coin
                     resolve(null);
                 });
             });
         }
 
-        // 🪙 Create UAS Coin with Custom Texture
+        // Create UAS Coin with Custom Texture
         function createUASCoin(texture) {
             const geometry = new THREE.CylinderGeometry(10, 10, 2, 64);
             
-            let material;
             if (texture) {
-                material = new THREE.MeshPhongMaterial({
+                const material = new THREE.MeshPhongMaterial({
                     map: texture,
                     emissive: 0xFFA500,
                     emissiveIntensity: 0.3,
@@ -228,26 +226,10 @@
                     side: THREE.DoubleSide
                 });
                 
-                // Create second side for double-sided rendering
-                const backMaterial = new THREE.MeshPhongMaterial({
-                    map: texture,
-                    emissive: 0xFFA500,
-                    emissiveIntensity: 0.3,
-                    specular: 0xFFFF00,
-                    shininess: 50,
-                    side: THREE.BackSide
-                });
-                
-                uasCoin = new THREE.Group();
-                const frontCoin = new THREE.Mesh(geometry, material);
-                const backCoin = new THREE.Mesh(geometry, backMaterial);
-                backCoin.rotation.y = Math.PI; // Flip the back side
-                
-                uasCoin.add(frontCoin);
-                uasCoin.add(backCoin);
+                uasCoin = new THREE.Mesh(geometry, material);
             } else {
-                // Fallback material if texture fails to load
-                material = new THREE.MeshPhongMaterial({
+                // Fallback material
+                const material = new THREE.MeshPhongMaterial({
                     color: 0xFFD700,
                     emissive: 0xFFA500,
                     emissiveIntensity: 0.5,
@@ -261,17 +243,14 @@
             scene.add(uasCoin);
         }
 
-        // 🔥 Create Fire Background
+        // Create Fire Background
         function createFireBackground() {
-            const particleCount = 5000;
             const particles = new THREE.BufferGeometry();
-            const positions = new Float32Array(particleCount * 3);
-            const colors = new Float32Array(particleCount * 3);
-            const sizes = new Float32Array(particleCount);
+            const positions = new Float32Array(5000 * 3);
+            const colors = new Float32Array(5000 * 3);
             
             const color = new THREE.Color();
-            
-            for (let i = 0; i < particleCount; i++) {
+            for (let i = 0; i < 5000; i++) {
                 positions[i * 3] = (Math.random() - 0.5) * 200;
                 positions[i * 3 + 1] = (Math.random() - 0.5) * 200;
                 positions[i * 3 + 2] = (Math.random() - 0.5) * 200;
@@ -280,21 +259,17 @@
                 colors[i * 3] = color.r;
                 colors[i * 3 + 1] = color.g;
                 colors[i * 3 + 2] = color.b;
-                
-                sizes[i] = Math.random() * 2 + 1;
             }
             
             particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
             particles.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-            particles.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
             
             const particleMaterial = new THREE.PointsMaterial({
                 size: 1,
                 vertexColors: true,
                 transparent: true,
                 opacity: 0.8,
-                blending: THREE.AdditiveBlending,
-                sizeAttenuation: true
+                blending: THREE.AdditiveBlending
             });
             
             const particleSystem = new THREE.Points(particles, particleMaterial);
@@ -302,7 +277,7 @@
             scene.add(particleSystem);
         }
 
-        // ✨ Post-Processing Effects
+        // Post-Processing Effects
         function setupPostProcessing() {
             composer = new THREE.EffectComposer(renderer);
             composer.addPass(new THREE.RenderPass(scene, camera));
@@ -311,36 +286,85 @@
                 new THREE.Vector2(window.innerWidth, window.innerHeight),
                 1.5, 0.4, 0.85
             );
-            bloomPass.threshold = 0;
-            bloomPass.strength = 1.5;
-            bloomPass.radius = 0.5;
             composer.addPass(bloomPass);
         }
 
-        // 💾 Load Game Data
+        // Game Data Management
         function loadGameData() {
             const savedData = localStorage.getItem('uascoinPremiumData');
             if (savedData) {
                 const parsed = JSON.parse(savedData);
                 gameData.score = parsed.score || 0;
                 gameData.energy = parsed.energy || 1000;
-                gameData.maxEnergy = parsed.maxEnergy || 1000;
                 gameData.lastUpdate = parsed.lastUpdate || Date.now();
-                gameData.upgrades = parsed.upgrades || {
-                    multiplier: 1,
-                    energyRegen: 1
-                };
                 updateEnergy();
             }
-            
             updateUI();
         }
 
-        // 💾 Save Game Data
         function saveGameData() {
             gameData.lastUpdate = Date.now();
             localStorage.setItem('uascoinPremiumData', JSON.stringify(gameData));
         }
 
-        // ⚡ Energy System
-        function updateEnergy
+        // Energy System
+        function updateEnergy() {
+            const now = Date.now();
+            const timeDiff = now - gameData.lastUpdate;
+            const energyGain = Math.floor(timeDiff / (1000 * 60 * 3));
+            
+            if (energyGain > 0) {
+                gameData.energy = Math.min(1000, gameData.energy + energyGain);
+                gameData.lastUpdate = now;
+                saveGameData();
+                updateUI();
+            }
+        }
+
+        // UI Updates
+        function updateUI() {
+            document.getElementById('scoreDisplay').textContent = gameData.score.toLocaleString();
+            const energyPercent = (gameData.energy / 1000) * 100;
+            document.getElementById('energyFill').style.width = `${energyPercent}%`;
+            document.getElementById('energyText').textContent = `ENERGY: ${gameData.energy}/1000`;
+        }
+
+        // Game Loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Subtle coin animation
+            if (uasCoin) {
+                uasCoin.rotation.z += 0.01;
+                uasCoin.position.y = Math.sin(Date.now() * 0.001) * 0.5;
+            }
+            
+            composer.render();
+        }
+
+        // Event Handlers
+        function setupEventListeners() {
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                composer.setSize(window.innerWidth, window.innerHeight);
+            });
+
+            renderer.domElement.addEventListener('click', (event) => {
+                if (gameData.energy > 0) {
+                    gameData.energy--;
+                    gameData.score++;
+                    saveGameData();
+                    updateUI();
+                }
+            });
+
+            window.addEventListener('beforeunload', saveGameData);
+        }
+
+        // Start Game
+        init();
+    </script>
+</body>
+</html>
