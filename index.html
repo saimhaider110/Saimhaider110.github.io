@@ -1,161 +1,216 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>UAScoin Tapping Game</title>
-  <style>
-    body {
-      margin: 0;
-      background: linear-gradient(135deg, #1a1a2e, #16213e);
-      font-family: Arial, sans-serif;
-      overflow: hidden;
-      touch-action: manipulation;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>UAScoin Tap Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    canvas {
-      display: block;
-      margin: 20px auto;
-      border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      background: rgba(255,255,255,0.05);
-      backdrop-filter: blur(5px);
-    }
-  </style>
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            font-family: 'Arial', sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            touch-action: manipulation;
+            overflow: hidden;
+        }
+
+        canvas {
+            margin: 20px auto;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(5px);
+            width: 90vmin;
+            height: 90vmin;
+            max-width: 400px;
+            max-height: 400px;
+        }
+
+        .score-board {
+            color: white;
+            font-size: 24px;
+            margin: 15px 0;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+    </style>
 </head>
 <body>
-  <canvas id="gameCanvas" width="300" height="300"></canvas>
+    <div class="score-board">UAScoins: <span id="scoreDisplay">0</span></div>
+    <canvas id="gameCanvas"></canvas>
 
-  <script>
-    const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
+    <script>
+        // High DPI Canvas Setup
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const dpr = window.devicePixelRatio || 1;
+        const size = 300;
+        
+        canvas.width = size * dpr;
+        canvas.height = size * dpr;
+        canvas.style.width = size + 'px';
+        canvas.style.height = size + 'px';
+        ctx.scale(dpr, dpr);
 
-    let score = 0;
-    let displayScore = 0;
-    let coinRotation = 0;
-    let lastTime = 0;
-    const particles = [];
+        // Game State
+        let score = 0;
+        let displayScore = 0;
+        let coinRotation = 0;
+        const particles = [];
+        
+        // Starfield
+        const stars = Array.from({length: 150}, () => ({
+            x: Math.random() * size,
+            y: Math.random() * size,
+            size: Math.random() * 1.2,
+            speed: Math.random() * 0.15 + 0.05,
+            alpha: Math.random() * 0.6 + 0.2
+        }));
 
-    // Load the coin image
-    const coinImg = new Image();
-    coinImg.src = "uascoin.png"; // Make sure the image file is named 'uascoin.png' and is in the same folder
+        // Coin Image (Must be named 'uascoin.png' in same directory)
+        const coinImg = new Image();
+        coinImg.src = 'uascoin.png?v=1'; // Cache-busting version parameter
 
-    // Starfield
-    const stars = Array.from({length: 100}, () => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      size: Math.random() * 1.5 + 0.5,
-      speed: Math.random() * 0.2 + 0.05,
-      alpha: Math.random() * 0.8 + 0.2
-    }));
-
-    function drawBackground() {
-      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      gradient.addColorStop(0, '#0a0a1a');
-      gradient.addColorStop(1, '#1a1a3a');
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      ctx.fillStyle = 'white';
-      stars.forEach(star => {
-        star.y += star.speed;
-        if (star.y > canvas.height) {
-          star.y = 0;
-          star.x = Math.random() * canvas.width;
+        // Fallback Coin Drawing
+        function drawFallbackCoin() {
+            ctx.save();
+            ctx.translate(size/2, size/2);
+            ctx.rotate(coinRotation += 0.02);
+            
+            // Gold gradient
+            const gradient = ctx.createRadialGradient(-25, -25, 10, 0, 0, 50);
+            gradient.addColorStop(0, '#FFD700');
+            gradient.addColorStop(1, '#D4AF37');
+            
+            // Main coin
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(0, 0, 45, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Crown
+            ctx.fillStyle = '#FFDF00';
+            ctx.beginPath();
+            ctx.moveTo(-15, -20);
+            ctx.lineTo(0, -35);
+            ctx.lineTo(15, -20);
+            ctx.lineTo(10, -20);
+            ctx.lineTo(10, -5);
+            ctx.lineTo(-10, -5);
+            ctx.lineTo(-10, -20);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Text
+            ctx.fillStyle = '#000';
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('UAScoin', 0, 15);
+            
+            ctx.restore();
         }
-        ctx.globalAlpha = star.alpha;
-        ctx.beginPath();
-        ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
-        ctx.fill();
-      });
-      ctx.globalAlpha = 1;
-    }
 
-    function drawCoin() {
-      ctx.save();
-      ctx.translate(150, 150);
-      ctx.rotate(coinRotation += 0.01);
-      ctx.translate(-75, -75);
-      ctx.drawImage(coinImg, 0, 0, 150, 150);
-      ctx.restore();
-    }
+        function drawBackground() {
+            // Space gradient
+            const gradient = ctx.createLinearGradient(0, 0, 0, size);
+            gradient.addColorStop(0, '#0a0a1a');
+            gradient.addColorStop(1, '#1a1a3a');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, size, size);
 
-    function drawScore() {
-      displayScore += (score - displayScore) * 0.1;
-      ctx.fillStyle = '#FFF';
-      ctx.font = 'bold 24px Arial';
-      ctx.textAlign = 'left';
-      ctx.fillText(`💰 ${Math.floor(displayScore)}`, 20, 40);
+            // Animated stars
+            ctx.fillStyle = 'white';
+            stars.forEach(star => {
+                star.y = (star.y + star.speed) % size;
+                ctx.globalAlpha = star.alpha;
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            ctx.globalAlpha = 1;
+        }
 
-      if (score > displayScore) {
-        ctx.shadowColor = 'gold';
-        ctx.shadowBlur = 15;
-        ctx.fillText(`💰 ${Math.floor(displayScore)}`, 20, 40);
-        ctx.shadowBlur = 0;
-      }
-    }
+        function createParticles(x, y) {
+            for(let i = 0; i < 12; i++) {
+                particles.push({
+                    x, y,
+                    size: Math.random() * 6 + 3,
+                    color: `hsl(${Math.random()*60 + 30}, 100%, 50%)`,
+                    speedX: (Math.random() - 0.5) * 8,
+                    speedY: (Math.random() - 0.5) * 8,
+                    life: 1
+                });
+            }
+        }
 
-    function createParticles(x, y, count = 15) {
-      for (let i = 0; i < count; i++) {
-        particles.push({
-          x, y,
-          size: Math.random() * 8 + 2,
-          color: `hsl(${Math.random() * 60 + 30}, 100%, 50%)`,
-          speedX: Math.random() * 6 - 3,
-          speedY: Math.random() * 6 - 3,
-          life: Math.random() * 30 + 20,
-          decay: Math.random() * 0.1 + 0.05
+        function updateParticles() {
+            particles.forEach((p, i) => {
+                p.x += p.speedX;
+                p.y += p.speedY;
+                p.life -= 0.03;
+                p.size *= 0.95;
+                
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+
+                if(p.life <= 0) particles.splice(i, 1);
+            });
+            ctx.globalAlpha = 1;
+        }
+
+        function updateScore() {
+            displayScore += (score - displayScore) * 0.1;
+            document.getElementById('scoreDisplay').textContent = Math.floor(displayScore).toLocaleString();
+        }
+
+        function gameLoop() {
+            ctx.clearRect(0, 0, size, size);
+            drawBackground();
+            
+            if(coinImg.complete) {
+                ctx.save();
+                ctx.translate(size/2, size/2);
+                ctx.rotate(coinRotation += 0.015);
+                ctx.drawImage(coinImg, -50, -50, 100, 100);
+                ctx.restore();
+            } else {
+                drawFallbackCoin();
+            }
+            
+            updateParticles();
+            updateScore();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Click Handling
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const scale = size / rect.width;
+            const x = (e.clientX - rect.left) * scale;
+            const y = (e.clientY - rect.top) * scale;
+            
+            // Check if click is within coin area
+            const dx = x - size/2;
+            const dy = y - size/2;
+            if(Math.sqrt(dx*dx + dy*dy) < 45) {
+                score += 1 + Math.floor(score/100);
+                createParticles(x, y);
+            }
         });
-      }
-    }
 
-    function updateParticles() {
-      for (let i = particles.length - 1; i >= 0; i--) {
-        const p = particles[i];
-        p.x += p.speedX;
-        p.y += p.speedY;
-        p.life -= p.decay;
-        p.size *= 0.98;
-
-        ctx.globalAlpha = p.life / 30;
-        ctx.fillStyle = p.color;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fill();
-
-        if (p.life <= 0) particles.splice(i, 1);
-      }
-      ctx.globalAlpha = 1;
-    }
-
-    function gameLoop(timestamp) {
-      const deltaTime = timestamp - lastTime;
-      lastTime = timestamp;
-
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      drawBackground();
-      drawCoin();
-      updateParticles();
-      drawScore();
-
-      requestAnimationFrame(gameLoop);
-    }
-
-    canvas.addEventListener('click', (e) => {
-      const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      const dx = x - 150;
-      const dy = y - 150;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < 75) {
-        score += 1 + Math.floor(score / 100); // Bonus every 100 clicks
-        createParticles(x, y);
-      }
-    });
-
-    coinImg.onload = () => {
-      requestAnimationFrame(gameLoop);
-    };
-  </script>
+        // Error Handling
+        coinImg.onerror = () => console.error('Failed to load coin image!');
+        gameLoop();
+    </script>
 </body>
 </html>
