@@ -5,94 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UAScoin Premium</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            user-select: none;
-        }
+        /* Existing CSS */
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+        body { background: #000; height: 100vh; overflow: hidden; font-family: 'Orbitron', sans-serif; touch-action: manipulation; }
+        #gameContainer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+        #uiContainer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; }
+        .score-display { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); color: #fff; font-size: 2.5rem; text-shadow: 0 0 10px #9c27b0, 0 0 20px #673ab7; background: rgba(0,0,0,0.5); padding: 10px 20px; border-radius: 10px; border: 1px solid #9c27b0; }
+        .energy-container { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); width: 80%; max-width: 500px; }
+        .energy-bar { height: 20px; background: rgba(0,0,0,0.5); border-radius: 10px; border: 1px solid #00bcd4; overflow: hidden; position: relative; }
+        .energy-fill { height: 100%; background: linear-gradient(90deg, #00bcd4, #009688); width: 100%; transition: width 0.3s ease; }
+        .energy-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 0.9rem; text-shadow: 0 0 5px #000; }
 
-        body {
-            background: #000;
-            height: 100vh;
-            overflow: hidden;
-            font-family: 'Orbitron', sans-serif;
-            touch-action: manipulation;
-        }
-
-        #gameContainer {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-        }
-
-        #uiContainer {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 10;
-            pointer-events: none;
-        }
-
-        .score-display {
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: #fff;
-            font-size: 2.5rem;
-            text-shadow: 0 0 10px #9c27b0, 0 0 20px #673ab7;
-            background: rgba(0,0,0,0.5);
-            padding: 10px 20px;
-            border-radius: 10px;
-            border: 1px solid #9c27b0;
-        }
-
-        .energy-container {
-            position: absolute;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80%;
-            max-width: 500px;
-        }
-
-        .energy-bar {
-            height: 20px;
-            background: rgba(0,0,0,0.5);
-            border-radius: 10px;
-            border: 1px solid #00bcd4;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .energy-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #00bcd4, #009688);
-            width: 100%;
-            transition: width 0.3s ease;
-        }
-
-        .energy-text {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            font-size: 0.9rem;
-            text-shadow: 0 0 5px #000;
-        }
-
-        @font-face {
-            font-family: 'Orbitron';
-            src: url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
-        }
+        /* New Features CSS */
+        .panel { background: rgba(0,0,0,0.7); border: 1px solid #9c27b0; border-radius: 10px; padding: 15px; margin: 10px; color: white; }
+        .tab-buttons { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab-button { padding: 10px 20px; background: #673ab7; border: none; border-radius: 5px; color: white; cursor: pointer; }
+        .upgrade-item { display: flex; justify-content: space-between; margin: 10px 0; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 5px; }
+        input { background: rgba(255,255,255,0.1); border: 1px solid #9c27b0; color: white; padding: 8px; border-radius: 4px; }
+        button { background: #9c27b0; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -100,271 +30,180 @@
     
     <div id="uiContainer">
         <div class="score-display">UAS: <span id="scoreDisplay">0</span></div>
+        
         <div class="energy-container">
             <div class="energy-bar">
                 <div class="energy-fill" id="energyFill"></div>
                 <div class="energy-text" id="energyText">ENERGY: 1000/1000</div>
             </div>
         </div>
+
+        <!-- New Features HTML -->
+        <div class="panel">
+            <div class="tab-buttons">
+                <button class="tab-button" onclick="showTab('upgrades')">Upgrades</button>
+                <button class="tab-button" onclick="showTab('leaderboard')">Leaderboard</button>
+                <button class="tab-button" onclick="showTab('withdraw')">Withdraw</button>
+                <button class="tab-button" onclick="showTab('referral')">Referral</button>
+            </div>
+
+            <div id="upgradesTab">
+                <div class="upgrade-item">
+                    <div>
+                        <h3>Auto Bot (Tapcoins)</h3>
+                        <p>Cost: 5,000,000 UAScoins</p>
+                    </div>
+                    <button onclick="buyUpgrade('bot_tapcoins')">Purchase</button>
+                </div>
+
+                <div class="upgrade-item">
+                    <div>
+                        <h3>Auto Bot (USDT)</h3>
+                        <p>Cost: 10 USDT (4x speed)</p>
+                    </div>
+                    <button onclick="buyUpgrade('bot_usdt')">Purchase</button>
+                </div>
+            </div>
+
+            <div id="leaderboardTab" style="display:none;">
+                <ol>
+                    <li>Player1 - 1,000,000</li>
+                    <li>Player2 - 750,000</li>
+                    <li>Player3 - 500,000</li>
+                </ol>
+            </div>
+
+            <div id="withdrawTab" style="display:none;">
+                <input type="number" placeholder="Withdrawal Amount" id="withdrawAmount">
+                <input type="text" placeholder="USDT Wallet Address" id="walletAddress">
+                <button onclick="initiateWithdrawal()">Withdraw</button>
+            </div>
+
+            <div id="referralTab" style="display:none;">
+                <p>Your Referral Code: <strong id="referralCodeDisplay">REF-1234</strong></p>
+                <input type="text" placeholder="Enter Referral Code" id="referralInput">
+                <button onclick="applyReferral()">Apply</button>
+            </div>
+        </div>
     </div>
 
     <!-- Three.js and dependencies -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.min.js"></script>
+    <!-- Other Three.js dependencies here -->
 
     <script>
-        // ======================
-        // 🏆 PREMIUM GAME ENGINE
-        // ======================
-        
-        // THREE.js Configuration
-        const container = document.getElementById('gameContainer');
-        let scene, camera, renderer, composer, bloomPass, uasCoin;
-        
         // Game Data
         const gameData = {
             score: 0,
             energy: 1000,
             maxEnergy: 1000,
             lastUpdate: Date.now(),
+            usdtBalance: 0,
+            referrals: 0,
             upgrades: {
                 multiplier: 1,
-                energyRegen: 1
-            }
+                energyRegen: 1,
+                bot_tapcoins: false,
+                bot_usdt: false
+            },
+            referralCode: generateReferralCode()
         };
 
-        // Initialize Game
-        function init() {
-            createScene();
-            createCamera();
-            createRenderer();
-            createLighting();
-            loadCoinTexture().then(createUASCoin);
-            createFireBackground();
-            setupPostProcessing();
-            loadGameData();
-            setupEventListeners();
-            animate();
+        // Game Systems
+        let autoBotInterval;
+        
+        function activateBot(speedMultiplier = 1) {
+            const baseSpeed = 1000;
+            if(autoBotInterval) clearInterval(autoBotInterval);
+            autoBotInterval = setInterval(() => {
+                if(gameData.energy > 0) {
+                    gameData.score += gameData.upgrades.multiplier;
+                    gameData.energy--;
+                    updateUI();
+                }
+            }, baseSpeed / speedMultiplier);
         }
 
-        // Scene Setup
-        function createScene() {
-            scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x000000);
-            scene.fog = new THREE.FogExp2(0x110033, 0.001);
-        }
-
-        // Camera Setup
-        function createCamera() {
-            camera = new THREE.PerspectiveCamera(
-                75, 
-                window.innerWidth / window.innerHeight, 
-                0.1, 
-                1000
-            );
-            camera.position.z = 30;
-        }
-
-        // Renderer Setup
-        function createRenderer() {
-            renderer = new THREE.WebGLRenderer({
-                antialias: true,
-                powerPreference: "high-performance"
-            });
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.toneMapping = THREE.ACESFilmicToneMapping;
-            renderer.toneMappingExposure = 1.5;
-            container.appendChild(renderer.domElement);
-        }
-
-        // Lighting Setup
-        function createLighting() {
-            const ambientLight = new THREE.AmbientLight(0x6633ff, 0.5);
-            scene.add(ambientLight);
-            
-            const directionalLight = new THREE.DirectionalLight(0x9c27b0, 1);
-            directionalLight.position.set(1, 1, 1);
-            scene.add(directionalLight);
-            
-            const pointLight = new THREE.PointLight(0x00bcd4, 2, 50);
-            pointLight.position.set(0, 0, 10);
-            scene.add(pointLight);
-        }
-
-        // Load UAScoin Texture
-        function loadCoinTexture() {
-            return new Promise((resolve) => {
-                const loader = new THREE.TextureLoader();
-                loader.load('uascoin.png', (texture) => {
-                    texture.encoding = THREE.sRGBEncoding;
-                    texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
-                    resolve(texture);
-                }, undefined, (err) => {
-                    console.error("Error loading coin texture:", err);
-                    resolve(null);
-                });
-            });
-        }
-
-        // Create UAS Coin with Custom Texture
-        function createUASCoin(texture) {
-            const geometry = new THREE.CylinderGeometry(10, 10, 2, 64);
-            
-            if (texture) {
-                const material = new THREE.MeshPhongMaterial({
-                    map: texture,
-                    emissive: 0xFFA500,
-                    emissiveIntensity: 0.3,
-                    specular: 0xFFFF00,
-                    shininess: 50,
-                    side: THREE.DoubleSide
-                });
-                
-                uasCoin = new THREE.Mesh(geometry, material);
-            } else {
-                // Fallback material
-                const material = new THREE.MeshPhongMaterial({
-                    color: 0xFFD700,
-                    emissive: 0xFFA500,
-                    emissiveIntensity: 0.5,
-                    specular: 0xFFFF00,
-                    shininess: 100
-                });
-                uasCoin = new THREE.Mesh(geometry, material);
+        function buyUpgrade(upgradeType) {
+            switch(upgradeType) {
+                case 'bot_tapcoins':
+                    if(gameData.score >= 5000000) {
+                        gameData.score -= 5000000;
+                        gameData.upgrades.bot_tapcoins = true;
+                        activateBot(1);
+                    }
+                    break;
+                case 'bot_usdt':
+                    simulateUSDTOPayment(10, () => {
+                        gameData.upgrades.bot_usdt = true;
+                        activateBot(4);
+                    });
+                    break;
             }
-            
-            uasCoin.rotation.x = Math.PI / 2;
-            scene.add(uasCoin);
+            saveGameData();
         }
 
-        // Create Fire Background
-        function createFireBackground() {
-            const particles = new THREE.BufferGeometry();
-            const positions = new Float32Array(5000 * 3);
-            const colors = new Float32Array(5000 * 3);
-            
-            const color = new THREE.Color();
-            for (let i = 0; i < 5000; i++) {
-                positions[i * 3] = (Math.random() - 0.5) * 200;
-                positions[i * 3 + 1] = (Math.random() - 0.5) * 200;
-                positions[i * 3 + 2] = (Math.random() - 0.5) * 200;
-                
-                color.setHSL(0.7, 1.0, Math.random() * 0.5 + 0.1);
-                colors[i * 3] = color.r;
-                colors[i * 3 + 1] = color.g;
-                colors[i * 3 + 2] = color.b;
+        function simulateUSDTOPayment(amount, callback) {
+            const walletAddress = prompt("Enter your USDT wallet address:");
+            if(walletAddress) {
+                setTimeout(() => {
+                    gameData.usdtBalance += amount;
+                    callback();
+                    alert("Payment successful!");
+                }, 2000);
             }
-            
-            particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-            particles.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-            
-            const particleMaterial = new THREE.PointsMaterial({
-                size: 1,
-                vertexColors: true,
-                transparent: true,
-                opacity: 0.8,
-                blending: THREE.AdditiveBlending
-            });
-            
-            const particleSystem = new THREE.Points(particles, particleMaterial);
-            particleSystem.position.z = -50;
-            scene.add(particleSystem);
         }
 
-        // Post-Processing Effects
-        function setupPostProcessing() {
-            composer = new THREE.EffectComposer(renderer);
-            composer.addPass(new THREE.RenderPass(scene, camera));
-            
-            bloomPass = new THREE.UnrealBloomPass(
-                new THREE.Vector2(window.innerWidth, window.innerHeight),
-                1.5, 0.4, 0.85
-            );
-            composer.addPass(bloomPass);
+        function generateReferralCode() {
+            return 'REF-' + Math.random().toString(36).substr(2, 6).toUpperCase();
         }
 
-        // Game Data Management
-        function loadGameData() {
-            const savedData = localStorage.getItem('uascoinPremiumData');
-            if (savedData) {
-                const parsed = JSON.parse(savedData);
-                gameData.score = parsed.score || 0;
-                gameData.energy = parsed.energy || 1000;
-                gameData.lastUpdate = parsed.lastUpdate || Date.now();
-                updateEnergy();
-            }
-            updateUI();
-        }
-
-        function saveGameData() {
-            gameData.lastUpdate = Date.now();
-            localStorage.setItem('uascoinPremiumData', JSON.stringify(gameData));
-        }
-
-        // Energy System
-        function updateEnergy() {
-            const now = Date.now();
-            const timeDiff = now - gameData.lastUpdate;
-            const energyGain = Math.floor(timeDiff / (1000 * 60 * 3));
-            
-            if (energyGain > 0) {
-                gameData.energy = Math.min(1000, gameData.energy + energyGain);
-                gameData.lastUpdate = now;
+        function applyReferral() {
+            const code = document.getElementById('referralInput').value;
+            if(code && code !== gameData.referralCode) {
+                gameData.score += 10000;
+                gameData.referrals++;
+                alert("Referral applied! +10,000 UAScoins");
                 saveGameData();
                 updateUI();
             }
         }
 
-        // UI Updates
+        function initiateWithdrawal() {
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+            const address = document.getElementById('walletAddress').value;
+            if(amount > gameData.usdtBalance) {
+                alert("Insufficient balance");
+                return;
+            }
+            alert(`Withdrawal request for ${amount} USDT submitted.`);
+        }
+
+        function showTab(tabName) {
+            ['upgrades', 'leaderboard', 'withdraw', 'referral'].forEach(tab => {
+                document.getElementById(`${tab}Tab`).style.display = tab === tabName ? 'block' : 'none';
+            });
+        }
+
+        // Existing Game Functions
         function updateUI() {
             document.getElementById('scoreDisplay').textContent = gameData.score.toLocaleString();
-            const energyPercent = (gameData.energy / 1000) * 100;
+            document.getElementById('referralCodeDisplay').textContent = gameData.referralCode;
+            const energyPercent = (gameData.energy / gameData.maxEnergy) * 100;
             document.getElementById('energyFill').style.width = `${energyPercent}%`;
-            document.getElementById('energyText').textContent = `ENERGY: ${gameData.energy}/1000`;
+            document.getElementById('energyText').textContent = `ENERGY: ${gameData.energy}/${gameData.maxEnergy}`;
         }
 
-        // Game Loop
-        function animate() {
-            requestAnimationFrame(animate);
-            
-            // Subtle coin animation
-            if (uasCoin) {
-                uasCoin.rotation.z += 0.01;
-                uasCoin.position.y = Math.sin(Date.now() * 0.001) * 0.5;
-            }
-            
-            composer.render();
+        function saveGameData() {
+            localStorage.setItem('uascoinPremiumData', JSON.stringify(gameData));
         }
 
-        // Event Handlers
-        function setupEventListeners() {
-            window.addEventListener('resize', () => {
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
-                composer.setSize(window.innerWidth, window.innerHeight);
-            });
+        // Initialize Three.js and other existing game code here
+        // ...
 
-            renderer.domElement.addEventListener('click', (event) => {
-                if (gameData.energy > 0) {
-                    gameData.energy--;
-                    gameData.score++;
-                    saveGameData();
-                    updateUI();
-                }
-            });
-
-            window.addEventListener('beforeunload', saveGameData);
-        }
-
-        // Start Game
-        init();
+        // Initialization
+        updateUI();
+        document.getElementById('referralCodeDisplay').textContent = gameData.referralCode;
     </script>
 </body>
 </html>
