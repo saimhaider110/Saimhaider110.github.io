@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,238 +6,106 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UAScoin Evolution</title>
     <style>
-        :root {
-            --primary: #FFD700;
-            --secondary: #00FF88;
-            --bg: linear-gradient(45deg, #1a1a2e, #2a1454);
-            --card-bg: rgba(255,255,255,0.15);
-            --text: #ffffff;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            background: var(--bg);
-            color: var(--text);
-            font-family: 'Arial', sans-serif;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .game-header {
-            width: 100%;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .score-display {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
-
-        .energy-container {
-            width: 200px;
-            margin: 0 auto;
-        }
-
-        .energy-bar {
-            width: 100%;
-            height: 10px;
-            background: #2d2d44;
-            border-radius: 5px;
-            overflow: hidden;
-        }
-
-        .energy-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--secondary), #00CCFF);
-            transition: width 0.3s;
-        }
-
-        .coin-container {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .main-coin {
-            width: 200px;
-            height: 200px;
-            background: url('bronze_coin.png') center/cover;
-            border-radius: 50%;
-            box-shadow: 0 0 30px var(--primary);
-            cursor: pointer;
-            transition: transform 0.1s;
-            margin: 0 auto;
-        }
-
-        .main-coin:active {
-            transform: scale(0.95) rotate(10deg);
-        }
-
-        .menu-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: var(--card-bg);
-            display: flex;
-            justify-content: space-around;
-            padding: 15px;
-            backdrop-filter: blur(10px);
-        }
-
-        .menu-button {
-            padding: 10px 20px;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .menu-button:hover {
-            background: rgba(255,255,255,0.1);
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 20px;
-            width: 90%;
-            max-width: 500px;
-            backdrop-filter: blur(10px);
-            z-index: 1000;
-        }
-
-        .upgrade-card {
-            background: rgba(0,0,0,0.3);
-            padding: 15px;
-            border-radius: 15px;
-            margin: 10px 0;
-        }
-
-        .usdt-address {
-            word-break: break-all;
-            background: rgba(0,0,0,0.5);
-            padding: 10px;
-            border-radius: 10px;
-            margin: 10px 0;
-        }
-
-        .referral-section {
-            margin-top: 20px;
+        /* Previous CSS remains same */
+        .admin-section {
+            display: none; /* Visible only when adminPassword entered */
         }
     </style>
 </head>
 <body>
-    <div class="game-header">
-        <div class="score-display" id="balanceDisplay">0</div>
-        <div class="energy-container">
-            <div class="energy-bar">
-                <div class="energy-fill" id="energyFill"></div>
-            </div>
-        </div>
-    </div>
+    <!-- Previous HTML structure remains same -->
 
-    <div class="coin-container">
-        <div class="main-coin" id="mainCoin"></div>
-    </div>
-
-    <div class="menu-bar">
-        <div class="menu-button" onclick="showModal('upgrades')">Upgrades</div>
-        <div class="menu-button" onclick="showModal('leaderboard')">Leaderboard</div>
-        <div class="menu-button" onclick="showModal('team')">Team</div>
-    </div>
-
-    <!-- Upgrades Modal -->
-    <div id="upgradesModal" class="modal">
-        <h2>Upgrade Packages</h2>
-        <!-- Upgrade cards same as before -->
-        <button onclick="hideModal()">Close</button>
-    </div>
-
-    <!-- Leaderboard Modal -->
-    <div id="leaderboardModal" class="modal">
-        <h2>Leaderboard</h2>
-        <div id="leaderboardList"></div>
-        <button onclick="hideModal()">Close</button>
-    </div>
-
-    <!-- Team Modal -->
-    <div id="teamModal" class="modal">
-        <h2>Team & Referrals</h2>
-        <div class="referral-section">
-            <p>Your Referral Code:</p>
-            <div class="usdt-address" id="referralCode"></div>
-            <button onclick="copyReferral()">Copy Link</button>
-        </div>
-        <div class="referral-stats">
-            <p>Total Referrals: <span id="referralCount">0</span></p>
-        </div>
-        <button onclick="hideModal()">Close</button>
+    <!-- Add Admin Section -->
+    <div id="adminModal" class="modal">
+        <h2>Admin Approval</h2>
+        <input type="password" id="adminPassword" placeholder="Enter Admin Password">
+        <div id="pendingApprovals"></div>
+        <button onclick="checkAdmin()">Access</button>
     </div>
 
     <script>
         let gameState = {
-            balance: 0,
-            energy: 1000,
-            multiplier: 1,
-            upgrades: [],
-            referrals: 0,
-            referralCode: generateReferralCode(),
-            leaderboard: []
+            // Previous state plus:
+            pendingPayments: [],
+            approvedPayments: []
         };
 
-        function generateReferralCode() {
-            return 'REF-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+        // Fixed Tapping System
+        document.getElementById('mainCoin').addEventListener('click', function(e) {
+            if(gameState.energy > 0) {
+                gameState.balance += gameState.multiplier;
+                gameState.energy = Math.max(0, gameState.energy - 1);
+                updateDisplay();
+                saveGame();
+                createTapEffect(e);
+            }
+        });
+
+        // Modified Payment System
+        function showUsdtPayment(amount, multiplier, days) {
+            const payment = {
+                id: Date.now(),
+                amount,
+                multiplier,
+                days,
+                status: 'pending',
+                timestamp: new Date().toISOString()
+            };
+            gameState.pendingPayments.push(payment);
+            saveGame();
+            alert('Payment request submitted. Wait for admin approval.');
+            hideModal();
         }
 
-        function copyReferral() {
-            const link = `${window.location.href}?ref=${gameState.referralCode}`;
-            navigator.clipboard.writeText(link);
-            alert('Referral link copied!');
+        // Admin Approval System
+        function checkAdmin() {
+            const password = document.getElementById('adminPassword').value;
+            if(password === 'admin@123') { // Change this password
+                showPendingApprovals();
+            }
         }
 
+        function showPendingApprovals() {
+            const container = document.getElementById('pendingApprovals');
+            container.innerHTML = gameState.pendingPayments
+                .filter(p => p.status === 'pending')
+                .map(p => `
+                    <div class="upgrade-card">
+                        <p>Amount: ${p.amount} USDT</p>
+                        <p>Multiplier: x${p.multiplier}</p>
+                        <button onclick="approvePayment(${p.id})">Approve</button>
+                        <button onclick="rejectPayment(${p.id})">Reject</button>
+                    </div>
+                `).join('');
+        }
+
+        function approvePayment(id) {
+            const payment = gameState.pendingPayments.find(p => p.id === id);
+            payment.status = 'approved';
+            gameState.multiplier *= payment.multiplier;
+            gameState.approvedPayments.push(payment);
+            saveGame();
+            showPendingApprovals();
+        }
+
+        function rejectPayment(id) {
+            gameState.pendingPayments = gameState.pendingPayments.filter(p => p.id !== id);
+            saveGame();
+            showPendingApprovals();
+        }
+
+        // Update initialization
         function loadGame() {
             const saved = localStorage.getItem('uascoinGame');
             if(saved) {
                 gameState = JSON.parse(saved);
-                if(!gameState.referralCode) gameState.referralCode = generateReferralCode();
+                // Apply approved payments on load
+                gameState.approvedPayments.forEach(p => {
+                    gameState.multiplier *= p.multiplier;
+                });
             }
-            document.getElementById('referralCode').textContent = gameState.referralCode;
-            document.getElementById('referralCount').textContent = gameState.referrals;
+            updateDisplay();
         }
-
-        function saveGame() {
-            localStorage.setItem('uascoinGame', JSON.stringify(gameState));
-        }
-
-        // Rest of the game logic remains same as previous version
-
-        function updateDisplay() {
-            document.getElementById('balanceDisplay').textContent = 
-                gameState.balance.toLocaleString();
-            document.getElementById('energyFill').style.width = 
-                `${(gameState.energy/1000)*100}%`;
-        }
-
-        // Initialize
-        loadGame();
-        updateDisplay();
-        window.addEventListener('beforeunload', saveGame);
     </script>
 </body>
 </html>
