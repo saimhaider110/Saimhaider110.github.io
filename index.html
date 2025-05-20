@@ -23,6 +23,7 @@
             justify-content: center;
             align-items: center;
             touch-action: manipulation;
+            overflow: hidden;
         }
 
         .container {
@@ -30,6 +31,7 @@
             max-width: 500px;
             padding: 20px;
             text-align: center;
+            position: relative;
         }
 
         .header {
@@ -40,6 +42,7 @@
             background: var(--card-bg);
             border-radius: 15px;
             margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
         .coin {
@@ -48,13 +51,14 @@
             background-size: cover;
             margin: 20px auto;
             cursor: pointer;
-            transition: transform 0.1s;
+            transition: all 0.1s;
             border-radius: 50%;
             box-shadow: 0 0 30px var(--primary-color);
+            position: relative;
         }
 
         .coin:active {
-            transform: scale(0.95);
+            transform: scale(0.95) rotate(15deg);
         }
 
         .stats {
@@ -62,6 +66,7 @@
             padding: 15px;
             border-radius: 15px;
             margin: 15px 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
         .upgrade-panel {
@@ -70,6 +75,9 @@
             padding: 15px;
             background: var(--card-bg);
             border-radius: 15px;
+            margin-top: 20px;
+            max-height: 50vh;
+            overflow-y: auto;
         }
 
         .upgrade-card {
@@ -79,6 +87,11 @@
             padding: 15px;
             background: #373755;
             border-radius: 10px;
+            transition: transform 0.2s;
+        }
+
+        .upgrade-card:hover {
+            transform: translateY(-3px);
         }
 
         .level-indicator {
@@ -88,6 +101,7 @@
             background: var(--card-bg);
             padding: 10px 15px;
             border-radius: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
         .referral-section {
@@ -95,6 +109,30 @@
             padding: 15px;
             background: var(--card-bg);
             border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        button {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background: #5b4bc4;
+        }
+
+        input {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid var(--secondary-color);
+            color: white;
+            padding: 8px;
+            border-radius: 5px;
+            margin: 5px;
         }
     </style>
 </head>
@@ -109,7 +147,7 @@
             </div>
             <div>
                 <div class="energy-bar">
-                    <div class="energy-fill" id="energyFill"></div>
+                    <div class="energy-fill" id="energyFill" style="width: 100%"></div>
                 </div>
                 <div id="energyText">Energy: 1000/1000</div>
             </div>
@@ -173,8 +211,8 @@
         };
 
         // Tapping System
-        let lastTap = Date.now();
-        document.getElementById('mainCoin').addEventListener('click', () => {
+        let lastTap = 0;
+        document.getElementById('mainCoin').addEventListener('click', (e) => {
             const now = Date.now();
             if(now - lastTap > 100 && gameState.energy > 0) {
                 gameState.balance += Math.floor(1 * gameState.multiplier);
@@ -182,6 +220,7 @@
                 lastTap = now;
                 updateGame();
                 checkLevelUp();
+                createTapEffect(e);
             }
         });
 
@@ -195,19 +234,20 @@
 
         // Boost System
         function purchaseBoost(multiplier, durationDays) {
-            const usdtAmount = multiplier === 2 ? 5 : 10;
-            if(confirm(`Confirm payment of ${usdtAmount} USDT?`)) {
+            const cost = multiplier === 2 ? 5 : 10;
+            if(confirm(`Confirm ${multiplier}x boost for ${cost} USDT?`)) {
                 gameState.multiplier *= multiplier;
                 gameState.activeBoosts.push({
                     multiplier,
                     expires: Date.now() + (durationDays * 86400000)
                 });
+                startBoostTimer(durationDays);
                 updateGame();
             }
         }
 
         function purchaseLifetimeBoost() {
-            if(confirm("Confirm payment of 50 USDT for lifetime boost?")) {
+            if(confirm("Confirm Lifetime 6x Boost (50 USDT)?")) {
                 gameState.multiplier *= 6;
                 gameState.activeBoosts.push({ multiplier: 6, expires: Infinity });
                 updateGame();
@@ -224,8 +264,8 @@
         };
 
         function checkLevelUp() {
-            const thresholds = Object.keys(levels).sort((a,b) => a-b);
-            for(let threshold of thresholds) {
+            const thresholds = Object.keys(levels).sort((a,b) => a - b);
+            for(const threshold of thresholds) {
                 if(gameState.balance >= threshold) {
                     gameState.level = levels[threshold];
                     document.getElementById('mainCoin').style.backgroundImage = 
@@ -249,7 +289,24 @@
             }
         }
 
-        // UI Update
+        // Visual Effects
+        function createTapEffect(e) {
+            const effect = document.createElement('div');
+            effect.style.position = 'absolute';
+            effect.style.width = '20px';
+            effect.style.height = '20px';
+            effect.style.background = 'radial-gradient(circle, rgba(255,215,0,0.8) 0%, rgba(255,215,0,0) 70%)';
+            effect.style.pointerEvents = 'none';
+            effect.style.left = `${e.clientX - 10}px`;
+            effect.style.top = `${e.clientY - 10}px`;
+            document.body.appendChild(effect);
+            
+            setTimeout(() => {
+                effect.remove();
+            }, 500);
+        }
+
+        // Update Game State
         function updateGame() {
             document.getElementById('balance').textContent = gameState.balance.toLocaleString();
             document.getElementById('energyFill').style.width = 
@@ -259,12 +316,18 @@
             document.getElementById('multiplier').textContent = `${gameState.multiplier}x`;
             document.getElementById('levelDisplay').textContent = gameState.level;
             document.getElementById('userReferralCode').textContent = gameState.referralCode;
+            
+            // Update active boosts display
+            const activeBoostsElement = document.getElementById('activeBoosts');
+            activeBoostsElement.textContent = gameState.activeBoosts.length > 0 
+                ? `${gameState.activeBoosts.length} Active` 
+                : "None";
         }
 
-        // Initialization
-        updateGame();
+        // Initialize Game
         document.getElementById('mainCoin').style.backgroundImage = 
             `url(${gameState.skins.bronze})`;
+        updateGame();
     </script>
 </body>
 </html>
