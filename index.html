@@ -3,207 +3,301 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UAScoin Premium</title>
+    <title>UAScoin</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* Existing CSS */
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
-        body { background: #000; height: 100vh; overflow: hidden; font-family: 'Orbitron', sans-serif; touch-action: manipulation; }
-        #gameContainer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
-        #uiContainer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; }
-        .score-display { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); color: #fff; font-size: 2.5rem; text-shadow: 0 0 10px #9c27b0, 0 0 20px #673ab7; background: rgba(0,0,0,0.5); padding: 10px 20px; border-radius: 10px; border: 1px solid #9c27b0; }
-        .energy-container { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); width: 80%; max-width: 500px; }
-        .energy-bar { height: 20px; background: rgba(0,0,0,0.5); border-radius: 10px; border: 1px solid #00bcd4; overflow: hidden; position: relative; }
-        .energy-fill { height: 100%; background: linear-gradient(90deg, #00bcd4, #009688); width: 100%; transition: width 0.3s ease; }
-        .energy-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 0.9rem; text-shadow: 0 0 5px #000; }
+        /* Modern Game Interface */
+        :root {
+            --primary-color: #FFD700;
+            --secondary-color: #6c5ce7;
+            --background: #1a1a2e;
+            --card-bg: #2d2d44;
+        }
 
-        /* New Features CSS */
-        .panel { background: rgba(0,0,0,0.7); border: 1px solid #9c27b0; border-radius: 10px; padding: 15px; margin: 10px; color: white; }
-        .tab-buttons { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab-button { padding: 10px 20px; background: #673ab7; border: none; border-radius: 5px; color: white; cursor: pointer; }
-        .upgrade-item { display: flex; justify-content: space-between; margin: 10px 0; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 5px; }
-        input { background: rgba(255,255,255,0.1); border: 1px solid #9c27b0; color: white; padding: 8px; border-radius: 4px; }
-        button { background: #9c27b0; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
+        body {
+            background: var(--background);
+            color: white;
+            font-family: 'Roboto', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header Section */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: var(--card-bg);
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .balance-box {
+            text-align: center;
+        }
+
+        .balance-label {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+
+        .balance-amount {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .energy-bar {
+            width: 120px;
+            height: 20px;
+            background: #2d2d44;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .energy-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00b894, #00cec9);
+            transition: width 0.3s ease;
+        }
+
+        /* Main Game Area */
+        .main-game {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .coin {
+            width: 200px;
+            height: 200px;
+            background: url('uascoin.png') center/cover;
+            cursor: pointer;
+            transition: transform 0.1s;
+            position: relative;
+            filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.3));
+        }
+
+        .coin:active {
+            transform: scale(0.95);
+        }
+
+        /* Bottom Navigation */
+        .nav-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            padding: 15px;
+            background: var(--card-bg);
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .nav-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            border-radius: 10px;
+            background: #373755;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .nav-btn.active {
+            background: var(--secondary-color);
+        }
+
+        .nav-btn i {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        /* Upgrades Panel */
+        .upgrades-grid {
+            display: grid;
+            gap: 10px;
+            padding: 15px;
+            background: var(--card-bg);
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .upgrade-card {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: #373755;
+            border-radius: 10px;
+        }
+
+        .upgrade-icon {
+            width: 50px;
+            height: 50px;
+            background: #6c5ce7;
+            border-radius: 10px;
+            margin-right: 15px;
+        }
+
+        .upgrade-info {
+            flex: 1;
+        }
+
+        .upgrade-price {
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        /* Progress Bars */
+        .progress-bar {
+            height: 8px;
+            background: #2d2d44;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary-color);
+            transition: width 0.3s ease;
+        }
     </style>
 </head>
 <body>
-    <div id="gameContainer"></div>
-    
-    <div id="uiContainer">
-        <div class="score-display">UAS: <span id="scoreDisplay">0</span></div>
-        
-        <div class="energy-container">
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="balance-box">
+                <div class="balance-label">UAS Balance</div>
+                <div class="balance-amount" id="balance">0</div>
+            </div>
             <div class="energy-bar">
                 <div class="energy-fill" id="energyFill"></div>
-                <div class="energy-text" id="energyText">ENERGY: 1000/1000</div>
             </div>
         </div>
 
-        <!-- New Features HTML -->
-        <div class="panel">
-            <div class="tab-buttons">
-                <button class="tab-button" onclick="showTab('upgrades')">Upgrades</button>
-                <button class="tab-button" onclick="showTab('leaderboard')">Leaderboard</button>
-                <button class="tab-button" onclick="showTab('withdraw')">Withdraw</button>
-                <button class="tab-button" onclick="showTab('referral')">Referral</button>
-            </div>
+        <!-- Main Game Area -->
+        <div class="main-game">
+            <div class="coin" id="mainCoin"></div>
+            <div class="tap-label" id="tapLabel">Tap to earn!</div>
+        </div>
 
-            <div id="upgradesTab">
-                <div class="upgrade-item">
-                    <div>
-                        <h3>Auto Bot (Tapcoins)</h3>
-                        <p>Cost: 5,000,000 UAScoins</p>
+        <!-- Bottom Navigation -->
+        <div class="nav-bar">
+            <button class="nav-btn active" data-tab="home">
+                <i class="fas fa-home"></i>
+                Home
+            </button>
+            <button class="nav-btn" data-tab="upgrades">
+                <i class="fas fa-rocket"></i>
+                Upgrades
+            </button>
+            <button class="nav-btn" data-tab="leaderboard">
+                <i class="fas fa-trophy"></i>
+                Leaderboard
+            </button>
+            <button class="nav-btn" data-tab="wallet">
+                <i class="fas fa-wallet"></i>
+                Wallet
+            </button>
+        </div>
+
+        <!-- Upgrades Panel -->
+        <div class="upgrades-grid" id="upgradesPanel" style="display: none;">
+            <div class="upgrade-card">
+                <div class="upgrade-icon"></div>
+                <div class="upgrade-info">
+                    <h3>Auto Tap Bot</h3>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 30%"></div>
                     </div>
-                    <button onclick="buyUpgrade('bot_tapcoins')">Purchase</button>
                 </div>
-
-                <div class="upgrade-item">
-                    <div>
-                        <h3>Auto Bot (USDT)</h3>
-                        <p>Cost: 10 USDT (4x speed)</p>
-                    </div>
-                    <button onclick="buyUpgrade('bot_usdt')">Purchase</button>
-                </div>
+                <div class="upgrade-price">500K UAS</div>
             </div>
-
-            <div id="leaderboardTab" style="display:none;">
-                <ol>
-                    <li>Player1 - 1,000,000</li>
-                    <li>Player2 - 750,000</li>
-                    <li>Player3 - 500,000</li>
-                </ol>
-            </div>
-
-            <div id="withdrawTab" style="display:none;">
-                <input type="number" placeholder="Withdrawal Amount" id="withdrawAmount">
-                <input type="text" placeholder="USDT Wallet Address" id="walletAddress">
-                <button onclick="initiateWithdrawal()">Withdraw</button>
-            </div>
-
-            <div id="referralTab" style="display:none;">
-                <p>Your Referral Code: <strong id="referralCodeDisplay">REF-1234</strong></p>
-                <input type="text" placeholder="Enter Referral Code" id="referralInput">
-                <button onclick="applyReferral()">Apply</button>
-            </div>
+            <!-- Add more upgrade cards -->
         </div>
     </div>
 
-    <!-- Three.js and dependencies -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <!-- Other Three.js dependencies here -->
-
     <script>
         // Game Data
-        const gameData = {
-            score: 0,
+        let gameState = {
+            balance: 0,
             energy: 1000,
             maxEnergy: 1000,
-            lastUpdate: Date.now(),
-            usdtBalance: 0,
-            referrals: 0,
             upgrades: {
-                multiplier: 1,
-                energyRegen: 1,
-                bot_tapcoins: false,
-                bot_usdt: false
-            },
-            referralCode: generateReferralCode()
+                autoTap: 0,
+                multiplier: 1
+            }
         };
 
-        // Game Systems
-        let autoBotInterval;
-        
-        function activateBot(speedMultiplier = 1) {
-            const baseSpeed = 1000;
-            if(autoBotInterval) clearInterval(autoBotInterval);
-            autoBotInterval = setInterval(() => {
-                if(gameData.energy > 0) {
-                    gameData.score += gameData.upgrades.multiplier;
-                    gameData.energy--;
-                    updateUI();
-                }
-            }, baseSpeed / speedMultiplier);
-        }
+        // Game Loop
+        let lastTapTime = 0;
+        const energyCost = 1;
+        const baseReward = 1;
 
-        function buyUpgrade(upgradeType) {
-            switch(upgradeType) {
-                case 'bot_tapcoins':
-                    if(gameData.score >= 5000000) {
-                        gameData.score -= 5000000;
-                        gameData.upgrades.bot_tapcoins = true;
-                        activateBot(1);
-                    }
-                    break;
-                case 'bot_usdt':
-                    simulateUSDTOPayment(10, () => {
-                        gameData.upgrades.bot_usdt = true;
-                        activateBot(4);
-                    });
-                    break;
-            }
-            saveGameData();
-        }
-
-        function simulateUSDTOPayment(amount, callback) {
-            const walletAddress = prompt("Enter your USDT wallet address:");
-            if(walletAddress) {
-                setTimeout(() => {
-                    gameData.usdtBalance += amount;
-                    callback();
-                    alert("Payment successful!");
-                }, 2000);
-            }
-        }
-
-        function generateReferralCode() {
-            return 'REF-' + Math.random().toString(36).substr(2, 6).toUpperCase();
-        }
-
-        function applyReferral() {
-            const code = document.getElementById('referralInput').value;
-            if(code && code !== gameData.referralCode) {
-                gameData.score += 10000;
-                gameData.referrals++;
-                alert("Referral applied! +10,000 UAScoins");
-                saveGameData();
+        document.getElementById('mainCoin').addEventListener('click', () => {
+            const now = Date.now();
+            if(now - lastTapTime > 100 && gameState.energy >= energyCost) {
+                gameState.balance += baseReward * gameState.upgrades.multiplier;
+                gameState.energy -= energyCost;
+                lastTapTime = now;
                 updateUI();
+                
+                // Add visual feedback
+                createTapEffect(event);
             }
+        });
+
+        function createTapEffect(event) {
+            const effect = document.createElement('div');
+            effect.className = 'tap-effect';
+            effect.style.left = `${event.clientX - 25}px`;
+            effect.style.top = `${event.clientY - 25}px`;
+            document.body.appendChild(effect);
+            setTimeout(() => effect.remove(), 500);
         }
 
-        function initiateWithdrawal() {
-            const amount = parseFloat(document.getElementById('withdrawAmount').value);
-            const address = document.getElementById('walletAddress').value;
-            if(amount > gameData.usdtBalance) {
-                alert("Insufficient balance");
-                return;
-            }
-            alert(`Withdrawal request for ${amount} USDT submitted.`);
-        }
-
-        function showTab(tabName) {
-            ['upgrades', 'leaderboard', 'withdraw', 'referral'].forEach(tab => {
-                document.getElementById(`${tab}Tab`).style.display = tab === tabName ? 'block' : 'none';
-            });
-        }
-
-        // Existing Game Functions
         function updateUI() {
-            document.getElementById('scoreDisplay').textContent = gameData.score.toLocaleString();
-            document.getElementById('referralCodeDisplay').textContent = gameData.referralCode;
-            const energyPercent = (gameData.energy / gameData.maxEnergy) * 100;
+            document.getElementById('balance').textContent = 
+                gameState.balance.toLocaleString();
+            
+            const energyPercent = (gameState.energy / gameState.maxEnergy) * 100;
             document.getElementById('energyFill').style.width = `${energyPercent}%`;
-            document.getElementById('energyText').textContent = `ENERGY: ${gameData.energy}/${gameData.maxEnergy}`;
         }
 
-        function saveGameData() {
-            localStorage.setItem('uascoinPremiumData', JSON.stringify(gameData));
-        }
+        // Navigation
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                // Toggle panels
+                const panels = ['home', 'upgrades', 'leaderboard', 'wallet'];
+                panels.forEach(panel => {
+                    document.getElementById(`${panel}Panel`).style.display = 
+                        btn.dataset.tab === panel ? 'block' : 'none';
+                });
+            });
+        });
 
-        // Initialize Three.js and other existing game code here
-        // ...
-
-        // Initialization
-        updateUI();
-        document.getElementById('referralCodeDisplay').textContent = gameData.referralCode;
-    </script>
-</body>
-</html>
+        // Auto Energy Regen
+        setInterval(() => {
+            if(gameState.energy < gameState.maxEnergy) {
+                gameState.energy = Math.min(
+                    gameState.maxEnergy,
+                    gameState.energy + 10
