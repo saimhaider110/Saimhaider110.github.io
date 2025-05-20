@@ -9,7 +9,7 @@
       --primary: #FFD700;
       --secondary: #00FF88;
       --bg: linear-gradient(45deg, #1a1a2e, #2a1454);
-      --card-bg: rgba(255,255,255,0.15);
+      --card-bg: rgba(255, 255, 255, 0.15);
       --text: #ffffff;
     }
 
@@ -103,7 +103,7 @@
     }
 
     .menu-button:hover {
-      background: rgba(255,255,255,0.1);
+      background: rgba(255, 255, 255, 0.1);
     }
 
     .modal {
@@ -122,20 +122,11 @@
     }
 
     .modal h2 {
-      margin-top: 10px;
-    }
-
-    .modal .close-btn {
-      position: absolute;
-      top: 10px;
-      right: 15px;
-      font-size: 1.5em;
-      cursor: pointer;
-      color: var(--text);
+      margin-bottom: 15px;
     }
 
     .upgrade-card {
-      background: rgba(0,0,0,0.3);
+      background: rgba(0, 0, 0, 0.3);
       padding: 15px;
       border-radius: 15px;
       margin: 10px 0;
@@ -143,7 +134,7 @@
 
     .usdt-address {
       word-break: break-word;
-      background: rgba(0,0,0,0.5);
+      background: rgba(0, 0, 0, 0.5);
       padding: 10px;
       border-radius: 10px;
       margin: 10px 0;
@@ -151,6 +142,22 @@
 
     .referral-section {
       margin-top: 20px;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 20px;
+      background: none;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+
+    .pending-status {
+      color: var(--primary);
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -172,58 +179,30 @@
     <div class="menu-button" onclick="showModal('upgrades')">Upgrades</div>
     <div class="menu-button" onclick="showModal('leaderboard')">Leaderboard</div>
     <div class="menu-button" onclick="showModal('team')">Team</div>
-    <div class="menu-button" onclick="showPendingApprovals()">Admin</div>
+    <div class="menu-button" onclick="showModal('pending')">Admin</div>
   </div>
 
   <!-- Modals -->
   <div id="upgradesModal" class="modal">
-    <span class="close-btn" onclick="hideModal()">×</span>
+    <button class="close-btn" onclick="hideModal()">×</button>
     <h2>Upgrade Packages</h2>
-    <div class="upgrade-card">
-      <h3>Bronze (25M UAS)</h3>
-      <p>2x Multiplier for 90 days</p>
-      <button onclick="purchaseUpgrade('bronze', 25000000, 2)">Purchase</button>
-    </div>
-    <div class="upgrade-card">
-      <h3>Silver (50M UAS)</h3>
-      <p>4x Multiplier for 90 days</p>
-      <button onclick="purchaseUpgrade('silver', 50000000, 4)">Purchase</button>
-    </div>
-    <div class="upgrade-card">
-      <h3>Gold (100M UAS)</h3>
-      <p>6x Multiplier for 90 days</p>
-      <button onclick="purchaseUpgrade('gold', 100000000, 6)">Purchase</button>
-    </div>
-    <div class="upgrade-card">
-      <h3>Diamond (8 USDT)</h3>
-      <p>4x Multiplier for 120 days</p>
-      <button onclick="showUsdtPayment(8, 4, 120)">Purchase</button>
-    </div>
-    <div class="upgrade-card">
-      <h3>Platinum (15 USDT)</h3>
-      <p>8x Multiplier for 150 days</p>
-      <button onclick="showUsdtPayment(15, 8, 150)">Purchase</button>
-    </div>
-    <div class="upgrade-card">
-      <h3>Vibranium (25 USDT)</h3>
-      <p>12x Multiplier for 180 days</p>
-      <button onclick="showUsdtPayment(25, 12, 180)">Purchase</button>
-    </div>
-    <div class="upgrade-card">
-      <h3>AutoBot</h3>
-      <p>400M UAS or 20 USDT</p>
-      <button onclick="showAutobotOptions()">Purchase</button>
-    </div>
+    <div class="upgrade-card"><h3>Bronze (25M UAS)</h3><p>2x Multiplier</p><button onclick="purchaseUpgrade('bronze', 25000000, 2)">Purchase</button></div>
+    <div class="upgrade-card"><h3>Silver (50M UAS)</h3><p>4x Multiplier</p><button onclick="purchaseUpgrade('silver', 50000000, 4)">Purchase</button></div>
+    <div class="upgrade-card"><h3>Gold (100M UAS)</h3><p>6x Multiplier</p><button onclick="purchaseUpgrade('gold', 100000000, 6)">Purchase</button></div>
+    <div class="upgrade-card"><h3>Diamond (8 USDT)</h3><p>4x Multiplier</p><button onclick="showUsdtPayment(8, 4)">Purchase</button></div>
+    <div class="upgrade-card"><h3>Platinum (15 USDT)</h3><p>8x Multiplier</p><button onclick="showUsdtPayment(15, 8)">Purchase</button></div>
+    <div class="upgrade-card"><h3>Vibranium (25 USDT)</h3><p>12x Multiplier</p><button onclick="showUsdtPayment(25, 12)">Purchase</button></div>
+    <div class="upgrade-card"><h3>AutoBot</h3><p>400M UAS or 20 USDT</p><button onclick="showAutobotOptions()">Purchase</button></div>
   </div>
 
   <div id="leaderboardModal" class="modal">
-    <span class="close-btn" onclick="hideModal()">×</span>
+    <button class="close-btn" onclick="hideModal()">×</button>
     <h2>Leaderboard</h2>
     <div id="leaderboardList"></div>
   </div>
 
   <div id="teamModal" class="modal">
-    <span class="close-btn" onclick="hideModal()">×</span>
+    <button class="close-btn" onclick="hideModal()">×</button>
     <h2>Team & Referrals</h2>
     <div class="referral-section">
       <p>Your Referral Code:</p>
@@ -236,7 +215,7 @@
   </div>
 
   <div id="pendingModal" class="modal">
-    <span class="close-btn" onclick="hideModal()">×</span>
+    <button class="close-btn" onclick="hideModal()">×</button>
     <h2>Pending Approvals</h2>
     <div id="pendingList"></div>
   </div>
@@ -257,12 +236,6 @@
       return 'REF-' + Math.random().toString(36).substr(2, 6).toUpperCase();
     }
 
-    function copyReferral() {
-      const link = `${window.location.href}?ref=${gameState.referralCode}`;
-      navigator.clipboard.writeText(link);
-      alert('Referral link copied!');
-    }
-
     function loadGame() {
       const saved = localStorage.getItem('uascoinGame');
       if (saved) {
@@ -276,6 +249,41 @@
       localStorage.setItem('uascoinGame', JSON.stringify(gameState));
     }
 
+    function updateDisplay() {
+      document.getElementById('balanceDisplay').textContent = gameState.balance.toLocaleString();
+      document.getElementById('energyFill').style.width = `${(gameState.energy / 1000) * 100}%`;
+      document.getElementById('referralCode').textContent = gameState.referralCode;
+      document.getElementById('referralCount').textContent = gameState.referrals;
+    }
+
+    function createTapEffect(e) {
+      const effect = document.createElement('div');
+      effect.style.position = 'fixed';
+      effect.style.width = '20px';
+      effect.style.height = '20px';
+      effect.style.background = 'radial-gradient(circle, rgba(255,215,0,0.8) 0%, rgba(255,215,0,0) 70%)';
+      effect.style.left = `${e.clientX - 10}px`;
+      effect.style.top = `${e.clientY - 10}px`;
+      document.body.appendChild(effect);
+      setTimeout(() => effect.remove(), 500);
+    }
+
+    function showModal(type) {
+      document.getElementById(`${type}Modal`).style.display = 'block';
+      if (type === 'pending') showPendingApprovals();
+    }
+
+    function hideModal() {
+      document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+    }
+
+    function copyReferral() {
+      const link = `${window.location.href}?ref=${gameState.referralCode}`;
+      navigator.clipboard.writeText(link);
+      alert('Referral link copied!');
+    }
+
+    // Tapping coin
     document.getElementById('mainCoin').addEventListener('click', function (e) {
       if (gameState.energy > 0) {
         gameState.balance += gameState.activeMultiplier;
@@ -286,6 +294,7 @@
       }
     });
 
+    // Regenerate energy
     setInterval(() => {
       if (gameState.energy < 1000) {
         gameState.energy++;
@@ -297,39 +306,32 @@
     function purchaseUpgrade(type, cost, multiplier) {
       if (gameState.balance >= cost) {
         gameState.balance -= cost;
-        const upgrade = {
-          type,
-          multiplier,
-          status: 'pending',
-          timestamp: Date.now()
-        };
+        const upgrade = { type, multiplier, status: 'pending', timestamp: Date.now() };
         gameState.pendingUpgrades.push(upgrade);
+        saveGame();
         alert('Upgrade submitted for admin approval');
         updateDisplay();
-        saveGame();
       } else {
         alert('Insufficient balance!');
       }
     }
 
-    function showUsdtPayment(amount, multiplier, days) {
-      const payment = {
+    function showUsdtPayment(amount, multiplier) {
+      const upgrade = {
         type: 'usdt',
         amount,
         multiplier,
-        days,
         status: 'pending',
         timestamp: Date.now(),
         address: '0x86d69358e89e1ec95b9a35828363f41d7e55d880'
       };
-      gameState.pendingUpgrades.push(payment);
-      alert(`Send ${amount} USDT to:\n${payment.address}\n(BEP20)\nAwaiting confirmation...`);
-      updateDisplay();
+      gameState.pendingUpgrades.push(upgrade);
+      alert(`Send ${amount} USDT to:\n${upgrade.address}\n(BEP20)\nAwaiting approval...`);
       saveGame();
     }
 
     function showAutobotOptions() {
-      const choice = confirm("Purchase AutoBot:\nOK = 400M UAS\nCancel = 20 USDT");
+      const choice = confirm("Purchase AutoBot for:\n1. 400M UAS (Click OK)\n2. 20 USDT (Click Cancel)");
       if (choice) {
         if (gameState.balance >= 400000000) {
           gameState.balance -= 400000000;
@@ -338,7 +340,7 @@
           alert('Insufficient balance!');
         }
       } else {
-        showUsdtPayment(20, 1, 0);
+        showUsdtPayment(20, 1);
       }
     }
 
@@ -355,54 +357,25 @@
 
     function showPendingApprovals() {
       const pending = gameState.pendingUpgrades.filter(u => u.status === 'pending');
-      document.getElementById('pendingList').innerHTML = pending.map(upg => `
+      document.getElementById('pendingList').innerHTML = pending.map(upgrade => `
         <div class="upgrade-card">
-          <p>Type: ${upg.type?.toUpperCase() || 'USDT'}</p>
-          ${upg.amount ? `<p>Amount: ${upg.amount} USDT</p>` : ''}
-          <p>Multiplier: x${upg.multiplier}</p>
-          <p>Status: ${upg.status}</p>
-          <button onclick="approveUpgrade(${upg.timestamp})">Approve</button>
+          <p>Type: ${upgrade.type.toUpperCase()}</p>
+          ${upgrade.amount ? `<p>Amount: ${upgrade.amount} USDT</p>` : ''}
+          <p>Multiplier: x${upgrade.multiplier}</p>
+          <p>Status: ${upgrade.status}</p>
+          <button onclick="approveUpgrade('${upgrade.timestamp}')">Approve</button>
         </div>
       `).join('');
-      showModal('pendingModal');
     }
 
     function approveUpgrade(timestamp) {
-      const upgrade = gameState.pendingUpgrades.find(u => u.timestamp === timestamp);
+      const upgrade = gameState.pendingUpgrades.find(u => u.timestamp == timestamp);
       upgrade.status = 'approved';
       gameState.activeMultiplier *= upgrade.multiplier;
       gameState.approvedUpgrades.push(upgrade);
-      updateDisplay();
       saveGame();
-      alert('Upgrade activated!');
-    }
-
-    function createTapEffect(e) {
-      const effect = document.createElement('div');
-      effect.style.position = 'fixed';
-      effect.style.width = '20px';
-      effect.style.height = '20px';
-      effect.style.background = 'radial-gradient(circle, rgba(255,215,0,0.8), transparent 70%)';
-      effect.style.left = `${e.clientX - 10}px`;
-      effect.style.top = `${e.clientY - 10}px`;
-      document.body.appendChild(effect);
-      setTimeout(() => effect.remove(), 500);
-    }
-
-    function showModal(type) {
-      hideModal();
-      document.getElementById(`${type}Modal`).style.display = 'block';
-    }
-
-    function hideModal() {
-      document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
-    }
-
-    function updateDisplay() {
-      document.getElementById('balanceDisplay').textContent = gameState.balance.toLocaleString();
-      document.getElementById('energyFill').style.width = `${(gameState.energy / 1000) * 100}%`;
-      document.getElementById('referralCode').textContent = gameState.referralCode;
-      document.getElementById('referralCount').textContent = gameState.referrals;
+      updateDisplay();
+      alert('Upgrade approved and activated!');
     }
 
     loadGame();
