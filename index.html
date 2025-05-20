@@ -5,186 +5,259 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>UAScoin Evolution</title>
   <style>
-    /* Added modal backdrop */
-    .modal-backdrop {
+    :root {
+      --primary: #FFD700;
+      --secondary: #00FF88;
+      --bg: linear-gradient(45deg, #1a1a2e, #2a1454);
+      --card-bg: rgba(255,255,255,0.15);
+      --text: #ffffff;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Arial', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .game-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .score-display {
+      font-size: 2.5em;
+    }
+
+    .energy-bar {
+      width: 200px;
+      height: 10px;
+      background: #2d2d44;
+      border-radius: 5px;
+      margin: 10px auto;
+      overflow: hidden;
+    }
+
+    .energy-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--secondary), #00CCFF);
+      transition: width 0.3s;
+    }
+
+    .coin-container {
+      flex-grow: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .main-coin {
+      width: 200px;
+      height: 200px;
+      background: url('https://i.imgur.com/0bXvY52.png') center/cover;
+      border-radius: 50%;
+      box-shadow: 0 0 30px var(--primary);
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+
+    .main-coin:active {
+      transform: scale(0.95) rotate(10deg);
+    }
+
+    .menu-bar {
+      display: flex;
+      justify-content: space-around;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--card-bg);
+      padding: 15px;
+      backdrop-filter: blur(10px);
+    }
+
+    .menu-button {
+      padding: 10px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .menu-button:hover {
+      background: rgba(255,255,255,0.1);
+    }
+
+    .page {
       display: none;
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 10%;
+      left: 5%;
+      width: 90%;
+      height: 80%;
+      background: var(--card-bg);
+      border-radius: 15px;
+      overflow-y: auto;
+      padding: 20px;
+      backdrop-filter: blur(8px);
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .close-button {
+      margin-top: 10px;
+      background: crimson;
+      border: none;
+      padding: 10px 15px;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .upgrade-card {
+      margin: 15px 0;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 15px;
+      border-radius: 12px;
+    }
+
+    .usdt-address {
+      word-break: break-word;
       background: rgba(0,0,0,0.5);
-      z-index: 999;
-    }
-
-    /* Improved tap effect animation */
-    @keyframes tapEffect {
-      0% { transform: scale(1); opacity: 1; }
-      100% { transform: scale(3); opacity: 0; }
-    }
-
-    /* Added active class for menu buttons */
-    .menu-button.active {
-      background: rgba(255, 255, 255, 0.2);
+      padding: 10px;
+      border-radius: 10px;
+      margin: 10px 0;
     }
   </style>
 </head>
 <body>
-  <!-- Added modal backdrop -->
-  <div class="modal-backdrop" onclick="hideModal()"></div>
+  <div class="game-header">
+    <div class="score-display" id="balanceDisplay">0</div>
+    <div class="energy-bar"><div class="energy-fill" id="energyFill"></div></div>
+  </div>
+
+  <div class="coin-container">
+    <div class="main-coin" id="mainCoin"></div>
+  </div>
+
+  <!-- Pages -->
+  <div id="upgradesPage" class="page">
+    <h2>Upgrades</h2>
+    <div class="upgrade-card">
+      <h3>Bronze (25M UAS)</h3>
+      <button onclick="purchaseUpgrade(25000000, 2)">Purchase</button>
+    </div>
+    <div class="upgrade-card">
+      <h3>Diamond (8 USDT)</h3>
+      <button onclick="showUsdtPayment(8)">Instructions</button>
+    </div>
+    <button class="close-button" onclick="closePages()">Close</button>
+  </div>
+
+  <div id="leaderboardPage" class="page">
+    <h2>Leaderboard</h2>
+    <p>Coming soon...</p>
+    <button class="close-button" onclick="closePages()">Close</button>
+  </div>
+
+  <div id="teamPage" class="page">
+    <h2>Referral Team</h2>
+    <p>Your Code:</p>
+    <div class="usdt-address" id="referralCode"></div>
+    <button onclick="copyReferral()">Copy Referral Link</button>
+    <button class="close-button" onclick="closePages()">Close</button>
+  </div>
+
+  <div id="skinsPage" class="page">
+    <h2>Coin Skins</h2>
+    <p>Coming soon...</p>
+    <button class="close-button" onclick="closePages()">Close</button>
+  </div>
+
+  <!-- Navigation -->
+  <div class="menu-bar">
+    <div class="menu-button" onclick="openPage('upgradesPage')">Upgrades</div>
+    <div class="menu-button" onclick="openPage('leaderboardPage')">Leaderboard</div>
+    <div class="menu-button" onclick="openPage('teamPage')">Referrals</div>
+    <div class="menu-button" onclick="openPage('skinsPage')">Skins</div>
+  </div>
 
   <script>
-    // Updated game state with versioning
     let gameState = {
-      version: 1,
       balance: 0,
       energy: 1000,
-      baseMultiplier: 1,
-      activeMultiplier: 1,
-      pendingUpgrades: [],
-      approvedUpgrades: [],
-      referrals: 0,
-      referralCode: generateReferralCode(),
-      autobotActive: false,
-      autobotInterval: null
+      multiplier: 1,
+      referralCode: generateReferralCode()
     };
 
-    // Improved load game with error handling
-    function loadGame() {
-      try {
-        const saved = localStorage.getItem('uascoinGame');
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          // Handle version mismatch
-          if (parsed.version === gameState.version) {
-            gameState = parsed;
-          }
-          if (!gameState.referralCode) {
-            gameState.referralCode = generateReferralCode();
-          }
-        }
-      } catch (e) {
-        console.error('Error loading game:', e);
-      }
-      checkReferral();
-      updateDisplay();
+    function generateReferralCode() {
+      return 'REF-' + Math.random().toString(36).substr(2, 6).toUpperCase();
     }
 
-    // Added referral check from URL
-    function checkReferral() {
-      const params = new URLSearchParams(window.location.search);
-      const refCode = params.get('ref');
-      if (refCode && refCode !== gameState.referralCode) {
-        gameState.referrals++;
-        saveGame();
-      }
+    function copyReferral() {
+      const link = `${window.location.href}?ref=${gameState.referralCode}`;
+      navigator.clipboard.writeText(link);
+      alert('Referral link copied!');
     }
 
-    // Improved tap effect
-    function createTapEffect(e) {
-      const effect = document.createElement('div');
-      effect.style.position = 'fixed';
-      effect.style.width = '20px';
-      effect.style.height = '20px';
-      effect.style.background = 'radial-gradient(circle, rgba(255,215,0,0.8) 0%, rgba(255,215,0,0) 70%)';
-      effect.style.left = `${e.clientX - 10}px`;
-      effect.style.top = `${e.clientY - 10}px`;
-      effect.style.pointerEvents = 'none';
-      effect.style.animation = 'tapEffect 500ms ease-out forwards';
-      document.body.appendChild(effect);
-      setTimeout(() => effect.remove(), 500);
+    function openPage(id) {
+      closePages();
+      document.getElementById(id).classList.add('active');
     }
 
-    // Updated modal handling
-    let activeModal = null;
-    function showModal(type) {
-      activeModal = type;
-      document.querySelector('.modal-backdrop').style.display = 'block';
-      document.getElementById(`${type}Modal`).style.display = 'block';
-      document.querySelector(`.menu-button`).classList.remove('active');
-      document.querySelector(`.menu-button[onclick*="${type}"]`).classList.add('active');
-      if (type === 'pending') showPendingApprovals();
+    function closePages() {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     }
 
-    function hideModal() {
-      activeModal = null;
-      document.querySelector('.modal-backdrop').style.display = 'none';
-      document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
-      document.querySelectorAll('.menu-button').forEach(b => b.classList.remove('active'));
-    }
-
-    // Improved upgrade approval system
-    function approveUpgrade(timestamp) {
-      const index = gameState.pendingUpgrades.findIndex(u => u.timestamp == timestamp);
-      if (index === -1) return;
-      
-      const upgrade = gameState.pendingUpgrades[index];
-      upgrade.status = 'approved';
-      gameState.activeMultiplier += upgrade.multiplier; // Changed to additive multiplier
-      gameState.approvedUpgrades.push(upgrade);
-      gameState.pendingUpgrades.splice(index, 1);
-      
-      saveGame();
-      updateDisplay();
-      showPendingApprovals();
-      alert('Upgrade approved and activated!');
-    }
-
-    // Updated AutoBot system
-    function activateAutoBot() {
-      if (gameState.autobotActive) return;
-      
-      gameState.autobotActive = true;
-      gameState.autobotInterval = setInterval(() => {
-        if (gameState.energy === 1000) {
-          gameState.balance += gameState.activeMultiplier * 10;
-          updateDisplay();
-          saveGame();
-        }
-      }, 5000);
-      alert('AutoBot activated!');
-      saveGame();
-    }
-
-    // Improved purchase functions
-    function purchaseUpgrade(type, cost, multiplier) {
+    function purchaseUpgrade(cost, multiplier) {
       if (gameState.balance >= cost) {
         gameState.balance -= cost;
-        gameState.pendingUpgrades.push({
-          type,
-          multiplier,
-          cost,
-          status: 'pending',
-          timestamp: Date.now(),
-          id: Math.random().toString(36).slice(2)
-        });
-        saveGame();
-        alert('Upgrade submitted for admin approval');
+        gameState.multiplier *= multiplier;
         updateDisplay();
+        alert('Upgrade applied!');
       } else {
         alert('Insufficient balance!');
       }
     }
 
-    // Updated USDT payment handling
-    function showUsdtPayment(amount, multiplier) {
-      const paymentId = Math.random().toString(36).slice(2);
-      const upgrade = {
-        type: 'usdt',
-        amount,
-        multiplier,
-        status: 'pending',
-        timestamp: Date.now(),
-        id: paymentId,
-        address: '0x86d69358e89e1ec95b9a35828363f41d7e55d880'
-      };
-      
-      gameState.pendingUpgrades.push(upgrade);
-      alert(`Send ${amount} USDT to:\n${upgrade.address}\n(BEP20)\nPayment ID: ${paymentId}`);
-      saveGame();
+    function showUsdtPayment(amount) {
+      alert(`Send ${amount} USDT to:\n0x86d69358e89e1ec95b9a35828363f41d7e55d880\n(BEP20 Network)`);
     }
 
-    // Other improvements...
+    function updateDisplay() {
+      document.getElementById('balanceDisplay').textContent = gameState.balance.toLocaleString();
+      document.getElementById('energyFill').style.width = `${(gameState.energy / 1000) * 100}%`;
+      document.getElementById('referralCode').textContent = gameState.referralCode;
+    }
+
+    document.getElementById('mainCoin').addEventListener('click', () => {
+      if (gameState.energy > 0) {
+        gameState.balance += gameState.multiplier;
+        gameState.energy--;
+        updateDisplay();
+      }
+    });
+
+    setInterval(() => {
+      if (gameState.energy < 1000) {
+        gameState.energy++;
+        updateDisplay();
+      }
+    }, 1000);
+
+    updateDisplay();
   </script>
 </body>
 </html>
