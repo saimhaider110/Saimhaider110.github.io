@@ -1,685 +1,344 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>UAScoin Evolution</title>
-  <style>
-    :root {
-      --primary: #FFD700;
-      --secondary: #00FF88;
-      --bg: linear-gradient(45deg, #1a1a2e, #2a1454);
-      --card-bg: rgba(255, 255, 255, 0.15);
-      --text: #ffffff;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UAScoin Evolution</title>
+    <style>
+        :root {
+            --primary: #FFD700;
+            --secondary: #00FF88;
+            --bg: linear-gradient(45deg, #1a1a2e, #2a1454);
+            --text: #ffffff;
+            --card-bg: rgba(255,255,255,0.1);
+        }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Arial', sans-serif;
-      height: 100vh;
-      overflow: hidden;
-    }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: Arial, sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
 
-    .page {
-      display: none;
-      flex-direction: column;
-      height: 100vh;
-      padding: 20px;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-    }
+        .page {
+            display: none;
+            padding: 20px;
+            flex-grow: 1;
+        }
 
-    .page.active {
-      display: flex;
-    }
+        .page.active {
+            display: flex;
+            flex-direction: column;
+        }
 
-    .game-header {
-      text-align: center;
-      margin-bottom: 30px;
-    }
+        .game-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
 
-    .score-display {
-      font-size: 2.5em;
-      margin-bottom: 10px;
-    }
+        .balance-display {
+            font-size: 2em;
+            margin: 10px 0;
+        }
 
-    .energy-container {
-      width: 200px;
-      margin: 0 auto;
-    }
+        .energy-bar {
+            width: 100%;
+            height: 10px;
+            background: #333;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
 
-    .energy-bar {
-      width: 100%;
-      height: 10px;
-      background: #2d2d44;
-      border-radius: 5px;
-      overflow: hidden;
-    }
+        .energy-fill {
+            height: 100%;
+            background: var(--secondary);
+            width: 50%;
+            border-radius: 5px;
+            transition: width 0.3s;
+        }
 
-    .energy-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--secondary), #00CCFF);
-      transition: width 0.3s;
-    }
+        .main-coin {
+            width: 200px;
+            height: 200px;
+            background: #FFD700;
+            border-radius: 50%;
+            margin: 20px auto;
+            box-shadow: 0 0 20px var(--primary);
+            cursor: pointer;
+        }
 
-    .coin-container {
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
+        .nav-buttons {
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 0;
+            background: var(--card-bg);
+        }
 
-    .main-coin {
-      width: 200px;
-      height: 200px;
-      background: url('bronze_coin.png') center/cover;
-      border-radius: 50%;
-      box-shadow: 0 0 30px var(--primary);
-      cursor: pointer;
-      transition: transform 0.1s;
-      margin: 0 auto;
-    }
+        .nav-button {
+            padding: 10px 20px;
+            cursor: pointer;
+        }
 
-    .main-coin:active {
-      transform: scale(0.95) rotate(10deg);
-    }
+        .upgrade-card {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
 
-    .nav-bar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: var(--card-bg);
-      display: flex;
-      justify-content: space-around;
-      padding: 15px;
-      backdrop-filter: blur(10px);
-    }
+        .usdt-address {
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            border-radius: 5px;
+            word-break: break-all;
+            font-size: 0.9em;
+        }
 
-    .nav-button {
-      padding: 10px 20px;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    .nav-button:hover {
-      background: rgba(255, 255, 255, 0.1);
-    }
-
-    .back-button {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      padding: 10px 20px;
-      cursor: pointer;
-    }
-
-    .upgrade-card {
-      background: rgba(0, 0, 0, 0.3);
-      padding: 15px;
-      border-radius: 15px;
-      margin: 10px 0;
-    }
-
-    .skin-card {
-      background: rgba(255, 255, 255, 0.1);
-      padding: 15px;
-      border-radius: 15px;
-      margin: 10px 0;
-      text-align: center;
-    }
-
-    .skin-preview {
-      width: 100px;
-      height: 100px;
-      margin: 10px auto;
-      border-radius: 50%;
-      background-size: cover;
-    }
-  </style>
+        .back-button {
+            align-self: flex-start;
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
-  <!-- Main Game Page -->
-  <div class="page active" id="gamePage">
-    <div class="game-header">
-      <div class="score-display" id="balanceDisplay">0</div>
-      <div class="energy-container">
-        <div class="energy-bar">
-          <div class="energy-fill" id="energyFill"></div>
+    <!-- Main Game Page -->
+    <div class="page active" id="mainPage">
+        <div class="game-header">
+            <div class="balance-display" id="balance">0</div>
+            <div class="energy-bar">
+                <div class="energy-fill" id="energy"></div>
+            </div>
         </div>
-      </div>
+        <div class="main-coin" id="coin"></div>
     </div>
 
-    <div class="coin-container">
-      <div class="main-coin" id="mainCoin"></div>
-    </div>
-
-    <div class="nav-bar">
-      <div class="nav-button" onclick="showPage('upgrades')">Upgrades</div>
-      <div class="nav-button" onclick="showPage('leaderboard')">Leaderboard</div>
-      <div class="nav-button" onclick="showPage('team')">Team</div>
-      <div class="nav-button" onclick="showPage('skins')">Skins</div>
-    </div>
-  </div>
-
-  <!-- Upgrades Page -->
-  <div class="page" id="upgradesPage">
-    <div class="back-button" onclick="showPage('game')">← Back</div>
-    <h2>Upgrade Packages</h2>
-    
-    <div class="upgrade-card">
-      <h3>Bronze (25M UAS)</h3>
-      <p>2x Multiplier</p>
-      <button onclick="purchaseUpgrade('bronze', 25000000, 2)">Purchase</button>
-    </div>
-    
-    <div class="upgrade-card">
-      <h3>Silver (50M UAS)</h3>
-      <p>4x Multiplier</p>
-      <button onclick="purchaseUpgrade('silver', 50000000, 4)">Purchase</button>
-    </div>
-    
-    <div class="upgrade-card">
-      <h3>Gold (100M UAS)</h3>
-      <p>6x Multiplier</p>
-      <button onclick="purchaseUpgrade('gold', 100000000, 6)">Purchase</button>
-    </div>
-  </div>
-
-  <!-- Leaderboard Page -->
-  <div class="page" id="leaderboardPage">
-    <div class="back-button" onclick="showPage('game')">← Back</div>
-    <h2>Leaderboard</h2>
-    <div id="leaderboardList"></div>
-  </div>
-
-  <!-- Team Page -->
-  <div class="page" id="teamPage">
-    <div class="back-button" onclick="showPage('game')">← Back</div>
-    <h2>Team & Referrals</h2>
-    <div class="referral-section">
-      <p>Your Referral Code:</p>
-      <div id="referralCode"></div>
-      <button onclick="copyReferral()">Copy Link</button>
-    </div>
-    <div class="referral-stats">
-      <p>Total Referrals: <span id="referralCount">0</span></p>
-    </div>
-  </div>
-
-  <!-- Skins Page -->
-  <div class="page" id="skinsPage">
-    <div class="back-button" onclick="showPage('game')">← Back</div>
-    <h2>Skin Upgrades</h2>
-    
-    <div class="skin-card">
-      <div class="skin-preview" style="background-image: url('silver_coin.png')"></div>
-      <h3>Silver Skin</h3>
-      <p>Cost: 50M UAS</p>
-      <button onclick="purchaseSkin('silver', 50000000)">Purchase</button>
-    </div>
-    
-    <div class="skin-card">
-      <div class="skin-preview" style="background-image: url('gold_coin.png')"></div>
-      <h3>Golden Skin</h3>
-      <p>Cost: 100M UAS</p>
-      <button onclick="purchaseSkin('gold', 100000000)">Purchase</button>
-    </div>
-  </div>
-
-  <script>
-    let gameState = {
-      balance: 0,
-      energy: 1000,
-      multiplier: 1,
-      referrals: 0,
-      referralCode: generateReferralCode(),
-      activeSkin: 'bronze',
-      upgrades: [],
-      skins: []
-    };
-
-    function generateReferralCode() {
-      return 'REF-' + Math.random().toString(36).substr(2, 6).toUpperCase();
-    }
-
-    function loadGame() {
-      const saved = localStorage.getItem('uascoinGame');
-      if (saved) {
-        gameState = JSON.parse(saved);
-        if (!gameState.referralCode) gameState.referralCode = generateReferralCode();
-      }
-      updateDisplay();
-    }
-
-    function saveGame() {
-      localStorage.setItem('uascoinGame', JSON.stringify(gameState));
-    }
-
-    function showPage(page) {
-      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-      document.getElementById(page + 'Page').classList.add('active');
-    }
-
-    function updateDisplay() {
-      document.getElementById('balanceDisplay').textContent = gameState.balance.toLocaleString();
-      document.getElementById('energyFill').style.width = `${(gameState.energy / 1000) * 100}%`;
-      document.getElementById('referralCode').textContent = gameState.referralCode;
-      document.getElementById('referralCount').textContent = gameState.referrals;
-      
-      // Update coin skin
-      document.getElementById('mainCoin').style.backgroundImage = 
-        `url('${gameState.activeSkin}_coin.png')`;
-    }
-
-    // Coin tapping mechanics
-    document.getElementById('mainCoin').addEventListener('click', function(e) {
-      if (gameState.energy > 0) {
-        gameState.balance += gameState.multiplier;
-        gameState.energy--;
-        updateDisplay();
-        saveGame();
-      }
-    });
-
-    // Energy regeneration
-    setInterval(() => {
-      if (gameState.energy < 1000) {
-        gameState.energy++;
-        updateDisplay();
-        saveGame();
-      }
-    }, 1000);
-
-    function purchaseUpgrade(type, cost, multiplier) {
-      if (gameState.balance >= cost) {
-        gameState.balance -= cost;
-        gameState.multiplier += multiplier;
-        gameState.upgrades.push(type);
-        alert('Upgrade purchased!');
-        saveGame();
-        updateDisplay();
-      } else {
-        alert('Insufficient balance!');
-      }
-    }
-
-    function purchaseSkin(type, cost) {
-      if (gameState.balance >= cost) {
-        gameState.balance -= cost;
-        gameState.activeSkin = type;
-        gameState.skins.push(type);
-        alert('Skin purchased!');
-        saveGame();
-        updateDisplay();
-      } else {
-        alert('Insufficient balance!');
-      }
-    }
-
-    function copyReferral() {
-      const link = `${window.location.href}?ref=${gameState.referralCode}`;
-      navigator.clipboard.writeText(link);
-      alert('Referral link copied!');
-    }
-
-    // Initial load
-    loadGame();
-    window.addEventListener('beforeunload', saveGame);
-  </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>UAScoin Evolution</title>
-  <style>
-    :root {
-      --primary: #FFD700;
-      --secondary: #00FF88;
-      --bg: linear-gradient(45deg, #1a1a2e, #2a1454);
-      --card-bg: rgba(255, 255, 255, 0.15);
-      --text: #ffffff;
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Arial', sans-serif;
-      height: 100vh;
-      overflow: hidden;
-    }
-
-    .page {
-      display: none;
-      flex-direction: column;
-      height: 100vh;
-      padding: 20px;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-    }
-
-    .page.active {
-      display: flex;
-    }
-
-    .game-header {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-
-    .score-display {
-      font-size: 2.5em;
-      margin-bottom: 10px;
-    }
-
-    .energy-container {
-      width: 200px;
-      margin: 0 auto;
-    }
-
-    .energy-bar {
-      width: 100%;
-      height: 10px;
-      background: #2d2d44;
-      border-radius: 5px;
-      overflow: hidden;
-    }
-
-    .energy-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--secondary), #00CCFF);
-      transition: width 0.3s;
-    }
-
-    .coin-container {
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-
-    .main-coin {
-      width: 200px;
-      height: 200px;
-      background: url('bronze_coin.png') center/cover;
-      border-radius: 50%;
-      box-shadow: 0 0 30px var(--primary);
-      cursor: pointer;
-      transition: transform 0.1s;
-      margin: 0 auto;
-    }
-
-    .main-coin:active {
-      transform: scale(0.95) rotate(10deg);
-    }
-
-    .nav-bar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: var(--card-bg);
-      display: flex;
-      justify-content: space-around;
-      padding: 15px;
-      backdrop-filter: blur(10px);
-    }
-
-    .nav-button {
-      padding: 10px 20px;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    .nav-button:hover {
-      background: rgba(255, 255, 255, 0.1);
-    }
-
-    .back-button {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      padding: 10px 20px;
-      cursor: pointer;
-    }
-
-    .upgrade-card {
-      background: rgba(0, 0, 0, 0.3);
-      padding: 15px;
-      border-radius: 15px;
-      margin: 10px 0;
-    }
-
-    .skin-card {
-      background: rgba(255, 255, 255, 0.1);
-      padding: 15px;
-      border-radius: 15px;
-      margin: 10px 0;
-      text-align: center;
-    }
-
-    .skin-preview {
-      width: 100px;
-      height: 100px;
-      margin: 10px auto;
-      border-radius: 50%;
-      background-size: cover;
-    }
-  </style>
-</head>
-<body>
-  <!-- Main Game Page -->
-  <div class="page active" id="gamePage">
-    <div class="game-header">
-      <div class="score-display" id="balanceDisplay">0</div>
-      <div class="energy-container">
-        <div class="energy-bar">
-          <div class="energy-fill" id="energyFill"></div>
+    <!-- Upgrades Page -->
+    <div class="page" id="upgradesPage">
+        <button class="back-button" onclick="showPage('main')">← Back</button>
+        <h2>UAS Packages</h2>
+        <div class="upgrade-card">
+            <h3>Bronze Package</h3>
+            <p>25M UAS | 2x Multiplier (90 days)</p>
+            <button onclick="purchaseUASUpgrade(25000000, 2, 90)">Purchase</button>
         </div>
-      </div>
+        <div class="upgrade-card">
+            <h3>Silver Package</h3>
+            <p>50M UAS | 4x Multiplier (90 days)</p>
+            <button onclick="purchaseUASUpgrade(50000000, 4, 90)">Purchase</button>
+        </div>
+        <div class="upgrade-card">
+            <h3>Gold Package</h3>
+            <p>100M UAS | 6x Multiplier (90 days)</p>
+            <button onclick="purchaseUASUpgrade(100000000, 6, 90)">Purchase</button>
+        </div>
+
+        <h2>USDT Packages</h2>
+        <div class="upgrade-card">
+            <h3>Diamond Package</h3>
+            <p>8 USDT | 4x Multiplier (120 days)</p>
+            <button onclick="showUsdtPayment(8, 4, 120)">Purchase</button>
+        </div>
+        <div class="upgrade-card">
+            <h3>Platinum Package</h3>
+            <p>15 USDT | 8x Multiplier (150 days)</p>
+            <button onclick="showUsdtPayment(15, 8, 150)">Purchase</button>
+        </div>
+        <div class="upgrade-card">
+            <h3>Vibranium Package</h3>
+            <p>25 USDT | 12x Multiplier (180 days)</p>
+            <button onclick="showUsdtPayment(25, 12, 180)">Purchase</button>
+        </div>
+
+        <h2>AutoBot</h2>
+        <div class="upgrade-card">
+            <p>400M UAS or 20 USDT</p>
+            <button onclick="purchaseAutobot()">Purchase AutoBot</button>
+        </div>
     </div>
 
-    <div class="coin-container">
-      <div class="main-coin" id="mainCoin"></div>
+    <!-- Admin Approval Page -->
+    <div class="page" id="adminPage">
+        <button class="back-button" onclick="showPage('main')">← Back</button>
+        <h2>Pending Approvals</h2>
+        <div id="pendingList"></div>
     </div>
 
-    <div class="nav-bar">
-      <div class="nav-button" onclick="showPage('upgrades')">Upgrades</div>
-      <div class="nav-button" onclick="showPage('leaderboard')">Leaderboard</div>
-      <div class="nav-button" onclick="showPage('team')">Team</div>
-      <div class="nav-button" onclick="showPage('skins')">Skins</div>
+    <div class="nav-buttons">
+        <div class="nav-button" onclick="showPage('main')">Game</div>
+        <div class="nav-button" onclick="showPage('upgrades')">Upgrades</div>
+        <div class="nav-button" onclick="showPage('admin')">Admin</div>
     </div>
-  </div>
 
-  <!-- Upgrades Page -->
-  <div class="page" id="upgradesPage">
-    <div class="back-button" onclick="showPage('game')">← Back</div>
-    <h2>Upgrade Packages</h2>
-    
-    <div class="upgrade-card">
-      <h3>Bronze (25M UAS)</h3>
-      <p>2x Multiplier</p>
-      <button onclick="purchaseUpgrade('bronze', 25000000, 2)">Purchase</button>
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="modal">
+        <div class="modal-content">
+            <h2>USDT Payment</h2>
+            <p>Send exact amount to:</p>
+            <div class="usdt-address">0x86d69358e89e1ec95b9a35828363f41d7e55d880</div>
+            <p>BEP20 Network Only</p>
+            <button onclick="submitPayment()">I've Paid</button>
+            <button onclick="hideModal()">Cancel</button>
+        </div>
     </div>
-    
-    <div class="upgrade-card">
-      <h3>Silver (50M UAS)</h3>
-      <p>4x Multiplier</p>
-      <button onclick="purchaseUpgrade('silver', 50000000, 4)">Purchase</button>
-    </div>
-    
-    <div class="upgrade-card">
-      <h3>Gold (100M UAS)</h3>
-      <p>6x Multiplier</p>
-      <button onclick="purchaseUpgrade('gold', 100000000, 6)">Purchase</button>
-    </div>
-  </div>
 
-  <!-- Leaderboard Page -->
-  <div class="page" id="leaderboardPage">
-    <div class="back-button" onclick="showPage('game')">← Back</div>
-    <h2>Leaderboard</h2>
-    <div id="leaderboardList"></div>
-  </div>
+    <script>
+        let gameState = {
+            balance: 0,
+            energy: 1000,
+            multiplier: 1,
+            activePackages: [],
+            pendingPayments: [],
+            autobot: false,
+            lastUpdate: Date.now()
+        };
 
-  <!-- Team Page -->
-  <div class="page" id="teamPage">
-    <div class="back-button" onclick="showPage('game')">← Back</div>
-    <h2>Team & Referrals</h2>
-    <div class="referral-section">
-      <p>Your Referral Code:</p>
-      <div id="referralCode"></div>
-      <button onclick="copyReferral()">Copy Link</button>
-    </div>
-    <div class="referral-stats">
-      <p>Total Referrals: <span id="referralCount">0</span></p>
-    </div>
-  </div>
+        // Load/Save System
+        function loadGame() {
+            const saved = localStorage.getItem('uascoinGame');
+            if(saved) gameState = JSON.parse(saved);
+            calculateOfflineEarnings();
+            updateDisplay();
+        }
 
-  <!-- Skins Page -->
-  <div class="page" id="skinsPage">
-    <div class="back-button" onclick="showPage('game')">← Back</div>
-    <h2>Skin Upgrades</h2>
-    
-    <div class="skin-card">
-      <div class="skin-preview" style="background-image: url('silver_coin.png')"></div>
-      <h3>Silver Skin</h3>
-      <p>Cost: 50M UAS</p>
-      <button onclick="purchaseSkin('silver', 50000000)">Purchase</button>
-    </div>
-    
-    <div class="skin-card">
-      <div class="skin-preview" style="background-image: url('gold_coin.png')"></div>
-      <h3>Golden Skin</h3>
-      <p>Cost: 100M UAS</p>
-      <button onclick="purchaseSkin('gold', 100000000)">Purchase</button>
-    </div>
-  </div>
+        function saveGame() {
+            gameState.lastUpdate = Date.now();
+            localStorage.setItem('uascoinGame', JSON.stringify(gameState));
+        }
 
-  <script>
-    let gameState = {
-      balance: 0,
-      energy: 1000,
-      multiplier: 1,
-      referrals: 0,
-      referralCode: generateReferralCode(),
-      activeSkin: 'bronze',
-      upgrades: [],
-      skins: []
-    };
+        // Game Mechanics
+        function updateDisplay() {
+            document.getElementById('balance').textContent = gameState.balance.toLocaleString();
+            document.getElementById('energy').style.width = `${(gameState.energy/1000)*100}%`;
+        }
 
-    function generateReferralCode() {
-      return 'REF-' + Math.random().toString(36).substr(2, 6).toUpperCase();
-    }
+        function calculateMultiplier() {
+            return gameState.activePackages.reduce((acc, pkg) => acc + pkg.multiplier, 1);
+        }
 
-    function loadGame() {
-      const saved = localStorage.getItem('uascoinGame');
-      if (saved) {
-        gameState = JSON.parse(saved);
-        if (!gameState.referralCode) gameState.referralCode = generateReferralCode();
-      }
-      updateDisplay();
-    }
+        // Purchasing System
+        function purchaseUASUpgrade(cost, multiplier, days) {
+            if(gameState.balance >= cost) {
+                gameState.balance -= cost;
+                activatePackage(multiplier, days);
+                saveGame();
+                updateDisplay();
+            } else {
+                alert('Insufficient UAS balance!');
+            }
+        }
 
-    function saveGame() {
-      localStorage.setItem('uascoinGame', JSON.stringify(gameState));
-    }
+        function showUsdtPayment(amount, multiplier, days) {
+            const payment = {
+                amount,
+                multiplier,
+                days,
+                timestamp: Date.now(),
+                status: 'pending'
+            };
+            gameState.pendingPayments.push(payment);
+            alert(`Send ${amount} USDT to:\n0x86d69358e89e1ec95b9a35828363f41d7e55d880\nBEP20 Network`);
+            saveGame();
+        }
 
-    function showPage(page) {
-      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-      document.getElementById(page + 'Page').classList.add('active');
-    }
+        function activatePackage(multiplier, days) {
+            const expiration = Date.now() + (days * 86400000);
+            gameState.activePackages.push({ multiplier, expiration });
+            gameState.multiplier = calculateMultiplier();
+        }
 
-    function updateDisplay() {
-      document.getElementById('balanceDisplay').textContent = gameState.balance.toLocaleString();
-      document.getElementById('energyFill').style.width = `${(gameState.energy / 1000) * 100}%`;
-      document.getElementById('referralCode').textContent = gameState.referralCode;
-      document.getElementById('referralCount').textContent = gameState.referrals;
-      
-      // Update coin skin
-      document.getElementById('mainCoin').style.backgroundImage = 
-        `url('${gameState.activeSkin}_coin.png')`;
-    }
+        // AutoBot System
+        function purchaseAutobot() {
+            const useUSDT = confirm("Purchase AutoBot with:\nOK - 400M UAS\nCancel - 20 USDT");
+            
+            if(useUSDT) {
+                if(gameState.balance >= 400000000) {
+                    gameState.balance -= 400000000;
+                    activateAutobot();
+                } else {
+                    alert('Insufficient UAS balance!');
+                }
+            } else {
+                showUsdtPayment(20, 0, 0);
+            }
+        }
 
-    // Coin tapping mechanics
-    document.getElementById('mainCoin').addEventListener('click', function(e) {
-      if (gameState.energy > 0) {
-        gameState.balance += gameState.multiplier;
-        gameState.energy--;
-        updateDisplay();
-        saveGame();
-      }
-    });
+        function activateAutobot() {
+            gameState.autobot = true;
+            setInterval(() => {
+                if(gameState.energy === 1000) {
+                    gameState.balance += gameState.multiplier * 10;
+                    updateDisplay();
+                    saveGame();
+                }
+            }, 5000);
+        }
 
-    // Energy regeneration
-    setInterval(() => {
-      if (gameState.energy < 1000) {
-        gameState.energy++;
-        updateDisplay();
-        saveGame();
-      }
-    }, 1000);
+        // Admin System
+        function approvePayment(timestamp) {
+            const index = gameState.pendingPayments.findIndex(p => p.timestamp === timestamp);
+            const payment = gameState.pendingPayments[index];
+            activatePackage(payment.multiplier, payment.days);
+            gameState.pendingPayments.splice(index, 1);
+            saveGame();
+            updatePendingList();
+        }
 
-    function purchaseUpgrade(type, cost, multiplier) {
-      if (gameState.balance >= cost) {
-        gameState.balance -= cost;
-        gameState.multiplier += multiplier;
-        gameState.upgrades.push(type);
-        alert('Upgrade purchased!');
-        saveGame();
-        updateDisplay();
-      } else {
-        alert('Insufficient balance!');
-      }
-    }
+        function updatePendingList() {
+            const list = document.getElementById('pendingList');
+            list.innerHTML = gameState.pendingPayments.map(payment => `
+                <div class="upgrade-card">
+                    <p>${payment.amount} USDT - x${payment.multiplier}</p>
+                    <button onclick="approvePayment(${payment.timestamp})">Approve</button>
+                </div>
+            `).join('');
+        }
 
-    function purchaseSkin(type, cost) {
-      if (gameState.balance >= cost) {
-        gameState.balance -= cost;
-        gameState.activeSkin = type;
-        gameState.skins.push(type);
-        alert('Skin purchased!');
-        saveGame();
-        updateDisplay();
-      } else {
-        alert('Insufficient balance!');
-      }
-    }
+        // Offline Earnings
+        function calculateOfflineEarnings() {
+            const offlineTime = Date.now() - gameState.lastUpdate;
+            if(gameState.autobot && gameState.energy === 1000) {
+                const earnings = Math.floor(offlineTime / 5000) * gameState.multiplier * 10;
+                gameState.balance += earnings;
+            }
+        }
 
-    function copyReferral() {
-      const link = `${window.location.href}?ref=${gameState.referralCode}`;
-      navigator.clipboard.writeText(link);
-      alert('Referral link copied!');
-    }
+        // Event Listeners
+        document.getElementById('coin').addEventListener('click', () => {
+            if(gameState.energy > 0) {
+                gameState.balance += gameState.multiplier;
+                gameState.energy--;
+                updateDisplay();
+                saveGame();
+            }
+        });
 
-    // Initial load
-    loadGame();
-    window.addEventListener('beforeunload', saveGame);
-  </script>
+        setInterval(() => {
+            if(gameState.energy < 1000) {
+                gameState.energy++;
+                updateDisplay();
+                saveGame();
+            }
+        }, 1000);
+
+        // Navigation
+        function showPage(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(`${page}Page`).classList.add('active');
+            if(page === 'admin') updatePendingList();
+        }
+
+        // Initialize
+        loadGame();
+        window.addEventListener('beforeunload', saveGame);
+    </script>
 </body>
 </html>
