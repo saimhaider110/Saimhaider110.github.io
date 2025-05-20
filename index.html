@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UAScoin - TapSwap Style</title>
+    <title>UAScoin Premium</title>
     <style>
         :root {
             --primary: #FFD700;
             --secondary: #00FF88;
-            --bg: #0A0A1A;
-            --card-bg: #1A1A2E;
+            --bg: linear-gradient(135deg, #2a1454, #1a1a2e);
+            --card-bg: rgba(255,255,255,0.1);
+            --text: #ffffff;
         }
 
         * {
@@ -21,253 +22,246 @@
 
         body {
             background: var(--bg);
-            color: white;
+            color: var(--text);
             font-family: 'Arial', sans-serif;
             height: 100vh;
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .game-area {
             display: flex;
             flex-direction: column;
             align-items: center;
-            touch-action: manipulation;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 500px;
-            padding: 20px;
-            position: relative;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            margin-bottom: 30px;
-        }
-
-        .stats {
-            background: var(--card-bg);
-            padding: 15pxpx;
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
         .coin {
             width: 200px;
             height: 200px;
             background: url('bronze_coin.png') center/cover;
-            margin: 20px auto;
+            margin: 20px 0;
             cursor: pointer;
             border-radius: 50%;
             box-shadow: 0 0 30px var(--primary);
             transition: transform 0.1s;
-            position: relative;
         }
 
         .coin:active {
             transform: scale(0.95) rotate(10deg);
         }
 
-        .energy-bar {
-            width: 200px;
-            height: 10px;
-            background: #2d2d44;
-            border-radius: 5px;
-            margin: 20px auto;
-            overflow: hidden;
-        }
-
-        .energy-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--secondary), #00CCFF);
-            transition: width 0.3s;
-        }
-
-        .upgrades-panel {
+        .side-panel {
             background: var(--card-bg);
-            padding: 20px;
             border-radius: 20px;
-            margin-top: 30px;
-            max-height: 50vh;
-            overflow-y: auto;
+            padding: 20px;
+            backdrop-filter: blur(10px);
         }
 
-        .boost-card {
-            background: #2d4059;
+        .tab-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: var(--secondary);
+            color: #000;
+        }
+
+        .upgrade-card {
+            background: rgba(0,0,0,0.3);
             padding: 15px;
             border-radius: 15px;
             margin: 10px 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
 
-        .level-badge {
-            position: absolute;
-            top: 20px;
+        .wallet-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 15px;
+        }
+
+        .team-section {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
             right: 20px;
-            background: var(--primary);
-            color: #000;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 0.9rem;
-        }
-
-        button {
-            background: var(--secondary);
-            color: #000;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: opacity 0.2s;
-        }
-
-        button:active {
-            opacity: 0.8;
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 15px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="level-badge" id="levelBadge">Bronze</div>
-        
-        <div class="header">
-            <div class="stats">
-                <h2>UAS: <span id="balance">0</span></h2>
-                <div class="energy-bar">
-                    <div class="energy-fill" id="energyFill"></div>
-                </div>
-                <p>Multiplier: <span id="multiplier">1x</span></p>
-            </div>
-        </div>
-
+    <div class="game-area">
         <div class="coin" id="mainCoin"></div>
-
-        <div class="upgrades-panel">
-            <div class="boost-card">
-                <div>
-                    <h4>2x Multiplier (3 Months)</h4>
-                    <p>Cost: 5 USDT</p>
-                </div>
-                <button onclick="buyBoost(2, 90)">Buy</button>
-            </div>
-            
-            <div class="boost-card">
-                <div>
-                    <h4>6x Multiplier (6 Months)</h4>
-                    <p>Cost: 10 USDT</p>
-                </div>
-                <button onclick="buyBoost(6, 180)">Buy</button>
-            </div>
-            
-            <div class="boost-card">
-                <div>
-                    <h4>Lifetime Multiplier</h4>
-                    <p>Cost: 50 USDT</p>
-                </div>
-                <button onclick="buyLifetime()">Buy</button>
+        <div class="stats">
+            <h2>UAS: <span id="balance">0</span></h2>
+            <div class="energy-bar">
+                <div class="energy-fill" id="energyFill"></div>
             </div>
         </div>
     </div>
 
+    <div class="side-panel">
+        <div class="tab-container">
+            <div class="tab active" onclick="showTab('upgrades')">Upgrades</div>
+            <div class="tab" onclick="showTab('leaderboard')">Leaderboard</div>
+            <div class="tab" onclick="showTab('wallet')">Wallet</div>
+        </div>
+
+        <div id="upgradesTab">
+            <div class="upgrade-card">
+                <h3>2x Speed (200M Coins)</h3>
+                <button onclick="buyUpgrade('2x', 200000000)">Purchase</button>
+            </div>
+            <div class="upgrade-card">
+                <h3>3x Speed (500M Coins)</h3>
+                <button onclick="buyUpgrade('3x', 500000000)">Purchase</button>
+            </div>
+            <div class="upgrade-card">
+                <h3>AutoBot Basic (1 day)</h3>
+                <button onclick="buySubscription('autobot-basic', 1000000)">10 USDT</button>
+            </div>
+            <div class="upgrade-card">
+                <h3>AutoBot Pro (7 days)</h3>
+                <button onclick="buySubscription('autobot-pro', 5000000)">50 USDT</button>
+            </div>
+        </div>
+
+        <div id="leaderboardTab" style="display: none;">
+            <!-- Leaderboard content -->
+        </div>
+
+        <div id="walletTab" style="display: none;">
+            <div class="wallet-section">
+                <button onclick="connectWallet()">Connect Wallet</button>
+                <div id="walletAddress"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="team-section">
+        <div>CEO: John Doe</div>
+        <div>CTO: Jane Smith</div>
+        <div>CMO: Mike Johnson</div>
+    </div>
+
     <script>
-        const game = {
+        // Database Simulation (Use real database in production)
+        let gameState = {
             balance: 0,
             energy: 1000,
             multiplier: 1,
-            level: 'Bronze',
-            levels: {
-                bronze: { threshold: 0, image: 'bronze_coin.png' },
-                silver: { threshold: 10000, image: 'silver_coin.png' },
-                gold: { threshold: 100000, image: 'gold_coin.png' },
-                diamond: { threshold: 1000000, image: 'diamond_coin.png' },
-                platinum: { threshold: 50000000, image: 'platinum_coin.png' }
-            }
+            upgrades: [],
+            subscriptions: [],
+            wallet: null
         };
 
+        // Load saved game state
+        function loadGameState() {
+            const saved = localStorage.getItem('uascoinGameState');
+            if(saved) {
+                gameState = JSON.parse(saved);
+                gameState.subscriptions.forEach(sub => activateSubscription(sub));
+            }
+        }
+
+        // Save game state
+        function saveGameState() {
+            localStorage.setItem('uascoinGameState', JSON.stringify(gameState));
+        }
+
         // Tapping System
-        let lastTap = 0;
-        document.getElementById('mainCoin').addEventListener('click', (e) => {
-            const now = Date.now();
-            if(now - lastTap > 100 && game.energy > 0) {
-                game.balance += game.multiplier;
-                game.energy--;
-                lastTap = now;
+        document.getElementById('mainCoin').addEventListener('click', () => {
+            if(gameState.energy > 0) {
+                gameState.balance += gameState.multiplier;
+                gameState.energy--;
                 updateGame();
-                checkLevelUp();
-                createTapEffect(e);
+                saveGameState();
             }
         });
 
-        // Energy System
-        setInterval(() => {
-            if(game.energy < 1000) {
-                game.energy = Math.min(game.energy + 10, 1000);
+        // Upgrade System
+        function buyUpgrade(type, cost) {
+            if(gameState.balance >= cost) {
+                gameState.balance -= cost;
+                gameState.multiplier *= parseInt(type.replace('x', ''));
+                gameState.upgrades.push(type);
                 updateGame();
-            }
-        }, 3000);
-
-        // Level System
-        function checkLevelUp() {
-            const levels = Object.entries(game.levels).reverse();
-            for(const [levelName, levelData] of levels) {
-                if(game.balance >= levelData.threshold) {
-                    if(game.level !== levelName) {
-                        game.level = levelName;
-                        document.getElementById('mainCoin').style.backgroundImage = 
-                            `url(${levelData.image})`;
-                        document.getElementById('levelBadge').textContent = 
-                            levelName.charAt(0).toUpperCase() + levelName.slice(1);
-                    }
-                    break;
-                }
+                saveGameState();
             }
         }
 
-        // Boost System
-        function buyBoost(multiplier, days) {
-            if(confirm(`Confirm ${multiplier}x boost purchase?`)) {
-                game.multiplier *= multiplier;
+        // Subscription System
+        function buySubscription(type, cost) {
+            if(confirm(`Confirm purchase of ${type} for ${cost} USDT?`)) {
+                const subscription = {
+                    type,
+                    cost,
+                    expires: Date.now() + (type.includes('basic') ? 86400000 : 604800000)
+                };
+                
+                gameState.subscriptions.push(subscription);
+                activateSubscription(subscription);
+                saveGameState();
                 updateGame();
             }
         }
 
-        function buyLifetime() {
-            if(confirm("Confirm lifetime 6x boost?")) {
-                game.multiplier *= 6;
+        function activateSubscription(sub) {
+            const interval = setInterval(() => {
+                gameState.balance += gameState.multiplier * 10;
                 updateGame();
-            }
+                saveGameState();
+            }, 1000);
+
+            setTimeout(() => {
+                clearInterval(interval);
+                gameState.subscriptions = gameState.subscriptions.filter(s => s !== sub);
+                saveGameState();
+            }, sub.expires - Date.now());
         }
 
-        // Visual Effects
-        function createTapEffect(e) {
-            const effect = document.createElement('div');
-            effect.style.position = 'fixed';
-            effect.style.width = '20px';
-            effect.style.height = '20px';
-            effect.style.background = 'radial-gradient(circle, rgba(255,215,0,0.8) 0%, rgba(255,215,0,0) 70%)';
-            effect.style.left = `${e.clientX - 10}px`;
-            effect.style.top = `${e.clientY - 10}px`;
-            document.body.appendChild(effect);
-            
-            setTimeout(() => effect.remove(), 500);
+        // Wallet System
+        function connectWallet() {
+            // Simulated wallet connection
+            gameState.wallet = '0x' + Math.random().toString(36).substr(2, 20);
+            document.getElementById('walletAddress').textContent = gameState.wallet;
+            saveGameState();
         }
 
-        // Update Game
+        // Tab System
+        function showTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll(`#${tabName}Tab`).forEach(tab => tab.style.display = 'block');
+            event.target.classList.add('active');
+        }
+
+        // Update Display
         function updateGame() {
-            document.getElementById('balance').textContent = 
-                game.balance.toLocaleString();
-            document.getElementById('energyFill').style.width = 
-                `${(game.energy / 1000) * 100}%`;
-            document.getElementById('multiplier').textContent = 
-                `${game.multiplier}x`;
+            document.getElementById('balance').textContent = gameState.balance.toLocaleString();
+            document.getElementById('energyFill').style.width = `${(gameState.energy/1000)*100}%`;
         }
 
         // Initialize
+        loadGameState();
         updateGame();
+        window.addEventListener('beforeunload', saveGameState);
     </script>
 </body>
 </html>
