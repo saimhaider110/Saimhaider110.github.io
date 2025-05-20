@@ -1,385 +1,290 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>UAScoin Evolution</title>
-  <style>
-    :root {
-      --primary: #FFD700;
-      --secondary: #00FF88;
-      --bg: linear-gradient(45deg, #1a1a2e, #2a1454);
-      --card-bg: rgba(255, 255, 255, 0.15);
-      --text: #ffffff;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UAScoin Evolution</title>
+    <style>
+        :root {
+            --primary: #FFD700;
+            --secondary: #00FF88;
+            --bg: linear-gradient(45deg, #1a1a2e, #2a1454);
+            --card-bg: rgba(255,255,255,0.15);
+            --text: #ffffff;
+        }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Arial', sans-serif;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-    }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Arial', sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
 
-    .game-header {
-      width: 100%;
-      text-align: center;
-      margin-bottom: 30px;
-    }
+        .game-header {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 30px;
+        }
 
-    .score-display {
-      font-size: 2.5em;
-      margin-bottom: 10px;
-    }
+        .score-display {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
 
-    .energy-container {
-      width: 200px;
-      margin: 0 auto;
-    }
+        .energy-container {
+            width: 200px;
+            margin: 0 auto;
+        }
 
-    .energy-bar {
-      width: 100%;
-      height: 10px;
-      background: #2d2d44;
-      border-radius: 5px;
-      overflow: hidden;
-    }
+        .energy-bar {
+            width: 100%;
+            height: 10px;
+            background: #2d2d44;
+            border-radius: 5px;
+            overflow: hidden;
+        }
 
-    .energy-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--secondary), #00CCFF);
-      transition: width 0.3s;
-    }
+        .energy-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary), #00CCFF);
+            transition: width 0.3s;
+        }
 
-    .coin-container {
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
+        .coin-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
 
-    .main-coin {
-      width: 200px;
-      height: 200px;
-      background: url('bronze_coin.png') center/cover;
-      border-radius: 50%;
-      box-shadow: 0 0 30px var(--primary);
-      cursor: pointer;
-      transition: transform 0.1s;
-      margin: 0 auto;
-    }
+        .main-coin {
+            width: 200px;
+            height: 200px;
+            background: url('bronze_coin.png') center/cover;
+            border-radius: 50%;
+            box-shadow: 0 0 30px var(--primary);
+            cursor: pointer;
+            transition: transform 0.1s;
+            margin: 0 auto;
+        }
 
-    .main-coin:active {
-      transform: scale(0.95) rotate(10deg);
-    }
+        .main-coin:active {
+            transform: scale(0.95) rotate(10deg);
+        }
 
-    .menu-bar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: var(--card-bg);
-      display: flex;
-      justify-content: space-around;
-      padding: 15px;
-      backdrop-filter: blur(10px);
-    }
+        .menu-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            display: flex;
+            justify-content: space-around;
+            padding: 15px;
+            backdrop-filter: blur(10px);
+        }
 
-    .menu-button {
-      padding: 10px 20px;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
+        .menu-button {
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
 
-    .menu-button:hover {
-      background: rgba(255, 255, 255, 0.1);
-    }
+        .menu-button:hover {
+            background: rgba(255,255,255,0.1);
+        }
 
-    .modal {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: var(--card-bg);
-      padding: 20px;
-      border-radius: 20px;
-      width: 90%;
-      max-width: 500px;
-      backdrop-filter: blur(10px);
-      z-index: 1000;
-    }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
 
-    .modal h2 {
-      margin-bottom: 15px;
-    }
+        .upgrade-card {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 15px;
+            margin: 10px 0;
+        }
 
-    .upgrade-card {
-      background: rgba(0, 0, 0, 0.3);
-      padding: 15px;
-      border-radius: 15px;
-      margin: 10px 0;
-    }
+        .usdt-address {
+            word-break: break-all;
+            background: rgba(0,0,0,0.5);
+            padding: 10px;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
 
-    .usdt-address {
-      word-break: break-word;
-      background: rgba(0, 0, 0, 0.5);
-      padding: 10px;
-      border-radius: 10px;
-      margin: 10px 0;
-    }
-
-    .referral-section {
-      margin-top: 20px;
-    }
-
-    .close-btn {
-      position: absolute;
-      top: 10px;
-      right: 15px;
-      font-size: 20px;
-      background: none;
-      color: #fff;
-      border: none;
-      cursor: pointer;
-    }
-
-    .pending-status {
-      color: var(--primary);
-      margin-top: 10px;
-    }
-  </style>
+        .confirmation-section {
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
-  <div class="game-header">
-    <div class="score-display" id="balanceDisplay">0</div>
-    <div class="energy-container">
-      <div class="energy-bar">
-        <div class="energy-fill" id="energyFill"></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="coin-container">
-    <div class="main-coin" id="mainCoin"></div>
-  </div>
-
-  <div class="menu-bar">
-    <div class="menu-button" onclick="showModal('upgrades')">Upgrades</div>
-    <div class="menu-button" onclick="showModal('leaderboard')">Leaderboard</div>
-    <div class="menu-button" onclick="showModal('team')">Team</div>
-    <div class="menu-button" onclick="showModal('pending')">Admin</div>
-  </div>
-
-  <!-- Modals -->
-  <div id="upgradesModal" class="modal">
-    <button class="close-btn" onclick="hideModal()">×</button>
-    <h2>Upgrade Packages</h2>
-    <div class="upgrade-card"><h3>Bronze (25M UAS)</h3><p>2x Multiplier</p><button onclick="purchaseUpgrade('bronze', 25000000, 2)">Purchase</button></div>
-    <div class="upgrade-card"><h3>Silver (50M UAS)</h3><p>4x Multiplier</p><button onclick="purchaseUpgrade('silver', 50000000, 4)">Purchase</button></div>
-    <div class="upgrade-card"><h3>Gold (100M UAS)</h3><p>6x Multiplier</p><button onclick="purchaseUpgrade('gold', 100000000, 6)">Purchase</button></div>
-    <div class="upgrade-card"><h3>Diamond (8 USDT)</h3><p>4x Multiplier</p><button onclick="showUsdtPayment(8, 4)">Purchase</button></div>
-    <div class="upgrade-card"><h3>Platinum (15 USDT)</h3><p>8x Multiplier</p><button onclick="showUsdtPayment(15, 8)">Purchase</button></div>
-    <div class="upgrade-card"><h3>Vibranium (25 USDT)</h3><p>12x Multiplier</p><button onclick="showUsdtPayment(25, 12)">Purchase</button></div>
-    <div class="upgrade-card"><h3>AutoBot</h3><p>400M UAS or 20 USDT</p><button onclick="showAutobotOptions()">Purchase</button></div>
-  </div>
-
-  <div id="leaderboardModal" class="modal">
-    <button class="close-btn" onclick="hideModal()">×</button>
-    <h2>Leaderboard</h2>
-    <div id="leaderboardList"></div>
-  </div>
-
-  <div id="teamModal" class="modal">
-    <button class="close-btn" onclick="hideModal()">×</button>
-    <h2>Team & Referrals</h2>
-    <div class="referral-section">
-      <p>Your Referral Code:</p>
-      <div class="usdt-address" id="referralCode"></div>
-      <button onclick="copyReferral()">Copy Link</button>
-    </div>
-    <div class="referral-stats">
-      <p>Total Referrals: <span id="referralCount">0</span></p>
-    </div>
-  </div>
-
-  <div id="pendingModal" class="modal">
-    <button class="close-btn" onclick="hideModal()">×</button>
-    <h2>Pending Approvals</h2>
-    <div id="pendingList"></div>
-  </div>
-
-  <script>
-    let gameState = {
-      balance: 0,
-      energy: 1000,
-      baseMultiplier: 1,
-      activeMultiplier: 1,
-      pendingUpgrades: [],
-      approvedUpgrades: [],
-      referrals: 0,
-      referralCode: generateReferralCode()
-    };
-
-    function generateReferralCode() {
-      return 'REF-' + Math.random().toString(36).substr(2, 6).toUpperCase();
-    }
-
-    function loadGame() {
-      const saved = localStorage.getItem('uascoinGame');
-      if (saved) {
-        gameState = JSON.parse(saved);
-        if (!gameState.referralCode) gameState.referralCode = generateReferralCode();
-      }
-      updateDisplay();
-    }
-
-    function saveGame() {
-      localStorage.setItem('uascoinGame', JSON.stringify(gameState));
-    }
-
-    function updateDisplay() {
-      document.getElementById('balanceDisplay').textContent = gameState.balance.toLocaleString();
-      document.getElementById('energyFill').style.width = `${(gameState.energy / 1000) * 100}%`;
-      document.getElementById('referralCode').textContent = gameState.referralCode;
-      document.getElementById('referralCount').textContent = gameState.referrals;
-    }
-
-    function createTapEffect(e) {
-      const effect = document.createElement('div');
-      effect.style.position = 'fixed';
-      effect.style.width = '20px';
-      effect.style.height = '20px';
-      effect.style.background = 'radial-gradient(circle, rgba(255,215,0,0.8) 0%, rgba(255,215,0,0) 70%)';
-      effect.style.left = `${e.clientX - 10}px`;
-      effect.style.top = `${e.clientY - 10}px`;
-      document.body.appendChild(effect);
-      setTimeout(() => effect.remove(), 500);
-    }
-
-    function showModal(type) {
-      document.getElementById(`${type}Modal`).style.display = 'block';
-      if (type === 'pending') showPendingApprovals();
-    }
-
-    function hideModal() {
-      document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
-    }
-
-    function copyReferral() {
-      const link = `${window.location.href}?ref=${gameState.referralCode}`;
-      navigator.clipboard.writeText(link);
-      alert('Referral link copied!');
-    }
-
-    // Tapping coin
-    document.getElementById('mainCoin').addEventListener('click', function (e) {
-      if (gameState.energy > 0) {
-        gameState.balance += gameState.activeMultiplier;
-        gameState.energy--;
-        updateDisplay();
-        saveGame();
-        createTapEffect(e);
-      }
-    });
-
-    // Regenerate energy
-    setInterval(() => {
-      if (gameState.energy < 1000) {
-        gameState.energy++;
-        updateDisplay();
-        saveGame();
-      }
-    }, 1000);
-
-    function purchaseUpgrade(type, cost, multiplier) {
-      if (gameState.balance >= cost) {
-        gameState.balance -= cost;
-        const upgrade = { type, multiplier, status: 'pending', timestamp: Date.now() };
-        gameState.pendingUpgrades.push(upgrade);
-        saveGame();
-        alert('Upgrade submitted for admin approval');
-        updateDisplay();
-      } else {
-        alert('Insufficient balance!');
-      }
-    }
-
-    function showUsdtPayment(amount, multiplier) {
-      const upgrade = {
-        type: 'usdt',
-        amount,
-        multiplier,
-        status: 'pending',
-        timestamp: Date.now(),
-        address: '0x86d69358e89e1ec95b9a35828363f41d7e55d880'
-      };
-      gameState.pendingUpgrades.push(upgrade);
-      alert(`Send ${amount} USDT to:\n${upgrade.address}\n(BEP20)\nAwaiting approval...`);
-      saveGame();
-    }
-
-    function showAutobotOptions() {
-      const choice = confirm("Purchase AutoBot for:\n1. 400M UAS (Click OK)\n2. 20 USDT (Click Cancel)");
-      if (choice) {
-        if (gameState.balance >= 400000000) {
-          gameState.balance -= 400000000;
-          activateAutoBot();
-        } else {
-          alert('Insufficient balance!');
-        }
-      } else {
-        showUsdtPayment(20, 1);
-      }
-    }
-
-    function activateAutoBot() {
-      setInterval(() => {
-        if (gameState.energy === 1000) {
-          gameState.balance += gameState.activeMultiplier * 10;
-          updateDisplay();
-          saveGame();
-        }
-      }, 5000);
-      alert('AutoBot activated!');
-    }
-
-    function showPendingApprovals() {
-      const pending = gameState.pendingUpgrades.filter(u => u.status === 'pending');
-      document.getElementById('pendingList').innerHTML = pending.map(upgrade => `
-        <div class="upgrade-card">
-          <p>Type: ${upgrade.type.toUpperCase()}</p>
-          ${upgrade.amount ? `<p>Amount: ${upgrade.amount} USDT</p>` : ''}
-          <p>Multiplier: x${upgrade.multiplier}</p>
-          <p>Status: ${upgrade.status}</p>
-          <button onclick="approveUpgrade('${upgrade.timestamp}')">Approve</button>
+    <div class="game-header">
+        <div class="score-display" id="balanceDisplay">0</div>
+        <div class="energy-container">
+            <div class="energy-bar">
+                <div class="energy-fill" id="energyFill"></div>
+            </div>
         </div>
-      `).join('');
-    }
+    </div>
 
-    function approveUpgrade(timestamp) {
-      const upgrade = gameState.pendingUpgrades.find(u => u.timestamp == timestamp);
-      upgrade.status = 'approved';
-      gameState.activeMultiplier *= upgrade.multiplier;
-      gameState.approvedUpgrades.push(upgrade);
-      saveGame();
-      updateDisplay();
-      alert('Upgrade approved and activated!');
-    }
+    <div class="coin-container">
+        <div class="main-coin" id="mainCoin"></div>
+    </div>
 
-    loadGame();
-    window.addEventListener('beforeunload', saveGame);
-  </script>
+    <div class="menu-bar">
+        <div class="menu-button" onclick="showModal('upgrades')">Upgrades</div>
+        <div class="menu-button" onclick="showModal('leaderboard')">Leaderboard</div>
+    </div>
+
+    <!-- Upgrades Modal -->
+    <div id="upgradesModal" class="modal">
+        <h2>Premium Packages</h2>
+        
+        <div class="upgrade-card">
+            <h3>Diamond Package</h3>
+            <p>4x Multiplier for 120 days</p>
+            <p>Price: 8 USDT</p>
+            <button onclick="showPaymentConfirmation(8, 4)">Purchase</button>
+        </div>
+
+        <div class="upgrade-card">
+            <h3>Platinum Package</h3>
+            <p>8x Multiplier for 150 days</p>
+            <p>Price: 15 USDT</p>
+            <button onclick="showPaymentConfirmation(15, 8)">Purchase</button>
+        </div>
+
+        <div class="upgrade-card">
+            <h3>Vibranium Package</h3>
+            <p>12x Multiplier for 180 days</p>
+            <p>Price: 25 USDT</p>
+            <button onclick="showPaymentConfirmation(25, 12)">Purchase</button>
+        </div>
+
+        <button onclick="hideModal()">Close</button>
+    </div>
+
+    <!-- Payment Confirmation Modal -->
+    <div id="paymentModal" class="modal">
+        <h2>Payment Instructions</h2>
+        <div class="usdt-address" id="paymentAddress">
+            0x86d69358e89e1ec95b9a35828363f41d7e55d880
+        </div>
+        <p>Send exact USDT amount to this BEP20 address</p>
+        <div class="confirmation-section">
+            <button onclick="activatePackage()">I've Sent Payment</button>
+            <button onclick="hideModal()">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        let gameState = {
+            balance: 0,
+            energy: 1000,
+            multiplier: 1,
+            activePackage: null,
+            referrals: 0
+        };
+
+        let pendingPayment = null;
+
+        function loadGame() {
+            const saved = localStorage.getItem('uascoinGame');
+            if(saved) {
+                gameState = JSON.parse(saved);
+                if(gameState.activePackage) {
+                    alert(`Active Package: ${gameState.activePackage.name} (Multiplier: x${gameState.multiplier})`);
+                }
+            }
+            updateDisplay();
+        }
+
+        function saveGame() {
+            localStorage.setItem('uascoinGame', JSON.stringify(gameState));
+        }
+
+        // Tapping System
+        document.getElementById('mainCoin').addEventListener('click', function(e) {
+            if(gameState.energy > 0) {
+                gameState.balance += gameState.multiplier;
+                gameState.energy--;
+                updateDisplay();
+                saveGame();
+            }
+        });
+
+        // Energy Regeneration
+        setInterval(() => {
+            if(gameState.energy < 1000) {
+                gameState.energy++;
+                updateDisplay();
+                saveGame();
+            }
+        }, 1000);
+
+        function showPaymentConfirmation(amount, multiplier) {
+            pendingPayment = { amount, multiplier };
+            document.getElementById('paymentModal').style.display = 'block';
+            hideModal();
+        }
+
+        function activatePackage() {
+            if(pendingPayment) {
+                gameState.multiplier = pendingPayment.multiplier;
+                gameState.activePackage = {
+                    name: `x${pendingPayment.multiplier} Multiplier`,
+                    expires: Date.now() + 120 * 86400000 // 120 days
+                };
+                alert('Payment confirmed! Package activated.');
+                saveGame();
+                updateDisplay();
+                hideModal();
+            }
+        }
+
+        function updateDisplay() {
+            document.getElementById('balanceDisplay').textContent = 
+                gameState.balance.toLocaleString();
+            document.getElementById('energyFill').style.width = 
+                `${(gameState.energy/1000)*100}%`;
+        }
+
+        function showModal(type) {
+            document.getElementById(`${type}Modal`).style.display = 'block';
+        }
+
+        function hideModal() {
+            document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+        }
+
+        // Initialize
+        loadGame();
+        window.addEventListener('beforeunload', saveGame);
+    </script>
 </body>
 </html>
