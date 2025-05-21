@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UAScoin Evolution</title>
-    <script src="https://sdk.minepi.com/pi-sdk.js"></script>
     <style>
         :root {
             --primary: #FFD700;
@@ -52,10 +51,7 @@
         .balance-container, .taps-container {
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
         }
-
-        .taps-container { align-items: flex-end; }
 
         .stat-label {
             font-size: 0.9em;
@@ -92,7 +88,7 @@
             border-radius: 50%;
             margin: 20px auto;
             cursor: pointer;
-            background: url('bronze_coin.png') center/cover;
+            background: #FFD700;
             box-shadow: 0 0 20px var(--primary);
             transition: transform 0.1s;
         }
@@ -110,99 +106,20 @@
             transition: opacity 0.3s;
         }
 
-        .upgrade-card, .skin-card {
+        .nav-button:hover {
+            opacity: 0.8;
+        }
+
+        .upgrade-card {
             background: var(--card-bg);
             padding: 15px;
             border-radius: 10px;
             margin: 10px 0;
         }
-
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            z-index: 999;
-        }
-
-        .payment-modal {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: var(--bg);
-            padding: 20px;
-            border-radius: 10px;
-            z-index: 1000;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-        }
-
-        .usdt-address {
-            background: rgba(0,0,0,0.3);
-            padding: 10px;
-            border-radius: 5px;
-            word-break: break-all;
-            font-size: 0.9em;
-            margin: 10px 0;
-        }
-
-        .qr-code {
-            width: 150px;
-            height: 150px;
-            margin: 15px auto;
-            background: #fff;
-            padding: 10px;
-        }
-
-        .skin-selection {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 15px;
-            padding: 10px;
-        }
-
-        .skin-item {
-            padding: 10px;
-            border-radius: 10px;
-            background: var(--card-bg);
-            cursor: pointer;
-            text-align: center;
-        }
-
-        .skin-preview {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto;
-            border-radius: 50%;
-            background-size: cover;
-            border: 2px solid var(--primary);
-        }
     </style>
 </head>
 <body>
-    <!-- Payment Modal -->
-    <div class="modal-overlay" id="modalOverlay"></div>
-    <div class="payment-modal" id="paymentModal">
-        <h2>USDT Payment</h2>
-        <div class="usdt-address">0x86d69358e89e1ec95b9a35828363f41d7e55d880</div>
-        <div class="qr-code">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=0x86d69358e89e1ec95b9a35828363f41d7e55d880" 
-                 alt="USDT QR Code">
-        </div>
-        <p>BEP20 Network Only</p>
-        <div class="modal-buttons">
-            <button onclick="submitPayment()">I've Paid</button>
-            <button onclick="hideModal()">Cancel</button>
-        </div>
-    </div>
-
-    <!-- Game Pages -->
+    <!-- Main Game Page -->
     <div class="page active" id="mainPage">
         <div class="stats-bar">
             <div class="balance-container">
@@ -220,136 +137,122 @@
         <div class="main-coin" id="coin"></div>
     </div>
 
+    <!-- Upgrades Page -->
     <div class="page" id="upgradesPage">
-        <button class="back-button" onclick="showPage('main')">← Back</button>
-        <!-- Upgrade packages remain same as previous -->
-    </div>
-
-    <div class="page" id="skinsPage">
-        <button class="back-button" onclick="showPage('main')">← Back</button>
-        <h2>Skins Marketplace</h2>
-        <div class="skin-selection">
-            <!-- Skin items with Pi/USDT payment options -->
+        <h2>Upgrades</h2>
+        <div class="upgrade-card">
+            <h3>Basic Multiplier</h3>
+            <p>2x Click Power</p>
+            <p>Cost: 10 UAS</p>
+            <button onclick="buyUpgrade(10, 2)">Purchase</button>
+        </div>
+        <div class="upgrade-card">
+            <h3>Advanced Multiplier</h3>
+            <p>5x Click Power</p>
+            <p>Cost: 50 UAS</p>
+            <button onclick="buyUpgrade(50, 5)">Purchase</button>
         </div>
     </div>
 
     <div class="nav-buttons">
-        <div class="nav-button" onclick="showPage('main')">Game</div>
-        <div class="nav-button" onclick="showPage('upgrades')">Upgrades</div>
-        <div class="nav-button" onclick="showPage('skins')">Skins</div>
+        <div class="nav-button" data-page="main">Game</div>
+        <div class="nav-button" data-page="upgrades">Upgrades</div>
     </div>
 
     <script>
-        // Pi Configuration (Replace with your actual credentials)
-        const PI_APP_ID = 'YOUR_PI_APP_ID';
-        const API_BASE_URL = 'YOUR_REPLIT_URL';
-        
-        // Initialize Pi SDK
-        Pi.init({ version: "2.0", sandbox: true });
-
-        // Game State
         let gameState = {
             balance: 0,
             energy: 1000,
             multiplier: 1,
-            totalTaps: 0,
-            activeSkin: 'bronze',
-            purchasedSkins: ['bronze'],
-            activePackages: [],
-            pendingPayments: [],
-            autobot: false,
-            lastUpdate: Date.now(),
-            piBalance: 0
+            totalTaps: 0
         };
 
-        // Pi Authentication
-        Pi.authenticate(PI_APP_ID, async (authResult) => {
-            if(authResult) {
-                try {
-                    const user = await Pi.getUser();
-                    const response = await fetch(`${API_BASE_URL}/balance/${user.uid}`);
-                    gameState.piBalance = await response.json();
-                } catch (error) {
-                    console.error('Pi Auth Error:', error);
-                }
-            }
-        });
-
-        // Core Game Functions
-        function updateDisplay() {
-            document.getElementById('balance').textContent = gameState.balance.toLocaleString();
-            document.getElementById('tapCount').textContent = gameState.totalTaps.toLocaleString();
-            document.getElementById('energy').style.width = `${(gameState.energy/1000)*100}%`;
+        // Initialize the game
+        function init() {
+            loadGame();
+            setupEventListeners();
+            startEnergyRegeneration();
+            updateDisplay();
         }
 
-        function updateCoinSkin() {
-            const coin = document.getElementById('coin');
-            coin.style.backgroundImage = `url('${gameState.activeSkin}_coin.png')`;
-        }
-
-        // Pi Payment Handler
-        async function handlePiPayment(amount, skinType) {
-            const paymentData = {
-                amount: amount,
-                memo: `Purchase ${skinType} Skin`,
-                metadata: { skinType: skinType }
-            };
-
-            const payment = await Pi.createPayment(paymentData, {
-                onReadyForServerApproval: async (paymentId) => {
-                    const response = await fetch(`${API_BASE_URL}/approve`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ paymentId, skinType })
-                    });
-                    if(response.ok) Pi.approvePayment(paymentId);
-                },
-                onReadyForServerCompletion: async (paymentId, txid) => {
-                    const response = await fetch(`${API_BASE_URL}/complete`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ paymentId, txid })
-                    });
-                    if(response.ok) unlockSkin(skinType);
-                },
-                onCancel: () => alert('Payment cancelled'),
-                onError: (error) => console.error('Pi Error:', error)
+        // Set up event listeners
+        function setupEventListeners() {
+            // Coin click handler
+            document.getElementById('coin').addEventListener('click', handleTap);
+            
+            // Navigation buttons
+            document.querySelectorAll('.nav-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    showPage(button.dataset.page);
+                });
             });
         }
 
-        // USDT Payment Handler
-        function handleUsdtPayment(amount, skinType) {
-            currentPayment = { amount, skinType };
-            document.getElementById('modalOverlay').style.display = 'block';
-            document.getElementById('paymentModal').style.display = 'block';
-        }
-
-        function unlockSkin(skinType) {
-            if(!gameState.purchasedSkins.includes(skinType)) {
-                gameState.purchasedSkins.push(skinType);
-                alert(`Unlocked ${skinType} skin!`);
+        // Handle coin tapping
+        function handleTap() {
+            if(gameState.energy > 0) {
+                gameState.balance += gameState.multiplier;
+                gameState.energy = Math.max(0, gameState.energy - 1);
+                gameState.totalTaps++;
+                updateDisplay();
                 saveGame();
             }
         }
 
-        // Save/Load System
+        // Show selected page
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(`${pageId}Page`).classList.add('active');
+        }
+
+        // Energy regeneration system
+        function startEnergyRegeneration() {
+            setInterval(() => {
+                if(gameState.energy < 1000) {
+                    gameState.energy++;
+                    updateDisplay();
+                    saveGame();
+                }
+            }, 1000);
+        }
+
+        // Purchase upgrades
+        function buyUpgrade(cost, multiplier) {
+            if(gameState.balance >= cost) {
+                gameState.balance -= cost;
+                gameState.multiplier += multiplier;
+                updateDisplay();
+                saveGame();
+                alert(`Upgrade purchased! New multiplier: ${gameState.multiplier}x`);
+            } else {
+                alert('Not enough balance!');
+            }
+        }
+
+        // Update display elements
+        function updateDisplay() {
+            document.getElementById('balance').textContent = gameState.balance;
+            document.getElementById('tapCount').textContent = gameState.totalTaps;
+            document.getElementById('energy').style.width = `${(gameState.energy/1000)*100}%`;
+        }
+
+        // Save/load system
         function loadGame() {
             const saved = localStorage.getItem('uascoinGame');
-            if(saved) gameState = JSON.parse(saved);
-            updateDisplay();
-            updateCoinSkin();
+            if(saved) {
+                gameState = JSON.parse(saved);
+                updateDisplay();
+            }
         }
 
         function saveGame() {
             localStorage.setItem('uascoinGame', JSON.stringify(gameState));
         }
 
-        // Initialize
-        loadGame();
-        window.addEventListener('beforeunload', saveGame);
-        document.getElementById('coin').onclick = handleTap;
-        
-        // Remaining game logic (energy, packages, etc.) same as previous versions
+        // Start the game
+        init();
     </script>
 </body>
 </html>
