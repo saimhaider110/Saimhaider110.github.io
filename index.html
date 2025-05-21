@@ -40,24 +40,42 @@
             flex-direction: column;
         }
 
-        .game-header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .stats {
+        .stats-bar {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             margin-bottom: 15px;
+            padding: 0 10px;
         }
 
-        .balance-display {
-            font-size: 2em;
+        .balance-container,
+        .taps-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
         }
 
-        .tap-counter {
-            font-size: 1.2em;
+        .taps-container {
+            align-items: flex-end;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-bottom: 2px;
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        #balance {
             color: var(--primary);
+        }
+
+        #tapCount {
+            color: var(--secondary);
         }
 
         .energy-bar {
@@ -65,6 +83,7 @@
             height: 10px;
             background: #333;
             border-radius: 5px;
+            margin: 10px 0;
         }
 
         .energy-fill {
@@ -175,14 +194,18 @@
 
     <!-- Main Game Page -->
     <div class="page active" id="mainPage">
-        <div class="game-header">
-            <div class="stats">
-                <div class="balance-display" id="balance">0</div>
-                <div class="tap-counter">Taps: <span id="tapCount">0</span></div>
+        <div class="stats-bar">
+            <div class="balance-container">
+                <div class="stat-label">BALANCE</div>
+                <div class="stat-value" id="balance">0</div>
             </div>
-            <div class="energy-bar">
-                <div class="energy-fill" id="energy"></div>
+            <div class="taps-container">
+                <div class="stat-label">TAPS</div>
+                <div class="stat-value" id="tapCount">0</div>
             </div>
+        </div>
+        <div class="energy-bar">
+            <div class="energy-fill" id="energy"></div>
         </div>
         <div class="main-coin bronze" id="coin"></div>
     </div>
@@ -287,6 +310,7 @@
 
         function updateDisplay() {
             document.getElementById('balance').textContent = gameState.balance.toLocaleString();
+            document.getElementById('tapCount').textContent = gameState.totalTaps.toLocaleString();
             document.getElementById('energy').style.width = `${(gameState.energy/1000)*100}%`;
         }
 
