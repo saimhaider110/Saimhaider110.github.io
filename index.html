@@ -45,9 +45,19 @@
             margin-bottom: 20px;
         }
 
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
         .balance-display {
             font-size: 2em;
-            margin: 10px 0;
+        }
+
+        .tap-counter {
+            font-size: 1.2em;
+            color: var(--primary);
         }
 
         .energy-bar {
@@ -55,7 +65,6 @@
             height: 10px;
             background: #333;
             border-radius: 5px;
-            margin: 10px 0;
         }
 
         .energy-fill {
@@ -73,6 +82,7 @@
             cursor: pointer;
             background-size: cover;
             box-shadow: 0 0 20px var(--primary);
+            transition: transform 0.1s;
         }
 
         .bronze { background-image: url('bronze_coin.png'); }
@@ -166,7 +176,10 @@
     <!-- Main Game Page -->
     <div class="page active" id="mainPage">
         <div class="game-header">
-            <div class="balance-display" id="balance">0</div>
+            <div class="stats">
+                <div class="balance-display" id="balance">0</div>
+                <div class="tap-counter">Taps: <span id="tapCount">0</span></div>
+            </div>
             <div class="energy-bar">
                 <div class="energy-fill" id="energy"></div>
             </div>
@@ -212,23 +225,6 @@
             <button onclick="showUsdtPayment(25, 12, 180)">Purchase</button>
         </div>
 
-        <h2>Skin Upgrades</h2>
-        <div class="upgrade-card">
-            <h3>Silver Skin</h3>
-            <p>50M UAS</p>
-            <button onclick="purchaseSkin('silver', 50000000)">Purchase</button>
-        </div>
-        <div class="upgrade-card">
-            <h3>Gold Skin</h3>
-            <p>100M UAS</p>
-            <button onclick="purchaseSkin('gold', 100000000)">Purchase</button>
-        </div>
-        <div class="upgrade-card">
-            <h3>Diamond Skin</h3>
-            <p>15 USDT</p>
-            <button onclick="showUsdtPayment(15, 0, 0, 'diamond')">Purchase</button>
-        </div>
-
         <h2>AutoBot</h2>
         <div class="upgrade-card">
             <p>400M UAS or 20 USDT</p>
@@ -250,15 +246,24 @@
     </div>
 
     <script>
+        const SKIN_THRESHOLDS = [
+            { taps: 100000, skin: 'silver', message: 'Silver Skin Unlocked! (100,000 taps)' },
+            { taps: 1000000, skin: 'gold', message: 'Gold Skin Unlocked! (1,000,000 taps)' },
+            { taps: 10000000, skin: 'diamond', message: 'Diamond Skin Unlocked! (10,000,000 taps)' },
+            { taps: 100000000, skin: 'platinum', message: 'Platinum Skin Unlocked! (100,000,000 taps)' }
+        ].sort((a, b) => a.taps - b.taps);
+
         let gameState = {
             balance: 0,
             energy: 1000,
             multiplier: 1,
+            totalTaps: 0,
             activeSkin: 'bronze',
             activePackages: [],
             pendingPayments: [],
             autobot: false,
-            lastUpdate: Date.now()
+            lastUpdate: Date.now(),
+            unlockedSkins: []
         };
 
         let currentPayment = null;
@@ -267,6 +272,8 @@
             const saved = localStorage.getItem('uascoinGame');
             if(saved) {
                 gameState = JSON.parse(saved);
+                document.getElementById('tapCount').textContent = gameState.totalTaps.toLocaleString();
+                checkSkinUnlocks();
                 updateCoinSkin();
                 checkExpiredPackages();
             }
@@ -283,10 +290,46 @@
             document.getElementById('energy').style.width = `${(gameState.energy/1000)*100}%`;
         }
 
+        function checkSkinUnlocks() {
+            let newSkin = null;
+            
+            SKIN_THRESHOLDS.forEach(threshold => {
+                if(gameState.totalTaps >= threshold.taps && 
+                   !gameState.unlockedSkins.includes(threshold.skin)) {
+                    gameState.unlockedSkins.push(threshold.skin);
+                    newSkin = threshold;
+                }
+            });
+
+            const highestSkin = SKIN_THRESHOLDS.reduce((current, threshold) => {
+                return gameState.totalTaps >= threshold.taps ? threshold : current;
+            }, { skin: 'bronze' });
+
+            if(highestSkin.skin !== gameState.activeSkin) {
+                gameState.activeSkin = highestSkin.skin;
+                updateCoinSkin();
+                if(newSkin) alert(newSkin.message);
+            }
+        }
+
         function updateCoinSkin() {
             const coin = document.getElementById('coin');
             coin.className = `main-coin ${gameState.activeSkin}`;
         }
+
+        document.getElementById('coin').addEventListener('click', () => {
+            if(gameState.energy > 0) {
+                gameState.balance += gameState.multiplier;
+                gameState.energy--;
+                gameState.totalTaps++;
+                
+                document.getElementById('tapCount').textContent = gameState.totalTaps.toLocaleString();
+                
+                checkSkinUnlocks();
+                updateDisplay();
+                saveGame();
+            }
+        });
 
         function purchaseUASUpgrade(cost, multiplier, days) {
             if(gameState.balance >= cost) {
@@ -299,12 +342,11 @@
             }
         }
 
-        function showUsdtPayment(amount, multiplier, days, skinType) {
+        function showUsdtPayment(amount, multiplier, days) {
             currentPayment = {
                 amount,
                 multiplier,
                 days,
-                skinType,
                 timestamp: Date.now()
             };
             document.getElementById('modalOverlay').style.display = 'block';
@@ -313,11 +355,7 @@
 
         function submitPayment() {
             gameState.pendingPayments.push(currentPayment);
-            if(currentPayment.skinType) {
-                alert('Skin upgrade pending admin approval');
-            } else {
-                alert('Package pending admin approval');
-            }
+            alert('Payment submitted for admin approval');
             hideModal();
             saveGame();
         }
@@ -326,34 +364,6 @@
             document.getElementById('modalOverlay').style.display = 'none';
             document.getElementById('paymentModal').style.display = 'none';
             currentPayment = null;
-        }
-
-        function purchaseSkin(skinType, cost) {
-            if(gameState.balance >= cost) {
-                gameState.balance -= cost;
-                gameState.activeSkin = skinType;
-                updateCoinSkin();
-                saveGame();
-                alert('Skin activated!');
-            } else {
-                alert('Insufficient balance!');
-            }
-        }
-
-        function approvePayment(timestamp) {
-            const index = gameState.pendingPayments.findIndex(p => p.timestamp === timestamp);
-            const payment = gameState.pendingPayments[index];
-            
-            if(payment.skinType) {
-                gameState.activeSkin = payment.skinType;
-                updateCoinSkin();
-            } else {
-                activatePackage(payment.multiplier, payment.days);
-            }
-            
-            gameState.pendingPayments.splice(index, 1);
-            saveGame();
-            updatePendingList();
         }
 
         function activatePackage(multiplier, days) {
@@ -369,25 +379,50 @@
             gameState.multiplier = gameState.activePackages.reduce((acc, pkg) => acc + pkg.multiplier, 1);
         }
 
+        function approvePayment(timestamp) {
+            const index = gameState.pendingPayments.findIndex(p => p.timestamp === timestamp);
+            const payment = gameState.pendingPayments[index];
+            activatePackage(payment.multiplier, payment.days);
+            gameState.pendingPayments.splice(index, 1);
+            saveGame();
+            updatePendingList();
+        }
+
         function updatePendingList() {
             const list = document.getElementById('pendingList');
             list.innerHTML = gameState.pendingPayments.map(payment => `
                 <div class="upgrade-card">
-                    <p>${payment.amount} USDT - ${payment.skinType ? 'Skin' : 'Multiplier x'+payment.multiplier}</p>
+                    <p>${payment.amount} USDT - x${payment.multiplier}</p>
                     <button onclick="approvePayment(${payment.timestamp})">Approve</button>
                 </div>
             `).join('');
         }
 
-        // Event Listeners
-        document.getElementById('coin').addEventListener('click', () => {
-            if(gameState.energy > 0) {
-                gameState.balance += gameState.multiplier;
-                gameState.energy--;
-                updateDisplay();
-                saveGame();
+        function purchaseAutobot() {
+            const useUSDT = confirm("Purchase AutoBot with:\nOK - 400M UAS\nCancel - 20 USDT");
+            
+            if(useUSDT) {
+                if(gameState.balance >= 400000000) {
+                    gameState.balance -= 400000000;
+                    activateAutobot();
+                } else {
+                    alert('Insufficient UAS balance!');
+                }
+            } else {
+                showUsdtPayment(20, 0, 0);
             }
-        });
+        }
+
+        function activateAutobot() {
+            gameState.autobot = true;
+            setInterval(() => {
+                if(gameState.energy === 1000) {
+                    gameState.balance += gameState.multiplier * 10;
+                    updateDisplay();
+                    saveGame();
+                }
+            }, 5000);
+        }
 
         setInterval(() => {
             if(gameState.energy < 1000) {
