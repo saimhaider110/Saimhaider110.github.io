@@ -1,222 +1,410 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>UAScoin Evolution</title>
-  <style>
-    :root {
-      --primary: #FFD700;
-      --secondary: #00FF88;
-      --bg: linear-gradient(45deg, #1a1a2e, #2a1454);
-      --text: #ffffff;
-      --card-bg: rgba(255,255,255,0.1);
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UAScoin Evolution</title>
+    <style>
+        :root {
+            --primary: #FFD700;
+            --secondary: #00FF88;
+            --bg: linear-gradient(45deg, #1a1a2e, #2a1454);
+            --text: #ffffff;
+            --card-bg: rgba(255,255,255,0.1);
+        }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: Arial, sans-serif;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-    }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: Arial, sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
 
-    .main-coin {
-      width: 200px;
-      height: 200px;
-      border-radius: 50%;
-      margin: 20px auto;
-      cursor: pointer;
-      background-size: cover;
-      box-shadow: 0 0 20px var(--primary);
-    }
+        .page {
+            display: none;
+            padding: 20px;
+            flex-grow: 1;
+        }
 
-    .bronze { background-image: url('bronze_coin.png'); }
-    .silver { background-image: url('silver_coin.png'); }
-    .gold { background-image: url('gold_coin.png'); }
-    .diamond { background-image: url('diamond_coin.png'); }
-    .platinum { background-image: url('platinum_coin.png'); }
+        .page.active {
+            display: flex;
+            flex-direction: column;
+        }
 
-    .btn-group {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 20px;
-      width: 100%;
-      max-width: 400px;
-    }
+        .game-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
 
-    .btn-group button {
-      padding: 10px;
-      background: var(--secondary);
-      border: none;
-      border-radius: 5px;
-      color: #000;
-      font-weight: bold;
-      cursor: pointer;
-    }
+        .balance-display {
+            font-size: 2em;
+            margin: 10px 0;
+        }
 
-    .payment-modal, .modal-overlay {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 999;
-    }
+        .energy-bar {
+            width: 100%;
+            height: 10px;
+            background: #333;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
 
-    .modal-overlay {
-      background: rgba(0, 0, 0, 0.7);
-    }
+        .energy-fill {
+            height: 100%;
+            background: var(--secondary);
+            border-radius: 5px;
+            transition: width 0.3s;
+        }
 
-    .payment-modal .content {
-      background: var(--bg);
-      padding: 20px;
-      border-radius: 10px;
-      width: 90%;
-      max-width: 400px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.5);
-      z-index: 1000;
-      position: relative;
-    }
+        .main-coin {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            margin: 20px auto;
+            cursor: pointer;
+            background-size: cover;
+            box-shadow: 0 0 20px var(--primary);
+        }
 
-    .usdt-address {
-      background: rgba(0, 0, 0, 0.3);
-      padding: 10px;
-      border-radius: 5px;
-      word-break: break-all;
-      font-size: 0.9em;
-      margin: 10px 0;
-    }
+        .bronze { background-image: url('bronze_coin.png'); }
+        .silver { background-image: url('silver_coin.png'); }
+        .gold { background-image: url('gold_coin.png'); }
+        .diamond { background-image: url('diamond_coin.png'); }
+        .platinum { background-image: url('platinum_coin.png'); }
 
-    .modal-buttons {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 10px;
-    }
+        .nav-buttons {
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 0;
+            background: var(--card-bg);
+        }
 
-    .modal-buttons button {
-      padding: 10px;
-      background: var(--secondary);
-      border: none;
-      border-radius: 5px;
-      color: #000;
-      font-weight: bold;
-      cursor: pointer;
-    }
-  </style>
+        .nav-button {
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+
+        .upgrade-card {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 999;
+        }
+
+        .payment-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--bg);
+            padding: 20px;
+            border-radius: 10px;
+            z-index: 1000;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        .usdt-address {
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            border-radius: 5px;
+            word-break: break-all;
+            font-size: 0.9em;
+            margin: 10px 0;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .back-button {
+            align-self: flex-start;
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
+    <div class="modal-overlay" id="modalOverlay"></div>
 
-  <!-- Coin Display -->
-  <div class="main-coin bronze" id="coin"></div>
-
-  <!-- Upgrade Buttons -->
-  <div class="btn-group">
-    <button onclick="purchaseSkin('silver', 50000000)">Buy Silver Skin (50M UAS)</button>
-    <button onclick="purchaseSkin('gold', 100000000)">Buy Gold Skin (100M UAS)</button>
-    <button onclick="showUsdtPayment(5, 0, 0, 'diamond')">Buy Diamond Skin (5 USDT)</button>
-    <button onclick="showUsdtPayment(10, 0, 0, 'platinum')">Buy Platinum Skin (10 USDT)</button>
-  </div>
-
-  <!-- Modal Overlay & Payment Modal -->
-  <div class="modal-overlay" id="modalOverlay"></div>
-  <div class="payment-modal" id="paymentModal">
-    <div class="content">
-      <h2>USDT Payment</h2>
-      <p>Send exact amount to:</p>
-      <div class="usdt-address">0x86d69358e89e1ec95b9a35828363f41d7e55d880</div>
-      <p>BEP20 Network Only</p>
-      <div class="modal-buttons">
-        <button onclick="submitPayment()">I've Paid</button>
-        <button onclick="hideModal()">Cancel</button>
-      </div>
+    <!-- Payment Modal -->
+    <div class="payment-modal" id="paymentModal">
+        <h2>USDT Payment</h2>
+        <p>Send exact amount to:</p>
+        <div class="usdt-address">0x86d69358e89e1ec95b9a35828363f41d7e55d880</div>
+        <p>BEP20 Network Only</p>
+        <div class="modal-buttons">
+            <button onclick="submitPayment()">I've Paid</button>
+            <button onclick="hideModal()">Cancel</button>
+        </div>
     </div>
-  </div>
 
-  <script>
-    let gameState = {
-      balance: 0,
-      energy: 1000,
-      multiplier: 1,
-      activePackages: [],
-      pendingPayments: [],
-      autobot: false,
-      activeSkin: 'bronze',
-      lastUpdate: Date.now()
-    };
+    <!-- Main Game Page -->
+    <div class="page active" id="mainPage">
+        <div class="game-header">
+            <div class="balance-display" id="balance">0</div>
+            <div class="energy-bar">
+                <div class="energy-fill" id="energy"></div>
+            </div>
+        </div>
+        <div class="main-coin bronze" id="coin"></div>
+    </div>
 
-    let currentPayment = null;
+    <!-- Upgrades Page -->
+    <div class="page" id="upgradesPage">
+        <button class="back-button" onclick="showPage('main')">← Back</button>
+        
+        <h2>UAS Packages</h2>
+        <div class="upgrade-card">
+            <h3>Bronze Package</h3>
+            <p>25M UAS | 2x Multiplier (90 days)</p>
+            <button onclick="purchaseUASUpgrade(25000000, 2, 90)">Purchase</button>
+        </div>
+        <div class="upgrade-card">
+            <h3>Silver Package</h3>
+            <p>50M UAS | 4x Multiplier (90 days)</p>
+            <button onclick="purchaseUASUpgrade(50000000, 4, 90)">Purchase</button>
+        </div>
+        <div class="upgrade-card">
+            <h3>Gold Package</h3>
+            <p>100M UAS | 6x Multiplier (90 days)</p>
+            <button onclick="purchaseUASUpgrade(100000000, 6, 90)">Purchase</button>
+        </div>
 
-    function updateCoinSkin() {
-      const coin = document.getElementById('coin');
-      coin.className = `main-coin ${gameState.activeSkin}`;
-    }
+        <h2>USDT Packages</h2>
+        <div class="upgrade-card">
+            <h3>Diamond Package</h3>
+            <p>8 USDT | 4x Multiplier (120 days)</p>
+            <button onclick="showUsdtPayment(8, 4, 120)">Purchase</button>
+        </div>
+        <div class="upgrade-card">
+            <h3>Platinum Package</h3>
+            <p>15 USDT | 8x Multiplier (150 days)</p>
+            <button onclick="showUsdtPayment(15, 8, 150)">Purchase</button>
+        </div>
+        <div class="upgrade-card">
+            <h3>Vibranium Package</h3>
+            <p>25 USDT | 12x Multiplier (180 days)</p>
+            <button onclick="showUsdtPayment(25, 12, 180)">Purchase</button>
+        </div>
 
-    function purchaseSkin(skinType, cost) {
-      if (gameState.balance >= cost) {
-        gameState.balance -= cost;
-        gameState.activeSkin = skinType;
-        updateCoinSkin();
-        saveGame();
-        alert(`${skinType.charAt(0).toUpperCase() + skinType.slice(1)} skin activated!`);
-      } else {
-        alert("Insufficient balance!");
-      }
-    }
+        <h2>Skin Upgrades</h2>
+        <div class="upgrade-card">
+            <h3>Silver Skin</h3>
+            <p>50M UAS</p>
+            <button onclick="purchaseSkin('silver', 50000000)">Purchase</button>
+        </div>
+        <div class="upgrade-card">
+            <h3>Gold Skin</h3>
+            <p>100M UAS</p>
+            <button onclick="purchaseSkin('gold', 100000000)">Purchase</button>
+        </div>
+        <div class="upgrade-card">
+            <h3>Diamond Skin</h3>
+            <p>15 USDT</p>
+            <button onclick="showUsdtPayment(15, 0, 0, 'diamond')">Purchase</button>
+        </div>
 
-    function showUsdtPayment(amount, multiplier = 0, days = 0, skinType = null) {
-      currentPayment = { amount, multiplier, days, skinType, timestamp: Date.now() };
-      document.getElementById('modalOverlay').style.display = 'flex';
-      document.getElementById('paymentModal').style.display = 'flex';
-    }
+        <h2>AutoBot</h2>
+        <div class="upgrade-card">
+            <p>400M UAS or 20 USDT</p>
+            <button onclick="purchaseAutobot()">Purchase AutoBot</button>
+        </div>
+    </div>
 
-    function hideModal() {
-      document.getElementById('modalOverlay').style.display = 'none';
-      document.getElementById('paymentModal').style.display = 'none';
-    }
+    <!-- Admin Page -->
+    <div class="page" id="adminPage">
+        <button class="back-button" onclick="showPage('main')">← Back</button>
+        <h2>Pending Approvals</h2>
+        <div id="pendingList"></div>
+    </div>
 
-    function submitPayment() {
-      if (currentPayment.skinType) {
-        gameState.activeSkin = currentPayment.skinType;
-        updateCoinSkin();
-      } else if (currentPayment.multiplier > 0) {
-        const expiration = Date.now() + (currentPayment.days * 86400000);
-        gameState.activePackages.push({ multiplier: currentPayment.multiplier, expiration });
-      }
-      hideModal();
-      saveGame();
-      alert('Payment confirmed. Feature activated!');
-    }
+    <div class="nav-buttons">
+        <div class="nav-button" onclick="showPage('main')">Game</div>
+        <div class="nav-button" onclick="showPage('upgrades')">Upgrades</div>
+        <div class="nav-button" onclick="showPage('admin')">Admin</div>
+    </div>
 
-    function saveGame() {
-      gameState.lastUpdate = Date.now();
-      localStorage.setItem('uascoinGame', JSON.stringify(gameState));
-    }
+    <script>
+        let gameState = {
+            balance: 0,
+            energy: 1000,
+            multiplier: 1,
+            activeSkin: 'bronze',
+            activePackages: [],
+            pendingPayments: [],
+            autobot: false,
+            lastUpdate: Date.now()
+        };
 
-    function loadGame() {
-      const saved = localStorage.getItem('uascoinGame');
-      if (saved) {
-        gameState = JSON.parse(saved);
-      }
-      updateCoinSkin();
-    }
+        let currentPayment = null;
 
-    // Initialize
-    loadGame();
-    window.addEventListener('beforeunload', saveGame);
-  </script>
+        function loadGame() {
+            const saved = localStorage.getItem('uascoinGame');
+            if(saved) {
+                gameState = JSON.parse(saved);
+                updateCoinSkin();
+                checkExpiredPackages();
+            }
+            updateDisplay();
+        }
 
+        function saveGame() {
+            gameState.lastUpdate = Date.now();
+            localStorage.setItem('uascoinGame', JSON.stringify(gameState));
+        }
+
+        function updateDisplay() {
+            document.getElementById('balance').textContent = gameState.balance.toLocaleString();
+            document.getElementById('energy').style.width = `${(gameState.energy/1000)*100}%`;
+        }
+
+        function updateCoinSkin() {
+            const coin = document.getElementById('coin');
+            coin.className = `main-coin ${gameState.activeSkin}`;
+        }
+
+        function purchaseUASUpgrade(cost, multiplier, days) {
+            if(gameState.balance >= cost) {
+                gameState.balance -= cost;
+                activatePackage(multiplier, days);
+                saveGame();
+                updateDisplay();
+            } else {
+                alert('Insufficient UAS balance!');
+            }
+        }
+
+        function showUsdtPayment(amount, multiplier, days, skinType) {
+            currentPayment = {
+                amount,
+                multiplier,
+                days,
+                skinType,
+                timestamp: Date.now()
+            };
+            document.getElementById('modalOverlay').style.display = 'block';
+            document.getElementById('paymentModal').style.display = 'block';
+        }
+
+        function submitPayment() {
+            gameState.pendingPayments.push(currentPayment);
+            if(currentPayment.skinType) {
+                alert('Skin upgrade pending admin approval');
+            } else {
+                alert('Package pending admin approval');
+            }
+            hideModal();
+            saveGame();
+        }
+
+        function hideModal() {
+            document.getElementById('modalOverlay').style.display = 'none';
+            document.getElementById('paymentModal').style.display = 'none';
+            currentPayment = null;
+        }
+
+        function purchaseSkin(skinType, cost) {
+            if(gameState.balance >= cost) {
+                gameState.balance -= cost;
+                gameState.activeSkin = skinType;
+                updateCoinSkin();
+                saveGame();
+                alert('Skin activated!');
+            } else {
+                alert('Insufficient balance!');
+            }
+        }
+
+        function approvePayment(timestamp) {
+            const index = gameState.pendingPayments.findIndex(p => p.timestamp === timestamp);
+            const payment = gameState.pendingPayments[index];
+            
+            if(payment.skinType) {
+                gameState.activeSkin = payment.skinType;
+                updateCoinSkin();
+            } else {
+                activatePackage(payment.multiplier, payment.days);
+            }
+            
+            gameState.pendingPayments.splice(index, 1);
+            saveGame();
+            updatePendingList();
+        }
+
+        function activatePackage(multiplier, days) {
+            const expiration = Date.now() + (days * 86400000);
+            gameState.activePackages.push({ multiplier, expiration });
+            gameState.multiplier += multiplier;
+            saveGame();
+        }
+
+        function checkExpiredPackages() {
+            const now = Date.now();
+            gameState.activePackages = gameState.activePackages.filter(pkg => pkg.expiration > now);
+            gameState.multiplier = gameState.activePackages.reduce((acc, pkg) => acc + pkg.multiplier, 1);
+        }
+
+        function updatePendingList() {
+            const list = document.getElementById('pendingList');
+            list.innerHTML = gameState.pendingPayments.map(payment => `
+                <div class="upgrade-card">
+                    <p>${payment.amount} USDT - ${payment.skinType ? 'Skin' : 'Multiplier x'+payment.multiplier}</p>
+                    <button onclick="approvePayment(${payment.timestamp})">Approve</button>
+                </div>
+            `).join('');
+        }
+
+        // Event Listeners
+        document.getElementById('coin').addEventListener('click', () => {
+            if(gameState.energy > 0) {
+                gameState.balance += gameState.multiplier;
+                gameState.energy--;
+                updateDisplay();
+                saveGame();
+            }
+        });
+
+        setInterval(() => {
+            if(gameState.energy < 1000) {
+                gameState.energy++;
+                updateDisplay();
+                saveGame();
+            }
+        }, 1000);
+
+        function showPage(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(`${page}Page`).classList.add('active');
+            if(page === 'admin') updatePendingList();
+        }
+
+        loadGame();
+        window.addEventListener('beforeunload', saveGame);
+    </script>
 </body>
 </html>
