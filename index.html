@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UAScoin Evolution</title>
-    <script src="https://sdk.minepi.com/pi-sdk.js"></script>
     <style>
         :root {
             --primary: #FFD700;
@@ -18,7 +17,6 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -46,9 +44,9 @@
         .stats-bar {
             display: flex;
             justify-content: space-between;
-            padding: 10px 15px;
+            padding: 10px;
             background: var(--card-bg);
-            border-radius: 10px;
+            border-radius: 8px;
             margin-bottom: 15px;
         }
 
@@ -84,7 +82,6 @@
             border-radius: 50%;
             box-shadow: 0 0 20px var(--primary);
             transition: transform 0.1s;
-            flex-shrink: 0;
         }
 
         .nav-buttons {
@@ -94,11 +91,10 @@
             background: var(--card-bg);
             position: sticky;
             bottom: 0;
-            z-index: 100;
         }
 
         .nav-button {
-            padding: 8px 16px;
+            padding: 10px 20px;
             cursor: pointer;
             border-radius: 8px;
             transition: background 0.3s;
@@ -115,16 +111,6 @@
             margin-bottom: 10px;
         }
 
-        .back-button {
-            background: none;
-            border: none;
-            color: var(--text);
-            font-size: 1em;
-            cursor: pointer;
-            padding: 10px 0;
-            margin-bottom: 15px;
-        }
-
         .skin-selection {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -137,15 +123,6 @@
             border-radius: 10px;
             background: rgba(0,0,0,0.2);
             text-align: center;
-        }
-
-        .skin-preview {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 10px;
-            border-radius: 50%;
-            background-size: cover;
-            border: 2px solid var(--primary);
         }
 
         .modal-overlay {
@@ -172,30 +149,6 @@
             width: 90%;
             max-width: 400px;
             text-align: center;
-        }
-
-        .usdt-address {
-            background: rgba(0,0,0,0.3);
-            padding: 10px;
-            border-radius: 5px;
-            word-break: break-all;
-            margin: 15px 0;
-        }
-
-        .qr-code img {
-            width: 150px;
-            height: 150px;
-            margin: 10px auto;
-        }
-
-        .modal-buttons button {
-            margin: 10px;
-            padding: 8px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            background: var(--secondary);
-            border: none;
-            color: #000;
         }
     </style>
 </head>
@@ -235,7 +188,6 @@
     </div>
 
     <div class="page" id="upgradesPage">
-        <button class="back-button" onclick="showPage('main')">← Back</button>
         <h2>Upgrade Packages</h2>
         <div class="upgrade-card">
             <h3>Bronze Package</h3>
@@ -258,22 +210,19 @@
     </div>
 
     <div class="page" id="skinsPage">
-        <button class="back-button" onclick="showPage('main')">← Back</button>
         <h2>Skins Marketplace</h2>
         <div class="skin-selection">
             <div class="skin-item">
-                <div class="skin-preview usa-flag" style="background-image: url('usa_skin.png')"></div>
+                <div class="skin-preview usa-flag"></div>
                 <h4>USA Flag</h4>
                 <div class="payment-options">
-                    <button onclick="handlePiPayment(500, 'usa')">500 π</button>
                     <button onclick="showUsdtPayment(5, 'usa')">5 USDT</button>
                 </div>
             </div>
             <div class="skin-item">
-                <div class="skin-preview pi-skin" style="background-image: url('pi_skin.png')"></div>
+                <div class="skin-preview pi-skin"></div>
                 <h4>Pi Network</h4>
                 <div class="payment-options">
-                    <button onclick="handlePiPayment(2000, 'pi')">2000 π</button>
                     <button onclick="showUsdtPayment(20, 'pi')">20 USDT</button>
                 </div>
             </div>
@@ -294,45 +243,32 @@
             totalTaps: 0,
             activeSkin: 'bronze',
             purchasedSkins: ['bronze'],
-            activePackages: [],
-            pendingPurchase: null,
-            lastUpdate: Date.now()
+            upgrades: [],
+            pendingPurchase: null
         };
 
-        let energyInterval = null;
-        let listenersInitialized = false;
-
+        // Initialize Game
         function init() {
             loadGame();
-            if (!listenersInitialized) {
-                setupEventListeners();
-                listenersInitialized = true;
-            }
+            setupEventListeners();
             startEnergyRegeneration();
             updateDisplay();
-            updateCoinSkin();
         }
 
         function setupEventListeners() {
             // Coin click handler
-            const coin = document.getElementById('coin');
-            if(coin) {
-                coin.addEventListener('click', handleTap);
-            }
-
-            // Navigation handlers using event delegation
-            document.querySelector('.nav-buttons').addEventListener('click', (event) => {
-                const button = event.target.closest('.nav-button');
-                if (button) {
+            document.getElementById('coin').addEventListener('click', handleTap);
+            
+            // Navigation handlers
+            document.querySelectorAll('.nav-button').forEach(button => {
+                button.addEventListener('click', () => {
                     const page = button.dataset.page;
-                    if(page) {
-                        showPage(page);
-                        document.querySelectorAll('.nav-button').forEach(btn => {
-                            btn.classList.remove('active');
-                        });
-                        button.classList.add('active');
-                    }
-                }
+                    showPage(page);
+                    document.querySelectorAll('.nav-button').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    button.classList.add('active');
+                });
             });
 
             // Modal overlay
@@ -353,17 +289,11 @@
             document.querySelectorAll('.page').forEach(page => {
                 page.classList.remove('active');
             });
-            const targetPage = document.getElementById(`${pageId}Page`);
-            if(targetPage) {
-                targetPage.classList.add('active');
-            }
+            document.getElementById(`${pageId}Page`).classList.add('active');
         }
 
         function startEnergyRegeneration() {
-            if (energyInterval) {
-                clearInterval(energyInterval);
-            }
-            energyInterval = setInterval(() => {
+            setInterval(() => {
                 if(gameState.energy < 1000) {
                     gameState.energy++;
                     updateDisplay();
@@ -376,15 +306,12 @@
             if(gameState.balance >= cost) {
                 gameState.balance -= cost;
                 gameState.multiplier += multiplier;
-                gameState.activePackages.push({
-                    multiplier,
-                    expires: Date.now() + (90 * 86400000)
-                });
+                gameState.upgrades.push(multiplier);
                 updateDisplay();
                 saveGame();
                 alert(`Purchased ${multiplier}x multiplier!`);
             } else {
-                alert('Not enough UAS!');
+                alert('Not enough balance!');
             }
         }
 
@@ -406,10 +333,9 @@
                 if(!gameState.purchasedSkins.includes(itemType)) {
                     gameState.purchasedSkins.push(itemType);
                     saveGame();
-                    alert(`Successfully purchased ${itemType} skin!`);
+                    alert(`Purchased ${itemType} skin!`);
                 }
                 hideModal();
-                updateCoinSkin();
             }
         }
 
@@ -422,35 +348,20 @@
                 `${(gameState.energy/1000)*100}%`;
         }
 
-        function updateCoinSkin() {
-            const coin = document.getElementById('coin');
-            if(coin) {
-                coin.style.backgroundImage = `url('${gameState.activeSkin}_coin.png')`;
-            }
+        function saveGame() {
+            localStorage.setItem('gameState', JSON.stringify(gameState));
         }
 
         function loadGame() {
-            const saved = localStorage.getItem('uascoinGame');
+            const saved = localStorage.getItem('gameState');
             if(saved) {
                 gameState = JSON.parse(saved);
-                checkExpiredPackages();
+                updateDisplay();
             }
         }
 
-        function saveGame() {
-            localStorage.setItem('uascoinGame', JSON.stringify(gameState));
-        }
-
-        function checkExpiredPackages() {
-            const now = Date.now();
-            gameState.activePackages = gameState.activePackages.filter(pkg => 
-                pkg.expires > now);
-            gameState.multiplier = 1 + gameState.activePackages.reduce((sum, pkg) => 
-                sum + pkg.multiplier, 0);
-        }
-
-        // Initialize game
-        document.addEventListener('DOMContentLoaded', init);
+        // Start the game
+        init();
     </script>
 </body>
 </html>
