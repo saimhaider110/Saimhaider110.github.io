@@ -9,7 +9,7 @@
         :root {
             --primary: #FFD700;
             --secondary: #00FF88;
-            --bg: linear-gradient(45deg, #1a1a2e, #2a1454);
+            --bg: linear-gradient(45deg, #1a1a2e, #2a1454), url('background.png');
             --text: #ffffff;
             --card-bg: rgba(255,255,255,0.1);
         }
@@ -23,6 +23,8 @@
 
         body {
             background: var(--bg);
+            background-size: cover;
+            background-blend-mode: multiply;
             color: var(--text);
             font-family: Arial, sans-serif;
             height: 100vh;
@@ -102,12 +104,19 @@
             justify-content: space-around;
             padding: 15px 0;
             background: var(--card-bg);
+            position: relative;
+            z-index: 100;
         }
 
         .nav-button {
             padding: 10px 20px;
             cursor: pointer;
-            transition: opacity 0.3s;
+            transition: all 0.3s;
+            border-radius: 8px;
+        }
+
+        .nav-button:hover {
+            background: rgba(255,255,255,0.1);
         }
 
         .upgrade-card, .skin-card {
@@ -183,6 +192,16 @@
             background-size: cover;
             border: 2px solid var(--primary);
         }
+
+        .back-button {
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 1.2em;
+            cursor: pointer;
+            padding: 10px;
+            align-self: flex-start;
+        }
     </style>
 </head>
 <body>
@@ -222,31 +241,57 @@
 
     <div class="page" id="upgradesPage">
         <button class="back-button" onclick="showPage('main')">← Back</button>
-        <!-- Upgrade packages remain same as previous -->
+        <h2>Upgrade Packages</h2>
+        <div class="upgrade-card">
+            <h3>Bronze Package</h3>
+            <p>2x Multiplier</p>
+            <p>Cost: 25M UAS</p>
+            <button onclick="buyUpgrade(25000000, 2)">Purchase</button>
+        </div>
+        <div class="upgrade-card">
+            <h3>Silver Package</h3>
+            <p>4x Multiplier</p>
+            <p>Cost: 50M UAS</p>
+            <button onclick="buyUpgrade(50000000, 4)">Purchase</button>
+        </div>
+        <div class="upgrade-card">
+            <h3>Gold Package</h3>
+            <p>6x Multiplier</p>
+            <p>Cost: 100M UAS</p>
+            <button onclick="buyUpgrade(100000000, 6)">Purchase</button>
+        </div>
     </div>
 
     <div class="page" id="skinsPage">
         <button class="back-button" onclick="showPage('main')">← Back</button>
         <h2>Skins Marketplace</h2>
         <div class="skin-selection">
-            <!-- Skin items with Pi/USDT payment options -->
+            <div class="skin-item">
+                <div class="skin-preview usa-flag"></div>
+                <h4>USA Flag</h4>
+                <div class="payment-options">
+                    <button onclick="handlePiPayment(500, 'usa')">500 π</button>
+                    <button onclick="showUsdtPayment(5, 'usa')">5 USDT</button>
+                </div>
+            </div>
+            <div class="skin-item">
+                <div class="skin-preview pi-skin"></div>
+                <h4>Pi Network</h4>
+                <div class="payment-options">
+                    <button onclick="handlePiPayment(2000, 'pi')">2000 π</button>
+                    <button onclick="showUsdtPayment(20, 'pi')">20 USDT</button>
+                </div>
+            </div>
         </div>
     </div>
 
     <div class="nav-buttons">
-        <div class="nav-button" onclick="showPage('main')">Game</div>
-        <div class="nav-button" onclick="showPage('upgrades')">Upgrades</div>
-        <div class="nav-button" onclick="showPage('skins')">Skins</div>
+        <div class="nav-button" data-page="main">Game</div>
+        <div class="nav-button" data-page="upgrades">Upgrades</div>
+        <div class="nav-button" data-page="skins">Skins</div>
     </div>
 
     <script>
-        // Pi Configuration (Replace with your actual credentials)
-        const PI_APP_ID = 'uascoin-clicker';
-        const API_BASE_URL = 'http://uascoin-clicker.replit.app';
-        
-        // Initialize Pi SDK
-        Pi.init({ version: "2.0", sandbox: true });
-
         // Game State
         let gameState = {
             balance: 0,
@@ -258,24 +303,74 @@
             activePackages: [],
             pendingPayments: [],
             autobot: false,
-            lastUpdate: Date.now(),
-            piBalance: 0
+            lastUpdate: Date.now()
         };
 
-        // Pi Authentication
-        Pi.authenticate(PI_APP_ID, async (authResult) => {
-            if(authResult) {
-                try {
-                    const user = await Pi.getUser();
-                    const response = await fetch(`${API_BASE_URL}/balance/${user.uid}`);
-                    gameState.piBalance = await response.json();
-                } catch (error) {
-                    console.error('Pi Auth Error:', error);
-                }
-            }
-        });
+        // Initialize Game
+        function init() {
+            loadGame();
+            setupEventListeners();
+            startEnergyRegeneration();
+            updateDisplay();
+            updateCoinSkin();
+        }
+
+        // Event Listeners
+        function setupEventListeners() {
+            document.getElementById('coin').addEventListener('click', handleTap);
+            
+            document.querySelectorAll('.nav-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    showPage(button.dataset.page);
+                });
+            });
+        }
 
         // Core Game Functions
+        function handleTap() {
+            if(gameState.energy > 0) {
+                gameState.balance += gameState.multiplier;
+                gameState.energy--;
+                gameState.totalTaps++;
+                updateDisplay();
+                saveGame();
+            }
+        }
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(`${pageId}Page`).classList.add('active');
+        }
+
+        function startEnergyRegeneration() {
+            setInterval(() => {
+                if(gameState.energy < 1000) {
+                    gameState.energy++;
+                    updateDisplay();
+                    saveGame();
+                }
+            }, 1000);
+        }
+
+        function buyUpgrade(cost, multiplier) {
+            if(gameState.balance >= cost) {
+                gameState.balance -= cost;
+                gameState.multiplier += multiplier;
+                gameState.activePackages.push({
+                    multiplier,
+                    expires: Date.now() + (90 * 86400000)
+                });
+                updateDisplay();
+                saveGame();
+                alert(`Purchased ${multiplier}x multiplier!`);
+            } else {
+                alert('Not enough UAS!');
+            }
+        }
+
+        // Display Updates
         function updateDisplay() {
             document.getElementById('balance').textContent = gameState.balance.toLocaleString();
             document.getElementById('tapCount').textContent = gameState.totalTaps.toLocaleString();
@@ -287,69 +382,29 @@
             coin.style.backgroundImage = `url('${gameState.activeSkin}_coin.png')`;
         }
 
-        // Pi Payment Handler
-        async function handlePiPayment(amount, skinType) {
-            const paymentData = {
-                amount: amount,
-                memo: `Purchase ${skinType} Skin`,
-                metadata: { skinType: skinType }
-            };
-
-            const payment = await Pi.createPayment(paymentData, {
-                onReadyForServerApproval: async (paymentId) => {
-                    const response = await fetch(`${API_BASE_URL}/approve`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ paymentId, skinType })
-                    });
-                    if(response.ok) Pi.approvePayment(paymentId);
-                },
-                onReadyForServerCompletion: async (paymentId, txid) => {
-                    const response = await fetch(`${API_BASE_URL}/complete`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ paymentId, txid })
-                    });
-                    if(response.ok) unlockSkin(skinType);
-                },
-                onCancel: () => alert('Payment cancelled'),
-                onError: (error) => console.error('Pi Error:', error)
-            });
-        }
-
-        // USDT Payment Handler
-        function handleUsdtPayment(amount, skinType) {
-            currentPayment = { amount, skinType };
-            document.getElementById('modalOverlay').style.display = 'block';
-            document.getElementById('paymentModal').style.display = 'block';
-        }
-
-        function unlockSkin(skinType) {
-            if(!gameState.purchasedSkins.includes(skinType)) {
-                gameState.purchasedSkins.push(skinType);
-                alert(`Unlocked ${skinType} skin!`);
-                saveGame();
-            }
-        }
-
         // Save/Load System
         function loadGame() {
             const saved = localStorage.getItem('uascoinGame');
-            if(saved) gameState = JSON.parse(saved);
-            updateDisplay();
-            updateCoinSkin();
+            if(saved) {
+                gameState = JSON.parse(saved);
+                checkExpiredPackages();
+            }
         }
 
         function saveGame() {
+            gameState.lastUpdate = Date.now();
             localStorage.setItem('uascoinGame', JSON.stringify(gameState));
         }
 
+        function checkExpiredPackages() {
+            const now = Date.now();
+            gameState.activePackages = gameState.activePackages.filter(pkg => pkg.expires > now);
+            gameState.multiplier = 1 + gameState.activePackages.reduce((sum, pkg) => sum + pkg.multiplier, 0);
+        }
+
         // Initialize
-        loadGame();
+        init();
         window.addEventListener('beforeunload', saveGame);
-        document.getElementById('coin').onclick = handleTap;
-        
-        // Remaining game logic (energy, packages, etc.) same as previous versions
     </script>
 </body>
 </html>
