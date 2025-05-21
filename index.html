@@ -1,360 +1,312 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>UAScoin Evolution</title>
-    <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-    <style>
-        :root {
-            --primary: #FFD700;
-            --secondary: #00FF88;
-            --bg: linear-gradient(45deg, #1a1a2e, #2a1454);
-            --text: #ffffff;
-            --card-bg: rgba(255,255,255,0.1);
-        }
+  <meta charset="UTF-8">
+  <title>UAScoin Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #121212;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+    }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
+    .nav {
+      display: flex;
+      justify-content: space-around;
+      background-color: #1e1e1e;
+      padding: 10px 0;
+      position: fixed;
+      width: 100%;
+      bottom: 0;
+      z-index: 1000;
+    }
 
-        body {
-            background: var(--bg);
-            color: var(--text);
-            font-family: Arial, sans-serif;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+    .nav button {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 14px;
+      padding: 10px;
+      flex: 1;
+    }
 
-        .page {
-            display: none;
-            padding: 20px;
-            flex-grow: 1;
-        }
+    .page {
+      display: none;
+      padding: 80px 20px 100px;
+    }
 
-        .page.active {
-            display: flex;
-            flex-direction: column;
-        }
+    .page.active {
+      display: block;
+    }
 
-        .stats-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding: 0 10px;
-        }
+    #coin {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background-size: cover;
+      margin: 20px auto;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
 
-        .balance-container, .taps-container {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-        }
+    #coin:active {
+      transform: scale(0.9);
+    }
 
-        .taps-container { align-items: flex-end; }
+    .info {
+      text-align: center;
+    }
 
-        .stat-label {
-            font-size: 0.9em;
-            opacity: 0.8;
-            margin-bottom: 2px;
-        }
+    .energy-bar {
+      width: 80%;
+      height: 20px;
+      margin: 10px auto;
+      background: #555;
+      border-radius: 10px;
+      overflow: hidden;
+    }
 
-        .stat-value {
-            font-size: 1.8em;
-            font-weight: bold;
-        }
+    .energy-fill {
+      height: 100%;
+      width: 100%;
+      background: limegreen;
+    }
 
-        #balance { color: var(--primary); }
-        #tapCount { color: var(--secondary); }
+    .skin-selection {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
 
-        .energy-bar {
-            width: 100%;
-            height: 10px;
-            background: #333;
-            border-radius: 5px;
-            margin: 10px 0;
-        }
+    .skin-item {
+      background: #222;
+      padding: 10px;
+      border-radius: 10px;
+      text-align: center;
+      width: 120px;
+      cursor: pointer;
+    }
 
-        .energy-fill {
-            height: 100%;
-            background: var(--secondary);
-            border-radius: 5px;
-            transition: width 0.3s;
-        }
+    .skin-preview {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 10px;
+      background-size: cover;
+      border-radius: 50%;
+      border: 2px solid #fff;
+    }
 
-        .main-coin {
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            margin: 20px auto;
-            cursor: pointer;
-            background: url('bronze_coin.png') center/cover;
-            box-shadow: 0 0 20px var(--primary);
-            transition: transform 0.1s;
-        }
+    /* Modal */
+    #modalOverlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1001;
+    }
 
-        .nav-buttons {
-            display: flex;
-            justify-content: space-around;
-            padding: 15px 0;
-            background: var(--card-bg);
-        }
+    #paymentModal {
+      background: #222;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      width: 90%;
+      max-width: 400px;
+    }
 
-        .nav-button {
-            padding: 10px 20px;
-            cursor: pointer;
-            transition: opacity 0.3s;
-        }
-
-        .upgrade-card, .skin-card {
-            background: var(--card-bg);
-            padding: 15px;
-            border-radius: 10px;
-            margin: 10px 0;
-        }
-
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            z-index: 999;
-        }
-
-        .payment-modal {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: var(--bg);
-            padding: 20px;
-            border-radius: 10px;
-            z-index: 1000;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-        }
-
-        .usdt-address {
-            background: rgba(0,0,0,0.3);
-            padding: 10px;
-            border-radius: 5px;
-            word-break: break-all;
-            font-size: 0.9em;
-            margin: 10px 0;
-        }
-
-        .qr-code {
-            width: 150px;
-            height: 150px;
-            margin: 15px auto;
-            background: #fff;
-            padding: 10px;
-        }
-
-        .skin-selection {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 15px;
-            padding: 10px;
-        }
-
-        .skin-item {
-            padding: 10px;
-            border-radius: 10px;
-            background: var(--card-bg);
-            cursor: pointer;
-            text-align: center;
-        }
-
-        .skin-preview {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto;
-            border-radius: 50%;
-            background-size: cover;
-            border: 2px solid var(--primary);
-        }
-    </style>
+    #paymentModal button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      background: limegreen;
+      border: none;
+      border-radius: 5px;
+      color: white;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-    <!-- Payment Modal -->
-    <div class="modal-overlay" id="modalOverlay"></div>
-    <div class="payment-modal" id="paymentModal">
-        <h2>USDT Payment</h2>
-        <div class="usdt-address">0x86d69358e89e1ec95b9a35828363f41d7e55d880</div>
-        <div class="qr-code">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=0x86d69358e89e1ec95b9a35828363f41d7e55d880" 
-                 alt="USDT QR Code">
-        </div>
-        <p>BEP20 Network Only</p>
-        <div class="modal-buttons">
-            <button onclick="submitPayment()">I've Paid</button>
-            <button onclick="hideModal()">Cancel</button>
-        </div>
+
+  <div id="modalOverlay">
+    <div id="paymentModal">
+      <h3>USDT Payment</h3>
+      <p>Confirm USDT Payment to buy this skin.</p>
+      <button onclick="submitPayment()">Confirm</button>
+      <button onclick="hideModal()">Cancel</button>
     </div>
+  </div>
 
-    <!-- Game Pages -->
-    <div class="page active" id="mainPage">
-        <div class="stats-bar">
-            <div class="balance-container">
-                <div class="stat-label">BALANCE</div>
-                <div class="stat-value" id="balance">0</div>
-            </div>
-            <div class="taps-container">
-                <div class="stat-label">TAPS</div>
-                <div class="stat-value" id="tapCount">0</div>
-            </div>
-        </div>
-        <div class="energy-bar">
-            <div class="energy-fill" id="energy"></div>
-        </div>
-        <div class="main-coin" id="coin"></div>
+  <!-- Earn Page -->
+  <div id="earnPage" class="page active">
+    <div class="info">
+      <h2>Balance: <span id="balance">0</span> UAS</h2>
+      <div id="coin" style="background-image: url('bronze_coin.png');"></div>
+      <p>Total Taps: <span id="tapCount">0</span></p>
+      <div class="energy-bar"><div class="energy-fill" id="energy"></div></div>
     </div>
+  </div>
 
-    <div class="page" id="upgradesPage">
-        <button class="back-button" onclick="showPage('main')">← Back</button>
-        <!-- Upgrade packages can be inserted here -->
+  <!-- Skins Page -->
+  <div id="skinsPage" class="page">
+    <h2 style="text-align:center;">Buy Coin Skins</h2>
+    <div class="skin-selection">
+      <div class="skin-item" onclick="handlePiPayment(0.1, 'gold')">
+        <div class="skin-preview" style="background-image: url('gold_coin.png');"></div>
+        <div>Gold Skin<br>0.1 Pi</div>
+      </div>
+      <div class="skin-item" onclick="handleUsdtPayment(2, 'gold')">
+        <div class="skin-preview" style="background-image: url('gold_coin.png');"></div>
+        <div>Gold Skin<br>2 USDT</div>
+      </div>
+      <div class="skin-item" onclick="handlePiPayment(0.2, 'diamond')">
+        <div class="skin-preview" style="background-image: url('diamond_coin.png');"></div>
+        <div>Diamond Skin<br>0.2 Pi</div>
+      </div>
+      <div class="skin-item" onclick="handleUsdtPayment(4, 'diamond')">
+        <div class="skin-preview" style="background-image: url('diamond_coin.png');"></div>
+        <div>Diamond Skin<br>4 USDT</div>
+      </div>
     </div>
+  </div>
 
-    <div class="page" id="skinsPage">
-        <button class="back-button" onclick="showPage('main')">← Back</button>
-        <h2>Skins Marketplace</h2>
-        <div class="skin-selection">
-            <!-- Dynamically populated -->
-        </div>
-    </div>
+  <!-- Navigation -->
+  <div class="nav">
+    <button onclick="showPage('earn')">Earn</button>
+    <button onclick="showPage('skins')">Skins</button>
+  </div>
 
-    <div class="nav-buttons">
-        <div class="nav-button" onclick="showPage('main')">Game</div>
-        <div class="nav-button" onclick="showPage('upgrades')">Upgrades</div>
-        <div class="nav-button" onclick="showPage('skins')">Skins</div>
-    </div>
+  <!-- Pi SDK -->
+  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
 
-    <script>
-        const PI_APP_ID = 'uascoin.clicker';
-        const API_BASE_URL = 'http://uascoin-clicker.replit.app';
+  <script>
+    const PI_APP_ID = "uascoin.clicker"; // Replace with real
+    const API_BASE_URL = "https://uascoin-clicker.replit.app"; // Replace with real
 
-        Pi.init({ version: "2.0", sandbox: true });
+    let currentPayment = null;
 
-        let gameState = {
-            balance: 0,
-            energy: 1000,
-            multiplier: 1,
-            totalTaps: 0,
-            activeSkin: 'bronze',
-            purchasedSkins: ['bronze'],
-            activePackages: [],
-            pendingPayments: [],
-            autobot: false,
-            lastUpdate: Date.now(),
-            piBalance: 0
-        };
+    let gameState = {
+      balance: 0,
+      energy: 1000,
+      multiplier: 1,
+      totalTaps: 0,
+      activeSkin: 'bronze',
+      purchasedSkins: ['bronze'],
+    };
 
-        Pi.authenticate(PI_APP_ID, async (authResult) => {
-            if(authResult) {
-                try {
-                    const user = await Pi.getUser();
-                    const response = await fetch(`${API_BASE_URL}/balance/${user.uid}`);
-                    gameState.piBalance = await response.json();
-                } catch (error) {
-                    console.error('Pi Auth Error:', error);
-                }
-            }
-        });
+    function showPage(page) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(page + 'Page').classList.add('active');
+    }
 
-        function updateDisplay() {
-            document.getElementById('balance').textContent = gameState.balance.toLocaleString();
-            document.getElementById('tapCount').textContent = gameState.totalTaps.toLocaleString();
-            document.getElementById('energy').style.width = `${(gameState.energy/1000)*100}%`;
-        }
+    function updateDisplay() {
+      document.getElementById('balance').textContent = gameState.balance.toLocaleString();
+      document.getElementById('tapCount').textContent = gameState.totalTaps.toLocaleString();
+      document.getElementById('energy').style.width = `${(gameState.energy / 1000) * 100}%`;
+      document.getElementById('coin').style.backgroundImage = `url('${gameState.activeSkin}_coin.png')`;
+    }
 
-        function updateCoinSkin() {
-            document.getElementById('coin').style.backgroundImage = `url('${gameState.activeSkin}_coin.png')`;
-        }
+    function handleTap() {
+      if (gameState.energy <= 0) return;
+      gameState.totalTaps += 1;
+      gameState.balance += 1 * gameState.multiplier;
+      gameState.energy -= 10;
+      if (gameState.energy < 0) gameState.energy = 0;
+      updateDisplay();
+    }
 
-        async function handlePiPayment(amount, skinType) {
-            const payment = await Pi.createPayment({
-                amount,
-                memo: `Purchase ${skinType} Skin`,
-                metadata: { skinType }
-            }, {
-                onReadyForServerApproval: async (paymentId) => {
-                    await fetch(`${API_BASE_URL}/approve`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ paymentId, skinType })
-                    });
-                    Pi.approvePayment(paymentId);
-                },
-                onReadyForServerCompletion: async (paymentId, txid) => {
-                    await fetch(`${API_BASE_URL}/complete`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ paymentId, txid })
-                    });
-                    unlockSkin(skinType);
-                },
-                onCancel: () => alert('Payment cancelled'),
-                onError: (error) => console.error('Pi Error:', error)
-            });
-        }
+    function regenerateEnergy() {
+      if (gameState.energy < 1000) {
+        gameState.energy += 5;
+        if (gameState.energy > 1000) gameState.energy = 1000;
+        updateDisplay();
+      }
+    }
 
-        function handleUsdtPayment(amount, skinType) {
-            currentPayment = { amount, skinType };
-            document.getElementById('modalOverlay').style.display = 'block';
-            document.getElementById('paymentModal').style.display = 'block';
-        }
+    function unlockSkin(skinType) {
+      if (!gameState.purchasedSkins.includes(skinType)) {
+        gameState.purchasedSkins.push(skinType);
+        gameState.activeSkin = skinType;
+        saveGame();
+        updateDisplay();
+        alert(`Unlocked ${skinType} skin!`);
+      }
+    }
 
-        function unlockSkin(skinType) {
-            if(!gameState.purchasedSkins.includes(skinType)) {
-                gameState.purchasedSkins.push(skinType);
-                alert(`Unlocked ${skinType} skin!`);
-                saveGame();
-            }
-        }
+    function handleUsdtPayment(amount, skinType) {
+      currentPayment = { amount, skinType };
+      document.getElementById('modalOverlay').style.display = 'flex';
+    }
 
-        function loadGame() {
-            const saved = localStorage.getItem('uascoinGame');
-            if(saved) gameState = JSON.parse(saved);
-            updateDisplay();
-            updateCoinSkin();
-        }
+    function hideModal() {
+      document.getElementById('modalOverlay').style.display = 'none';
+    }
 
-        function saveGame() {
-            localStorage.setItem('uascoinGame', JSON.stringify(gameState));
-        }
+    function submitPayment() {
+      if (currentPayment) {
+        unlockSkin(currentPayment.skinType);
+        hideModal();
+      }
+    }
 
-        function handleTap() {
-            if (gameState.energy > 0) {
-                gameState.totalTaps++;
-                gameState.balance += gameState.multiplier;
-                gameState.energy -= 1;
-                updateDisplay();
-            }
-        }
+    async function handlePiPayment(amount, skinType) {
+      const paymentData = {
+        amount: amount,
+        memo: `Buy ${skinType} skin`,
+        metadata: { skin: skinType }
+      };
 
-        function showPage(name) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(name + 'Page').classList.add('active');
-        }
+      Pi.createPayment(paymentData, {
+        onReadyForServerApproval: async (paymentId) => {
+          await fetch(`${API_BASE_URL}/approve`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ paymentId, skinType })
+          });
+          Pi.approvePayment(paymentId);
+        },
+        onReadyForServerCompletion: async (paymentId, txid) => {
+          await fetch(`${API_BASE_URL}/complete`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ paymentId, txid })
+          });
+          unlockSkin(skinType);
+        },
+        onCancel: () => alert("Payment Cancelled."),
+        onError: err => console.error("Pi error", err)
+      });
+    }
 
-        function hideModal() {
-            document.getElementById('modalOverlay').style.display = 'none';
-            document.getElementById('paymentModal').style.display = 'none';
-        }
+    function saveGame() {
+      localStorage.setItem("uascoinGame", JSON.stringify(gameState));
+    }
 
-        loadGame();
-        window.addEventListener('beforeunload', saveGame);
-        document.getElementById('coin').onclick = handleTap;
-    </script>
+    function loadGame() {
+      const data = localStorage.getItem("uascoinGame");
+      if (data) gameState = JSON.parse(data);
+      updateDisplay();
+    }
+
+    document.getElementById('coin').onclick = handleTap;
+    setInterval(regenerateEnergy, 1000);
+    window.addEventListener("beforeunload", saveGame);
+
+    Pi.init({ version: "2.0", sandbox: true });
+
+    Pi.authenticate(PI_APP_ID, authResult => {
+      if (authResult && authResult.user) {
+        console.log("Authenticated:", authResult.user.username);
+      }
+    });
+
+    loadGame();
+  </script>
 </body>
 </html>
