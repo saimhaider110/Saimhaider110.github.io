@@ -19,8 +19,8 @@
     }
 
     #coin {
-      width: 180px;
-      height: 180px;
+      width: 220px;
+      height: 220px;
       cursor: pointer;
     }
 
@@ -70,7 +70,7 @@
       right: 0;
       bottom: 80px;
       overflow-y: auto;
-      background: rgba(0, 0, 0, 0.85);
+      background: rgba(0, 0, 0, 0.9);
       z-index: 5;
     }
 
@@ -78,9 +78,25 @@
       display: block;
     }
 
-    .skin-preview {
-      width: 80px;
+    .skin-card {
+      width: 100px;
       margin: 10px;
+      text-align: center;
+    }
+
+    .skin-card img {
+      width: 100%;
+      border-radius: 10px;
+    }
+
+    .skin-card button {
+      margin-top: 5px;
+      padding: 5px;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
     }
 
     .skins-container {
@@ -172,6 +188,7 @@
     }
 
     function updateUI() {
+      tapCount.textContent = 'Taps: ' + taps;
       uasBalance.textContent = 'UAS: ' + uas;
       energyEl.textContent = energy;
     }
@@ -197,17 +214,24 @@
 
     function generateSkins() {
       const skins = [
-        "pakistan", "india", "iran", "turkey", "china", "usa", "uk",
+        "Pakistan", "india", "iran", "turkey", "china", "usa", "uk",
         "germany", "france", "italy", "africa", "brazil", "saudiaarab"
       ];
       const container = document.getElementById('skinList');
       skins.forEach(name => {
-        const img = document.createElement('img');
-        img.src = `${name}.png`;
-        img.alt = name;
-        img.className = 'skin-preview';
-        container.appendChild(img);
+        const card = document.createElement('div');
+        card.className = 'skin-card';
+        card.innerHTML = `
+          <img src="${name}.png" alt="${name}">
+          <div>${name.toUpperCase()}</div>
+          <button onclick="buySkin('${name}')">Buy - 5 USDT</button>
+        `;
+        container.appendChild(card);
       });
+    }
+
+    function buySkin(skinName) {
+      alert(`You selected ${skinName}. Purchase integration coming soon.`);
     }
 
     function copyReferral() {
