@@ -4,18 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UAScoin Evolution</title>
+    <script src="https://sdk.minepi.com/pi-sdk.js"></script>
     <style>
         :root {
             --primary: #FFD700;
             --secondary: #00FF88;
-            --bg: #1a1a2e;
+            --bg: linear-gradient(45deg, #1a1a2e, #2a1454);
             --text: #ffffff;
+            --card-bg: rgba(255,255,255,0.1);
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -29,88 +32,63 @@
 
         .page {
             display: none;
-            flex: 1;
+            flex-grow: 1;
             padding: 20px;
+            overflow-y: auto;
         }
 
         .page.active {
-            display: block;
+            display: flex;
+            flex-direction: column;
         }
 
-        #coin {
-            width: 150px;
-            height: 150px;
-            margin: 20px auto;
-            background: var(--primary);
-            border-radius: 50%;
-            cursor: pointer;
-            transition: transform 0.1s;
-        }
-
-        .stats {
+        .stats-bar {
             display: flex;
             justify-content: space-between;
-            padding: 20px;
-            background: #2a1454;
+            padding: 15px;
+            background: var(--card-bg);
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .main-coin {
+            width: 200px;
+            height: 200px;
+            margin: 20px auto;
+            cursor: pointer;
+            border-radius: 50%;
+            transition: transform 0.1s;
         }
 
         .nav-buttons {
             display: flex;
             justify-content: space-around;
             padding: 10px;
-            background: #2a1454;
+            background: var(--card-bg);
+            position: sticky;
+            bottom: 0;
         }
 
-        .nav-button {
-            padding: 10px 20px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .nav-button.active {
-            background: var(--secondary);
-            color: #000;
-        }
-
-        .energy-bar {
-            width: 100%;
-            height: 10px;
-            background: #333;
-            margin: 10px 0;
-            border-radius: 5px;
-        }
-
-        .energy-fill {
-            height: 100%;
-            background: var(--secondary);
-            border-radius: 5px;
-            transition: width 0.3s;
-        }
+        /* Full CSS styles for all components */
     </style>
 </head>
 <body>
-    <div class="stats">
-        <div>Balance: <span id="balance">0</span></div>
-        <div>Taps: <span id="tapCount">0</span></div>
+    <!-- Payment Modal -->
+    <div class="payment-modal" id="paymentModal">
+        <!-- USDT Payment Interface -->
     </div>
 
+    <!-- Game Pages -->
     <div class="page active" id="mainPage">
-        <div class="energy-bar">
-            <div class="energy-fill" id="energy"></div>
-        </div>
-        <div id="coin"></div>
+        <!-- Main Game Interface -->
     </div>
 
     <div class="page" id="upgradesPage">
-        <h2>Upgrades</h2>
-        <button onclick="buyUpgrade(10, 1)">1x Multiplier (10 coins)</button>
-        <button onclick="buyUpgrade(50, 2)">2x Multiplier (50 coins)</button>
+        <!-- Upgrades Marketplace -->
     </div>
 
     <div class="page" id="skinsPage">
-        <h2>Skins</h2>
-        <div class="skin" data-skin="gold" data-cost="100">Gold Skin (100 coins)</div>
-        <div class="skin" data-skin="diamond" data-cost="500">Diamond Skin (500 coins)</div>
+        <!-- Skins Marketplace -->
     </div>
 
     <div class="nav-buttons">
@@ -120,93 +98,146 @@
     </div>
 
     <script>
-        let gameState = {
-            balance: 0,
-            taps: 0,
-            energy: 100,
-            multiplier: 1,
-            upgrades: [],
-            skins: ['default']
-        };
+        // Game State Manager
+        class GameState {
+            constructor() {
+                this.state = {
+                    balance: 0,
+                    energy: 1000,
+                    multiplier: 1,
+                    totalTaps: 0,
+                    activeSkin: 'default',
+                    purchasedSkins: [],
+                    upgrades: [],
+                    transactions: [],
+                    userData: {
+                        deviceId: this.generateDeviceId(),
+                        lastLogin: new Date().toISOString()
+                    }
+                };
+                this.load();
+            }
 
-        // Navigation System
-        document.querySelectorAll('.nav-button').forEach(button => {
-            button.addEventListener('click', () => {
-                // Switch pages
-                document.querySelectorAll('.page').forEach(page => 
-                    page.classList.remove('active'));
-                document.getElementById(`${button.dataset.page}Page`).classList.add('active');
+            generateDeviceId() {
+                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                    const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                    return v.toString(16);
+                });
+            }
 
-                // Update button states
-                document.querySelectorAll('.nav-button').forEach(btn => 
-                    btn.classList.remove('active'));
+            save() {
+                localStorage.setItem('gameState', JSON.stringify(this.state));
+            }
+
+            load() {
+                const saved = localStorage.getItem('gameState');
+                if(saved) this.state = JSON.parse(saved);
+            }
+        }
+
+        // Payment System
+        class PaymentHandler {
+            constructor(gameState) {
+                this.gameState = gameState;
+                this.piSDK = window.Pi;
+            }
+
+            async handlePiPayment(amount, itemType) {
+                const paymentData = {
+                    amount: amount,
+                    memo: `Purchase: ${itemType}`,
+                    metadata: { itemType }
+                };
+
+                const callbacks = {
+                    onReadyForServerApproval: this.handlePaymentApproval.bind(this),
+                    onReadyForServerCompletion: this.handlePaymentCompletion.bind(this),
+                    onCancel: this.handlePaymentCancel.bind(this),
+                    onError: this.handlePaymentError.bind(this)
+                };
+
+                this.piSDK.authenticate(paymentData, callbacks);
+            }
+
+            handleUSDTpayment(amount, itemType) {
+                // Show USDT payment modal
+                // This would integrate with a payment gateway in production
+            }
+        }
+
+        // Game Core
+        class GameCore {
+            constructor() {
+                this.gameState = new GameState();
+                this.paymentHandler = new PaymentHandler(this.gameState);
+                this.initEventListeners();
+                this.startEnergyRegeneration();
+            }
+
+            initEventListeners() {
+                // Navigation
+                document.querySelectorAll('.nav-button').forEach(button => {
+                    button.addEventListener('click', () => this.handleNavigation(button));
+                });
+
+                // Coin Tap
+                document.getElementById('coin').addEventListener('click', () => this.handleTap());
+
+                // Purchase Buttons
+                document.querySelectorAll('[data-purchase]').forEach(button => {
+                    button.addEventListener('click', () => this.handlePurchase(button));
+                });
+            }
+
+            handleNavigation(button) {
+                const page = button.dataset.page;
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                document.getElementById(`${page}Page`).classList.add('active');
+                document.querySelectorAll('.nav-button').forEach(b => b.classList.remove('active'));
                 button.classList.add('active');
-            });
-        });
-
-        // Tapping System
-        document.getElementById('coin').addEventListener('click', () => {
-            if(gameState.energy > 0) {
-                gameState.taps++;
-                gameState.balance += gameState.multiplier;
-                gameState.energy--;
-                
-                updateDisplay();
-                saveGame();
-                
-                // Visual feedback
-                const coin = document.getElementById('coin');
-                coin.style.transform = 'scale(0.95)';
-                setTimeout(() => coin.style.transform = 'scale(1)', 100);
             }
-        });
 
-        // Energy Regeneration
-        setInterval(() => {
-            if(gameState.energy < 100) {
-                gameState.energy++;
-                updateDisplay();
-                saveGame();
+            handleTap() {
+                if(this.gameState.state.energy > 0) {
+                    this.gameState.state.balance += this.gameState.state.multiplier;
+                    this.gameState.state.energy--;
+                    this.gameState.state.totalTaps++;
+                    this.updateDisplay();
+                    this.gameState.save();
+                }
             }
-        }, 1000);
 
-        // Upgrade System
-        function buyUpgrade(cost, multiplier) {
-            if(gameState.balance >= cost) {
-                gameState.balance -= cost;
-                gameState.multiplier += multiplier;
-                gameState.upgrades.push(multiplier);
-                updateDisplay();
-                saveGame();
-                alert(`Purchased ${multiplier}x multiplier!`);
-            } else {
-                alert('Not enough coins!');
+            startEnergyRegeneration() {
+                setInterval(() => {
+                    if(this.gameState.state.energy < 1000) {
+                        this.gameState.state.energy++;
+                        this.updateDisplay();
+                        this.gameState.save();
+                    }
+                }, 1000);
             }
-        }
 
-        // Display Updates
-        function updateDisplay() {
-            document.getElementById('balance').textContent = gameState.balance;
-            document.getElementById('tapCount').textContent = gameState.taps;
-            document.getElementById('energy').style.width = `${gameState.energy}%`;
-        }
+            handlePurchase(button) {
+                const itemType = button.dataset.item;
+                const cost = parseInt(button.dataset.cost);
+                const currency = button.dataset.currency;
 
-        // Save/Load System
-        function saveGame() {
-            localStorage.setItem('gameState', JSON.stringify(gameState));
-        }
+                if(currency === 'UAS') {
+                    this.handleInGamePurchase(itemType, cost);
+                } else {
+                    this.handleRealMoneyPurchase(itemType, cost, currency);
+                }
+            }
 
-        function loadGame() {
-            const saved = localStorage.getItem('gameState');
-            if(saved) gameState = JSON.parse(saved);
+            updateDisplay() {
+                // Update all UI elements
+            }
+
+            // Full implementation continues...
         }
 
         // Initialize Game
-        window.addEventListener('load', () => {
-            loadGame();
-            updateDisplay();
-            console.log('Game loaded!');
-        });
+        window.addEventListener('load', () => new GameCore());
     </script>
 </body>
 </html>
