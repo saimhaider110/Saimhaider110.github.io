@@ -1,133 +1,148 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>UAScoin Game</title>
   <style>
     body {
-      margin: 0;
-      padding: 0;
-      font-family: sans-serif;
       background: url('background.png') no-repeat center center fixed;
       background-size: cover;
-      color: white;
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
       text-align: center;
     }
+
     #tap-count {
-      font-size: 2.5rem;
-      text-shadow: 0 0 5px black;
+      font-size: 2.2rem;
+      color: white;
       margin-top: 20px;
+      text-shadow: 0 0 5px black;
     }
+
     #coin {
-      width: 240px;
-      height: 240px;
+      width: 200px;
+      height: 200px;
       margin: 20px auto;
-      display: block;
       transition: transform 0.2s ease;
     }
+
     #coin:active {
       transform: scale(1.1);
     }
-    #energy-bar {
-      background-color: rgba(255,255,255,0.2);
-      border: 1px solid white;
-      border-radius: 10px;
-      width: 80%;
+
+    .energy-bar {
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 20px;
       margin: 10px auto;
-      padding: 5px;
+      width: 90%;
+      height: 25px;
+      overflow: hidden;
+      font-weight: bold;
     }
-    #energy-fill {
-      height: 20px;
-      background-color: limegreen;
-      border-radius: 8px;
-      width: 100%;
+
+    .energy-bar span {
+      display: block;
+      background: #00cc66;
+      height: 100%;
+      color: black;
+      text-align: center;
+      line-height: 25px;
     }
-    .tabs {
+
+    .nav {
       display: flex;
       justify-content: space-around;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 10px 0;
       position: fixed;
       bottom: 0;
       width: 100%;
-      background: rgba(0, 0, 0, 0.8);
-      padding: 10px 0;
-    }
-    .tab-btn {
+      font-size: 1.2rem;
       color: white;
-      font-size: 1.1rem;
-      border: none;
-      background: transparent;
-      padding: 8px 12px;
+    }
+
+    .nav div {
+      flex: 1;
       cursor: pointer;
     }
-    .tab-content {
+
+    .section {
       display: none;
-      padding-bottom: 100px;
+      padding: 10px;
+      margin-top: 20px;
     }
-    .tab-content.active {
+
+    .active {
       display: block;
     }
-    .skin-card, .referral-box {
+
+    .skin-card {
       border: 1px solid #ccc;
-      background: rgba(255,255,255,0.85);
-      color: black;
-      margin: 1rem;
-      padding: 1rem;
-      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.9);
+      margin: 10px;
+      padding: 10px;
+      border-radius: 10px;
     }
   </style>
 </head>
 <body>
   <h1 id="tap-count">0</h1>
+
   <img id="coin" src="bronze_coin.png" alt="Tap Coin" />
-  <div id="energy-bar"><div id="energy-fill"></div></div>  <div id="earn" class="tab-content active"></div>
-  <div id="skins" class="tab-content"></div>
-  <div id="leaderboard" class="tab-content">Coming Soon</div>
-  <div id="referrals" class="tab-content"></div>  <div class="tabs">
-    <button class="tab-btn" onclick="switchTab('earn')">Earn</button>
-    <button class="tab-btn" onclick="switchTab('skins')">Skins</button>
-    <button class="tab-btn" onclick="switchTab('leaderboard')">Leaderboard</button>
-    <button class="tab-btn" onclick="switchTab('referrals')">Referrals</button>
-  </div>  <script>
+  
+  <div class="energy-bar">
+    <span id="energy-bar-fill">1000</span>
+  </div>
+
+  <!-- Earn Section -->
+  <div id="section-earn" class="section active">
+    <p>Start tapping to earn UAS!</p>
+  </div>
+
+  <!-- Upgrade Section -->
+  <div id="section-upgrades" class="section">
+    <p>Coming Soon: Upgrades</p>
+  </div>
+
+  <!-- Skins Section -->
+  <div id="section-skins" class="section">
+    <div id="skins-container"></div>
+  </div>
+
+  <!-- Referral Section -->
+  <div id="section-referrals" class="section">
+    <h3>Your Referral Code:</h3>
+    <p id="referral-code"></p>
+    <button onclick="copyReferral()">Copy Link</button>
+    <h4>Your Team:</h4>
+    <ul id="referral-team"></ul>
+  </div>
+
+  <!-- Navigation -->
+  <div class="nav">
+    <div onclick="showTab('earn')">Earn</div>
+    <div onclick="showTab('upgrades')">Upgrades</div>
+    <div onclick="showTab('skins')">Skins</div>
+    <div onclick="showTab('referrals')">Refs</div>
+  </div>
+
+  <script>
     let tapCount = parseInt(localStorage.getItem("tapCount")) || 0;
     let energy = parseInt(localStorage.getItem("energy")) || 1000;
-    let ownedSkins = JSON.parse(localStorage.getItem("ownedSkins")) || [];
-    let currentSkin = localStorage.getItem("currentSkin") || null;
-    const userId = localStorage.getItem("userId") || Math.random().toString(36).substring(2, 10);
-    localStorage.setItem("userId", userId);
+    let referralCode = localStorage.getItem("referralCode") || generateReferral();
+    let referralTeam = JSON.parse(localStorage.getItem("referralTeam")) || [];
 
-    const refParam = new URLSearchParams(window.location.search).get("ref");
-    if (refParam && !localStorage.getItem("referrer")) {
-      localStorage.setItem("referrer", refParam);
-      // Simulate referrer reward
-      let team = JSON.parse(localStorage.getItem("referralTeam_" + refParam) || "[]");
-      team.push(userId);
-      localStorage.setItem("referralTeam_" + refParam, JSON.stringify(team));
-      localStorage.setItem("tapCount", tapCount + 1000);
-    }
+    const coinSkins = [
+      { id: 1, name: "Bronze", bonus: 1.0, priceUSDT: 0.5, image: "bronze_coin.png" },
+      { id: 2, name: "Silver", bonus: 1.2, priceUSDT: 1, image: "silver_coin.png" },
+      { id: 3, name: "Gold", bonus: 1.3, priceUSDT: 2, image: "gold_coin.png" },
+      { id: 4, name: "Diamond", bonus: 1.4, priceUSDT: 3, image: "diamond_coin.png" },
+    ];
 
-    const coin = document.getElementById("coin");
-    const tapCountDisplay = document.getElementById("tap-count");
-    const energyFill = document.getElementById("energy-fill");
-
-    function updateDisplay() {
-      tapCountDisplay.innerText = tapCount;
-      energyFill.style.width = (energy / 1000) * 100 + "%";
-      coin.src = getCurrentCoinImage();
-    }
-
-    function handleTap() {
-      if (energy <= 0) return alert("No energy left!");
-      tapCount++;
-      energy--;
-      localStorage.setItem("tapCount", tapCount);
-      localStorage.setItem("energy", energy);
-      updateDisplay();
-    }
-
-    function switchTab(tab) {
-      document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
-      document.getElementById(tab).classList.add("active");
-    }
+    const ownedSkins = JSON.parse(localStorage.getItem("ownedSkins")) || [1];
+    let currentSkin = localStorage.getItem("currentSkin") || 1;
 
     function getLeagueSkin() {
       if (tapCount >= 200000000) return "vibranium_coin.png";
@@ -139,37 +154,108 @@
       return "bronze_coin.png";
     }
 
-    function getCurrentCoinImage() {
-      const skins = [
-        { id: 1, image: "bronze_coin.png" },
-        { id: 2, image: "silver_coin.png" },
-        { id: 3, image: "gold_coin.png" },
-      ];
-      const skin = skins.find(s => s.id == currentSkin);
-      if (skin && ownedSkins.includes(skin.id)) return skin.image;
-      return getLeagueSkin();
+    function updateCoinImage() {
+      let skin = coinSkins.find(s => s.id == currentSkin);
+      if (ownedSkins.includes(parseInt(currentSkin))) {
+        document.getElementById("coin").src = skin.image;
+      } else {
+        document.getElementById("coin").src = getLeagueSkin();
+      }
     }
 
-    function setupReferralTab() {
-      document.getElementById("referrals").innerHTML = `
-        <div class="referral-box">
-          <h3>Your Referral Code:</h3>
-          <p>${userId}</p>
-          <p>Share this link:</p>
-          <input value="${window.location.origin}?ref=${userId}" readonly style="width: 90%" />
-        </div>
-        <div class="referral-box">
-          <h3>Your Referral Team:</h3>
-          <ul>
-            ${(JSON.parse(localStorage.getItem("referralTeam_" + userId) || "[]").map(u => `<li>${u}</li>`).join("")) || '<li>No referrals yet</li>'}
-          </ul>
-        </div>`;
+    function handleTap() {
+      if (energy <= 0) return alert("No energy!");
+      energy--;
+      tapCount++;
+      localStorage.setItem("energy", energy);
+      localStorage.setItem("tapCount", tapCount);
+      updateUI();
     }
 
-    coin.addEventListener("click", handleTap);
+    function updateUI() {
+      document.getElementById("tap-count").innerText = tapCount;
+      document.getElementById("energy-bar-fill").innerText = energy;
+      updateCoinImage();
+    }
+
+    function showTab(tab) {
+      document.querySelectorAll(".section").forEach(sec => sec.classList.remove("active"));
+      document.getElementById("section-" + tab).classList.add("active");
+    }
+
+    function generateReferral() {
+      const code = "REF" + Math.floor(100000 + Math.random() * 900000);
+      localStorage.setItem("referralCode", code);
+      return code;
+    }
+
+    function copyReferral() {
+      const link = `${window.location.href}?ref=${referralCode}`;
+      navigator.clipboard.writeText(link);
+      alert("Referral link copied!");
+    }
+
+    function renderReferrals() {
+      document.getElementById("referral-code").innerText = referralCode;
+      const teamList = document.getElementById("referral-team");
+      teamList.innerHTML = "";
+      referralTeam.forEach(member => {
+        const li = document.createElement("li");
+        li.textContent = member;
+        teamList.appendChild(li);
+      });
+    }
+
+    function checkReferralFromURL() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const ref = urlParams.get('ref');
+      if (ref && ref !== referralCode && !referralTeam.includes(ref)) {
+        referralTeam.push(ref);
+        localStorage.setItem("referralTeam", JSON.stringify(referralTeam));
+        localStorage.setItem("energy", energy + 1000);
+        localStorage.setItem("tapCount", tapCount + 1000);
+      }
+    }
+
+    function renderSkins() {
+      const container = document.getElementById("skins-container");
+      container.innerHTML = "";
+      coinSkins.forEach(skin => {
+        const owned = ownedSkins.includes(skin.id);
+        container.innerHTML += `
+          <div class="skin-card">
+            <h4>${skin.name} Skin</h4>
+            <p>Bonus: x${skin.bonus}</p>
+            ${owned ? `<button onclick="selectSkin(${skin.id})">Select</button>` : `<button onclick="buySkin(${skin.id})">Buy</button>`}
+          </div>
+        `;
+      });
+    }
+
+    function selectSkin(id) {
+      if (!ownedSkins.includes(id)) return;
+      currentSkin = id;
+      localStorage.setItem("currentSkin", id);
+      updateCoinImage();
+      alert("Skin applied!");
+    }
+
+    function buySkin(id) {
+      alert("Assuming payment success for skin ID " + id);
+      if (!ownedSkins.includes(id)) {
+        ownedSkins.push(id);
+        localStorage.setItem("ownedSkins", JSON.stringify(ownedSkins));
+        renderSkins();
+      }
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
-      setupReferralTab();
-      updateDisplay();
+      renderSkins();
+      renderReferrals();
+      checkReferralFromURL();
+      updateUI();
+      document.getElementById("coin").addEventListener("click", handleTap);
     });
-  </script></body>
+  </script>
+</body>
 </html>
