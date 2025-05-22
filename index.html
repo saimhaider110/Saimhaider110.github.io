@@ -1,261 +1,145 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>UAScoin Clicker</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UAScoin Clicker Game</title>
   <style>
     body {
       margin: 0;
       font-family: sans-serif;
       background: url('background.png') no-repeat center center fixed;
       background-size: cover;
-      color: white;
-      overflow: hidden;
+      color: #fff;
     }
-
     .container {
       text-align: center;
-      padding-top: 80px;
+      padding-top: 20px;
     }
-
-    #coin {
-      width: 220px;
-      height: 220px;
-      cursor: pointer;
+    .coin {
+      width: 200px;
+      height: 200px;
     }
-
-    .energy-bar {
-      position: fixed;
-      bottom: 75px;
-      left: 10px;
-      right: 10px;
-      background: #222;
-      border-radius: 10px;
-      height: 20px;
-      display: flex;
-      align-items: center;
-      padding: 0 10px;
-      font-size: 14px;
-      justify-content: space-between;
-      z-index: 10;
-    }
-
-    .nav {
+    .nav-bar {
       position: fixed;
       bottom: 0;
       left: 0;
-      right: 0;
-      height: 60px;
-      background: rgba(0, 0, 0, 0.7);
+      width: 100%;
       display: flex;
       justify-content: space-around;
-      align-items: center;
-      z-index: 10;
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 10px 0;
     }
-
-    .nav button {
-      background: none;
-      border: none;
-      color: white;
+    .nav-icon {
       font-size: 20px;
+      color: white;
       cursor: pointer;
     }
-
     .tab {
       display: none;
       padding: 20px;
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 80px;
-      overflow-y: auto;
-      background: rgba(0, 0, 0, 0.9);
-      z-index: 5;
     }
-
-    .tab.active {
+    .active-tab {
       display: block;
     }
-
-    .skin-card {
-      width: 100px;
-      margin: 10px;
-      text-align: center;
-    }
-
-    .skin-card img {
+    #energyBar {
+      position: fixed;
+      bottom: 60px;
       width: 100%;
-      border-radius: 10px;
-    }
-
-    .skin-card button {
-      margin-top: 5px;
-      padding: 5px;
-      background: #28a745;
+      text-align: center;
+      font-weight: bold;
       color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
     }
-
-    .skins-container {
+    .skin-preview {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
+      gap: 10px;
     }
-
+    .skin-item {
+      background: rgba(0,0,0,0.5);
+      padding: 10px;
+      border-radius: 10px;
+    }
+    .skin-item img {
+      width: 80px;
+      height: 80px;
+    }
     .upgrade-item {
-      margin: 10px 0;
+      background: rgba(0,0,0,0.5);
+      margin: 10px;
+      padding: 10px;
+      border-radius: 10px;
     }
   </style>
 </head>
 <body>
-  <div class="container" id="earnTab">
-    <h2>UAScoin Clicker</h2>
-    <img id="coin" src="bronze_coin.png" onclick="tapCoin()">
-    <h3 id="tapCount">Taps: 0</h3>
-    <h4 id="uasBalance">UAS: 0</h4>
-  </div>
+  <div class="container">
+    <h1>UAScoin Clicker Game</h1>
+    <div id="energyBar">Energy: <span id="energy">1000</span></div>
+    <img src="bronze_coin.png" id="coinImage" class="coin" onclick="tapCoin()">
+    <p>Taps: <span id="tapCount">0</span></p>
+    <p>UAS: <span id="uasCount">0</span></p><!-- Tabs -->
+<div class="tab active-tab" id="earnTab">
+  <p>Start tapping to earn UAS!</p>
+</div>
 
-  <div class="tab" id="skinsTab">
-    <h3>Country Flag Skins (5 USDT each)</h3>
-    <div class="skins-container" id="skinList"></div>
+<div class="tab" id="skinsTab">
+  <h3>Skin Marketplace</h3>
+  <div class="skin-preview">
+    <div class="skin-item"><img src="Pakistan.png"><p>Pakistan - 5 USDT<br><button>Buy</button></p></div>
+    <div class="skin-item"><img src="india.png"><p>India - 5 USDT<br><button>Buy</button></p></div>
+    <div class="skin-item"><img src="iran.png"><p>Iran - 5 USDT<br><button>Buy</button></p></div>
+    <div class="skin-item"><img src="turkey.png"><p>Turkey - 5 USDT<br><button>Buy</button></p></div>
+    <div class="skin-item"><img src="china.png"><p>China - 5 USDT<br><button>Buy</button></p></div>
+    <div class="skin-item"><img src="usa.png"><p>USA - 5 USDT<br><button>Buy</button></p></div>
+    <div class="skin-item"><img src="uk.png"><p>UK - 5 USDT<br><button>Buy</button></p></div>
+    <div class="skin-item"><img src="germany.png"><p>Germany - 5 USDT<br><button>Buy</button></p></div>
+    <div class="skin-item"><img src="france.png"><p>France - 5 USDT<br><button>Buy</button></p></div>
+    <div class="skin-item"><img src="italy.png"><p>Italy - 5 USDT<br><button>Buy</button></p></div>
+    <div class="skin-item"><img src="africa.png"><p>Africa - 5 USDT<br><button>Buy</button></p></div>
+    <div class="skin-item"><img src="brazil.png"><p>Brazil - 5 USDT<br><button>Buy</button></p></div>
+    <div class="skin-item"><img src="suadiaarab.png"><p>Saudi Arabia - 5 USDT<br><button>Buy</button></p></div>
   </div>
+</div>
 
-  <div class="tab" id="leaderboardTab">
-    <h3>Coming Soon: Leaderboard</h3>
-  </div>
+<div class="tab" id="upgradeTab">
+  <h3>Upgrade Plans</h3>
+  <div class="upgrade-item">Bronze (2x) - 3 USDT<br><button onclick="purchaseUpgrade('Bronze', 2, 3)">Buy</button></div>
+  <div class="upgrade-item">Silver (4x) - 5 USDT<br><button onclick="purchaseUpgrade('Silver', 4, 5)">Buy</button></div>
+  <div class="upgrade-item">Gold (6x) - 7.5 USDT<br><button onclick="purchaseUpgrade('Gold', 6, 7.5)">Buy</button></div>
+  <div class="upgrade-item">Diamond (8x) - 10 USDT<br><button onclick="purchaseUpgrade('Diamond', 8, 10)">Buy</button></div>
+  <div class="upgrade-item">Ruby (15x) - 20 USDT (Best Deal)<br><button onclick="purchaseUpgrade('Ruby', 15, 20)">Buy</button></div>
+</div>
 
-  <div class="tab" id="referralTab">
-    <h3>Your Referral Code: <span id="refCode"></span></h3>
-    <button onclick="copyReferral()">Copy Referral Link</button>
-    <h4>Your Team:</h4>
-    <ul id="teamList"></ul>
-  </div>
-
-  <div class="tab" id="upgradeTab">
-    <h3>Upgrade Plans</h3>
-    <div class="upgrade-item">Bronze (2x) - 3 USDT</div>
-    <div class="upgrade-item">Silver (4x) - 5 USDT</div>
-    <div class="upgrade-item">Gold (6x) - 7.5 USDT</div>
-    <div class="upgrade-item">Diamond (8x) - 10 USDT</div>
-    <div class="upgrade-item">Ruby (15x, Best Deal) - 20 USDT</div>
-  </div>
-
-  <div class="energy-bar">
-    <span>Energy: <span id="energy">1000</span></span>
-  </div>
-
-  <div class="nav">
-    <button onclick="showTab('earn')">Earn</button>
-    <button onclick="showTab('skinsTab')">Skins</button>
-    <button onclick="showTab('leaderboardTab')">Leader</button>
-    <button onclick="showTab('referralTab')">Refer</button>
-    <button onclick="showTab('upgradeTab')">Upgrade</button>
-  </div>
-
-  <script>
+  </div>  <div class="nav-bar">
+    <div class="nav-icon" onclick="openTab('earnTab')">Earn</div>
+    <div class="nav-icon" onclick="openTab('skinsTab')">Skins</div>
+    <div class="nav-icon" onclick="openTab('upgradeTab')">Upgrade</div>
+  </div>  <script>
     let taps = 0;
     let uas = 0;
     let energy = 1000;
     let multiplier = 1;
 
-    const coin = document.getElementById('coin');
-    const tapCount = document.getElementById('tapCount');
-    const uasBalance = document.getElementById('uasBalance');
-    const energyEl = document.getElementById('energy');
-    const tabEls = document.querySelectorAll('.tab');
-    const refCode = document.getElementById('refCode');
-    const teamList = document.getElementById('teamList');
-
-    const leagueLevels = [
-      { level: 10000, img: 'silver_coin.png' },
-      { level: 500000, img: 'gold_coin.png' },
-      { level: 1000000, img: 'diamond_coin.png' },
-      { level: 50000000, img: 'platinum_coin.png' },
-      { level: 100000000, img: 'adamantium_coin.png' },
-      { level: 200000000, img: 'vibranium_coin.png' },
-    ];
-
     function tapCoin() {
-      if (energy <= 0) return alert("Not enough energy!");
-      taps += 1;
-      uas += 1 * multiplier;
-      energy -= 1;
-      updateUI();
-      updateCoinSkin();
-    }
-
-    function updateUI() {
-      tapCount.textContent = 'Taps: ' + taps;
-      uasBalance.textContent = 'UAS: ' + uas;
-      energyEl.textContent = energy;
-    }
-
-    function updateCoinSkin() {
-      for (let i = leagueLevels.length - 1; i >= 0; i--) {
-        if (taps >= leagueLevels[i].level) {
-          coin.src = leagueLevels[i].img;
-          break;
-        }
+      if (energy > 0) {
+        taps++;
+        uas += multiplier;
+        energy--;
+        document.getElementById('tapCount').innerText = taps;
+        document.getElementById('uasCount').innerText = uas;
+        document.getElementById('energy').innerText = energy;
       }
     }
 
-    function showTab(tabId) {
-      tabEls.forEach(el => el.classList.remove('active'));
-      if (tabId === 'earn') {
-        document.getElementById('earnTab').style.display = 'block';
-      } else {
-        document.getElementById('earnTab').style.display = 'none';
-        document.getElementById(tabId).classList.add('active');
-      }
+    function openTab(tabId) {
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active-tab'));
+      document.getElementById(tabId).classList.add('active-tab');
     }
 
-    function generateSkins() {
-      const skins = [
-        "Pakistan", "india", "iran", "turkey", "china", "usa", "uk",
-        "germany", "france", "italy", "africa", "brazil", "saudiaarab"
-      ];
-      const container = document.getElementById('skinList');
-      skins.forEach(name => {
-        const card = document.createElement('div');
-        card.className = 'skin-card';
-        card.innerHTML = `
-          <img src="${name}.png" alt="${name}">
-          <div>${name.toUpperCase()}</div>
-          <button onclick="buySkin('${name}')">Buy - 5 USDT</button>
-        `;
-        container.appendChild(card);
-      });
+    function purchaseUpgrade(name, newMultiplier, cost) {
+      alert(`You selected ${name} upgrade for ${cost} USDT. You will receive ${newMultiplier}x tap power.`);
+      multiplier = newMultiplier;
     }
-
-    function buySkin(skinName) {
-      alert(`You selected ${skinName}. Purchase integration coming soon.`);
-    }
-
-    function copyReferral() {
-      const link = window.location.href + '?ref=' + refCode.textContent;
-      navigator.clipboard.writeText(link);
-      alert('Referral link copied!');
-    }
-
-    function setupReferral() {
-      const code = 'REF' + Math.floor(Math.random() * 100000);
-      refCode.textContent = code;
-      const url = new URL(window.location.href);
-      const ref = url.searchParams.get('ref');
-      if (ref) {
-        teamList.innerHTML += `<li>Joined via: ${ref}</li>`;
-        uas += 1000;
-        multiplier += 0.1;
-        updateUI();
-      }
-    }
-
-    generateSkins();
-    setupReferral();
-    updateUI();
-  </script>
-</body>
+  </script></body>
 </html>
