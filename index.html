@@ -1,243 +1,89 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UAScoin Evolution</title>
-    <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-    <style>
-        :root {
-            --primary: #FFD700;
-            --secondary: #00FF88;
-            --bg: linear-gradient(45deg, #1a1a2e, #2a1454);
-            --text: #ffffff;
-            --card-bg: rgba(255,255,255,0.1);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            background: var(--bg);
-            color: var(--text);
-            font-family: Arial, sans-serif;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .page {
-            display: none;
-            flex-grow: 1;
-            padding: 20px;
-            overflow-y: auto;
-        }
-
-        .page.active {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .stats-bar {
-            display: flex;
-            justify-content: space-between;
-            padding: 15px;
-            background: var(--card-bg);
-            border-radius: 10px;
-            margin-bottom: 15px;
-        }
-
-        .main-coin {
-            width: 200px;
-            height: 200px;
-            margin: 20px auto;
-            cursor: pointer;
-            border-radius: 50%;
-            transition: transform 0.1s;
-        }
-
-        .nav-buttons {
-            display: flex;
-            justify-content: space-around;
-            padding: 10px;
-            background: var(--card-bg);
-            position: sticky;
-            bottom: 0;
-        }
-
-        /* Full CSS styles for all components */
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UAScoin TapSwap</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #101010, #1a1a1a);
+      color: white;
+    }
+    .coin-btn {
+      width: 150px;
+      height: 150px;
+      border-radius: 9999px;
+      background: radial-gradient(circle, #fcd34d, #b45309);
+      box-shadow: 0 4px 15px rgba(255, 215, 0, 0.5);
+      transition: transform 0.1s ease-in-out;
+    }
+    .coin-btn:active {
+      transform: scale(0.95);
+    }
+  </style>
 </head>
-<body>
-    <!-- Payment Modal -->
-    <div class="payment-modal" id="paymentModal">
-        <!-- USDT Payment Interface -->
+<body class="min-h-screen flex flex-col">
+  <div class="flex-1 flex flex-col items-center justify-center gap-4 text-center px-4">
+    <h1 class="text-3xl font-bold">UAScoin</h1>
+    <div id="coin" class="coin-btn flex items-center justify-center text-xl font-bold cursor-pointer">
+      Tap!
     </div>
-
-    <!-- Game Pages -->
-    <div class="page active" id="mainPage">
-        <!-- Main Game Interface -->
+    <p class="text-lg">Coins: <span id="coin-count">0</span></p>
+  </div>  <nav class="w-full bg-gray-900 p-4 flex justify-around border-t border-gray-700">
+    <button onclick="navigate('earn')" class="text-sm">Earn</button>
+    <button onclick="navigate('upgrades')" class="text-sm">Upgrades</button>
+    <button onclick="navigate('leaderboard')" class="text-sm">Leaderboard</button>
+    <button onclick="navigate('skins')" class="text-sm">Skins</button>
+  </nav>  <div id="modal" class="fixed inset-0 bg-black bg-opacity-70 hidden items-center justify-center z-50">
+    <div class="bg-white text-black p-6 rounded-xl w-80">
+      <h2 class="text-xl font-bold mb-4" id="modal-title">Modal</h2>
+      <p class="mb-4" id="modal-content">Details go here...</p>
+      <button class="bg-blue-600 text-white px-4 py-2 rounded-lg" onclick="closeModal()">Close</button>
     </div>
+  </div>  <script>
+    let coins = 0;
+    let perTap = 1;
 
-    <div class="page" id="upgradesPage">
-        <!-- Upgrades Marketplace -->
-    </div>
+    const coinBtn = document.getElementById('coin');
+    const coinCount = document.getElementById('coin-count');
+    const modal = document.getElementById('modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalContent = document.getElementById('modal-content');
 
-    <div class="page" id="skinsPage">
-        <!-- Skins Marketplace -->
-    </div>
+    coinBtn.addEventListener('click', () => {
+      coins += perTap;
+      coinCount.textContent = coins;
+    });
 
-    <div class="nav-buttons">
-        <div class="nav-button active" data-page="main">Game</div>
-        <div class="nav-button" data-page="upgrades">Upgrades</div>
-        <div class="nav-button" data-page="skins">Skins</div>
-    </div>
+    function navigate(page) {
+      switch (page) {
+        case 'earn':
+          showModal('Earn Coins', 'Tap the big coin to earn more UAScoins!');
+          break;
+        case 'upgrades':
+          showModal('Upgrades', 'Upgrade tap value for more coins per tap.');
+          break;
+        case 'leaderboard':
+          showModal('Leaderboard', 'Top players will be displayed here.');
+          break;
+        case 'skins':
+          showModal('Skins', 'Buy flag/event-themed skins using UAS or USDT.');
+          break;
+      }
+    }
 
-    <script>
-        // Game State Manager
-        class GameState {
-            constructor() {
-                this.state = {
-                    balance: 0,
-                    energy: 1000,
-                    multiplier: 1,
-                    totalTaps: 0,
-                    activeSkin: 'default',
-                    purchasedSkins: [],
-                    upgrades: [],
-                    transactions: [],
-                    userData: {
-                        deviceId: this.generateDeviceId(),
-                        lastLogin: new Date().toISOString()
-                    }
-                };
-                this.load();
-            }
+    function showModal(title, content) {
+      modalTitle.textContent = title;
+      modalContent.textContent = content;
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
 
-            generateDeviceId() {
-                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-                    const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-                    return v.toString(16);
-                });
-            }
-
-            save() {
-                localStorage.setItem('gameState', JSON.stringify(this.state));
-            }
-
-            load() {
-                const saved = localStorage.getItem('gameState');
-                if(saved) this.state = JSON.parse(saved);
-            }
-        }
-
-        // Payment System
-        class PaymentHandler {
-            constructor(gameState) {
-                this.gameState = gameState;
-                this.piSDK = window.Pi;
-            }
-
-            async handlePiPayment(amount, itemType) {
-                const paymentData = {
-                    amount: amount,
-                    memo: `Purchase: ${itemType}`,
-                    metadata: { itemType }
-                };
-
-                const callbacks = {
-                    onReadyForServerApproval: this.handlePaymentApproval.bind(this),
-                    onReadyForServerCompletion: this.handlePaymentCompletion.bind(this),
-                    onCancel: this.handlePaymentCancel.bind(this),
-                    onError: this.handlePaymentError.bind(this)
-                };
-
-                this.piSDK.authenticate(paymentData, callbacks);
-            }
-
-            handleUSDTpayment(amount, itemType) {
-                // Show USDT payment modal
-                // This would integrate with a payment gateway in production
-            }
-        }
-
-        // Game Core
-        class GameCore {
-            constructor() {
-                this.gameState = new GameState();
-                this.paymentHandler = new PaymentHandler(this.gameState);
-                this.initEventListeners();
-                this.startEnergyRegeneration();
-            }
-
-            initEventListeners() {
-                // Navigation
-                document.querySelectorAll('.nav-button').forEach(button => {
-                    button.addEventListener('click', () => this.handleNavigation(button));
-                });
-
-                // Coin Tap
-                document.getElementById('coin').addEventListener('click', () => this.handleTap());
-
-                // Purchase Buttons
-                document.querySelectorAll('[data-purchase]').forEach(button => {
-                    button.addEventListener('click', () => this.handlePurchase(button));
-                });
-            }
-
-            handleNavigation(button) {
-                const page = button.dataset.page;
-                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-                document.getElementById(`${page}Page`).classList.add('active');
-                document.querySelectorAll('.nav-button').forEach(b => b.classList.remove('active'));
-                button.classList.add('active');
-            }
-
-            handleTap() {
-                if(this.gameState.state.energy > 0) {
-                    this.gameState.state.balance += this.gameState.state.multiplier;
-                    this.gameState.state.energy--;
-                    this.gameState.state.totalTaps++;
-                    this.updateDisplay();
-                    this.gameState.save();
-                }
-            }
-
-            startEnergyRegeneration() {
-                setInterval(() => {
-                    if(this.gameState.state.energy < 1000) {
-                        this.gameState.state.energy++;
-                        this.updateDisplay();
-                        this.gameState.save();
-                    }
-                }, 1000);
-            }
-
-            handlePurchase(button) {
-                const itemType = button.dataset.item;
-                const cost = parseInt(button.dataset.cost);
-                const currency = button.dataset.currency;
-
-                if(currency === 'UAS') {
-                    this.handleInGamePurchase(itemType, cost);
-                } else {
-                    this.handleRealMoneyPurchase(itemType, cost, currency);
-                }
-            }
-
-            updateDisplay() {
-                // Update all UI elements
-            }
-
-            // Full implementation continues...
-        }
-
-        // Initialize Game
-        window.addEventListener('load', () => new GameCore());
-    </script>
-</body>
+    function closeModal() {
+      modal.classList.remove('flex');
+      modal.classList.add('hidden');
+    }
+  </script></body>
 </html>
