@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -11,124 +10,120 @@
       font-family: sans-serif;
       background: url('background.png') no-repeat center center fixed;
       background-size: cover;
-    }
+    }#app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
 
-    #app {
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      overflow: hidden;
-    }
+.screen {
+  flex: 1;
+  display: none;
+  overflow-y: auto;
+  padding: 1rem;
+  text-align: center;
+  color: white;
+}
 
-    .screen {
-      flex: 1;
-      display: none;
-      overflow-y: auto;
-      padding: 1rem;
-      text-align: center;
-      color: white;
-    }
+.active-screen {
+  display: block;
+}
 
-    .active-screen {
-      display: block;
-    }
+#energy-bar {
+  height: 20px;
+  background: #00c853;
+  text-align: center;
+  font-size: 14px;
+  color: white;
+}
 
-    #energy-bar {
-      height: 20px;
-      background: #00c853;
-      text-align: center;
-      font-size: 14px;
-      color: white;
-    }
+#coin {
+  width: 240px;
+  height: 240px;
+  display: block;
+  margin: 1rem auto;
+  transition: transform 0.2s;
+}
 
-    #coin {
-      width: 200px;
-      height: 200px;
-      display: block;
-      margin: 1rem auto;
-      transition: transform 0.2s;
-    }
+#coin:active {
+  transform: scale(1.1);
+}
 
-    #coin:active {
-      transform: scale(1.1);
-    }
+#tap-count {
+  font-size: 2rem;
+  margin: 10px;
+  color: white;
+  text-shadow: 0 0 5px black;
+}
 
-    #tap-count {
-      font-size: 2rem;
-      margin: 10px;
-      color: white;
-      text-shadow: 0 0 5px black;
-    }
+nav {
+  display: flex;
+  justify-content: space-around;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 10px 0;
+}
 
-    nav {
-      display: flex;
-      justify-content: space-around;
-      background: rgba(0, 0, 0, 0.7);
-      padding: 10px 0;
-    }
+nav button {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+}
 
-    nav button {
-      background: transparent;
-      border: none;
-      color: white;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-    }
+nav button.active {
+  color: #00e676;
+  text-decoration: underline;
+}
 
-    nav button.active {
-      color: #00e676;
-      text-decoration: underline;
-    }
+.skin-card {
+  background: rgba(255, 255, 255, 0.9);
+  color: black;
+  padding: 1rem;
+  margin: 1rem auto;
+  border-radius: 10px;
+  max-width: 300px;
+}
 
-    .skin-card {
-      background: rgba(255, 255, 255, 0.9);
-      color: black;
-      padding: 1rem;
-      margin: 1rem auto;
-      border-radius: 10px;
-      max-width: 300px;
-    }
+.skin-card button {
+  margin: 0.5rem;
+  padding: 0.4rem 1rem;
+}
 
-    .skin-card button {
-      margin: 0.5rem;
-      padding: 0.4rem 1rem;
-    }
+.referral-code {
+  margin: 1rem;
+  font-size: 1.2rem;
+}
 
-    .referral-code {
-      margin: 1rem;
-      font-size: 1.2rem;
-    }
   </style>
 </head>
 <body>
   <div id="app">
-    <div id="energy-bar">Energy: <span id="energy">1000</span></div>
+    <div id="energy-bar">Energy: <span id="energy">1000</span></div><div id="earn-screen" class="screen active-screen">
+  <div id="tap-count">0</div>
+  <img id="coin" src="bronze_coin.png" alt="Tap Coin" />
+</div>
 
-    <div id="earn-screen" class="screen active-screen">
-      <div id="tap-count">0</div>
-      <img id="coin" src="bronze_coin.png" alt="Tap Coin" />
-    </div>
+<div id="skins-screen" class="screen"></div>
+<div id="upgrades-screen" class="screen"><h2>Coming Soon: Upgrades</h2></div>
+<div id="referrals-screen" class="screen">
+  <h2>Referrals</h2>
+  <p class="referral-code">Your Code: <span id="myCode"></span></p>
+  <p>Share your code to earn 10% tap bonus + 1000 UAS per referral!</p>
+  <p><strong>Your Team:</strong></p>
+  <ul id="referralTeam"></ul>
+</div>
 
-    <div id="skins-screen" class="screen"></div>
-    <div id="upgrades-screen" class="screen"><h2>Coming Soon: Upgrades</h2></div>
-    <div id="referrals-screen" class="screen">
-      <h2>Referrals</h2>
-      <p class="referral-code">Your Code: <span id="myCode"></span></p>
-      <p>Share your code to earn 10% tap bonus + 1000 UAS per referral!</p>
-      <p><strong>Your Team:</strong></p>
-      <ul id="referralTeam"></ul>
-    </div>
+<nav>
+  <button onclick="switchTab('earn')" class="active">Earn</button>
+  <button onclick="switchTab('skins')">Skins</button>
+  <button onclick="switchTab('upgrades')">Upgrades</button>
+  <button onclick="switchTab('referrals')">Referrals</button>
+</nav>
 
-    <nav>
-      <button onclick="switchTab('earn')" class="active">Earn</button>
-      <button onclick="switchTab('skins')">Skins</button>
-      <button onclick="switchTab('upgrades')">Upgrades</button>
-      <button onclick="switchTab('referrals')">Referrals</button>
-    </nav>
-  </div>
-
-  <script>
+  </div>  <script>
     let tapCount = parseInt(localStorage.getItem("tapCount")) || 0;
     let energy = parseInt(localStorage.getItem("energy")) || 1000;
     let currentSkin = localStorage.getItem("currentSkin") || null;
@@ -237,6 +232,5 @@
       updateTapDisplay();
       renderSkins();
     });
-  </script>
-</body>
+  </script></body>
 </html>
