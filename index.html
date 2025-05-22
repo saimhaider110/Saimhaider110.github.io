@@ -6,140 +6,133 @@
   <style>
     body {
       margin: 0;
-      font-family: sans-serif;
+      font-family: Arial, sans-serif;
       background: url('background.png') no-repeat center center fixed;
       background-size: cover;
-      color: #fff;
     }
     .container {
       text-align: center;
-      padding-top: 20px;
+      padding-top: 30px;
     }
     .coin {
-      width: 200px;
-      height: 200px;
+      width: 180px;
+      height: 180px;
     }
-    .nav-bar {
+    .tap-count {
+      font-size: 28px;
+      font-weight: bold;
+      color: white;
+      margin-top: 15px;
+    }
+    .energy-bar {
+      position: fixed;
+      bottom: 80px;
+      width: 100%;
+      background: rgba(255,255,255,0.8);
+      font-weight: bold;
+      padding: 10px 0;
+      text-align: center;
+      z-index: 10;
+    }
+    .nav {
       position: fixed;
       bottom: 0;
-      left: 0;
       width: 100%;
       display: flex;
       justify-content: space-around;
-      background-color: rgba(0, 0, 0, 0.7);
+      background: rgba(0,0,0,0.7);
       padding: 10px 0;
+      z-index: 5;
     }
-    .nav-icon {
+    .nav button {
       font-size: 20px;
+      font-weight: bold;
+      background: none;
+      border: none;
       color: white;
-      cursor: pointer;
     }
     .tab {
       display: none;
       padding: 20px;
+      background: url('background.png') no-repeat center center fixed;
+      background-size: cover;
     }
-    .active-tab {
+    .tab.active {
       display: block;
     }
-    #energyBar {
-      position: fixed;
-      bottom: 60px;
-      width: 100%;
-      text-align: center;
-      font-weight: bold;
-      color: white;
-    }
-    .skin-preview {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 10px;
-    }
-    .skin-item {
-      background: rgba(0,0,0,0.5);
+    .skin-preview, .upgrade-option {
+      background: rgba(255,255,255,0.8);
       padding: 10px;
       border-radius: 10px;
+      margin: 10px auto;
+      width: 80%;
     }
-    .skin-item img {
+    .skin-preview img {
       width: 80px;
       height: 80px;
     }
-    .upgrade-item {
-      background: rgba(0,0,0,0.5);
-      margin: 10px;
-      padding: 10px;
-      border-radius: 10px;
+    .purchase-btn {
+      margin-top: 10px;
+      padding: 8px 15px;
+      background-color: green;
+      color: white;
+      border: none;
+      border-radius: 5px;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>UAScoin Clicker Game</h1>
-    <div id="energyBar">Energy: <span id="energy">1000</span></div>
-    <img src="bronze_coin.png" id="coinImage" class="coin" onclick="tapCoin()">
-    <p>Taps: <span id="tapCount">0</span></p>
-    <p>UAS: <span id="uasCount">0</span></p><!-- Tabs -->
-<div class="tab active-tab" id="earnTab">
-  <p>Start tapping to earn UAS!</p>
-</div>
-
-<div class="tab" id="skinsTab">
-  <h3>Skin Marketplace</h3>
-  <div class="skin-preview">
-    <div class="skin-item"><img src="Pakistan.png"><p>Pakistan - 5 USDT<br><button>Buy</button></p></div>
-    <div class="skin-item"><img src="india.png"><p>India - 5 USDT<br><button>Buy</button></p></div>
-    <div class="skin-item"><img src="iran.png"><p>Iran - 5 USDT<br><button>Buy</button></p></div>
-    <div class="skin-item"><img src="turkey.png"><p>Turkey - 5 USDT<br><button>Buy</button></p></div>
-    <div class="skin-item"><img src="china.png"><p>China - 5 USDT<br><button>Buy</button></p></div>
-    <div class="skin-item"><img src="usa.png"><p>USA - 5 USDT<br><button>Buy</button></p></div>
-    <div class="skin-item"><img src="uk.png"><p>UK - 5 USDT<br><button>Buy</button></p></div>
-    <div class="skin-item"><img src="germany.png"><p>Germany - 5 USDT<br><button>Buy</button></p></div>
-    <div class="skin-item"><img src="france.png"><p>France - 5 USDT<br><button>Buy</button></p></div>
-    <div class="skin-item"><img src="italy.png"><p>Italy - 5 USDT<br><button>Buy</button></p></div>
-    <div class="skin-item"><img src="africa.png"><p>Africa - 5 USDT<br><button>Buy</button></p></div>
-    <div class="skin-item"><img src="brazil.png"><p>Brazil - 5 USDT<br><button>Buy</button></p></div>
-    <div class="skin-item"><img src="suadiaarab.png"><p>Saudi Arabia - 5 USDT<br><button>Buy</button></p></div>
-  </div>
-</div>
-
-<div class="tab" id="upgradeTab">
-  <h3>Upgrade Plans</h3>
-  <div class="upgrade-item">Bronze (2x) - 3 USDT<br><button onclick="purchaseUpgrade('Bronze', 2, 3)">Buy</button></div>
-  <div class="upgrade-item">Silver (4x) - 5 USDT<br><button onclick="purchaseUpgrade('Silver', 4, 5)">Buy</button></div>
-  <div class="upgrade-item">Gold (6x) - 7.5 USDT<br><button onclick="purchaseUpgrade('Gold', 6, 7.5)">Buy</button></div>
-  <div class="upgrade-item">Diamond (8x) - 10 USDT<br><button onclick="purchaseUpgrade('Diamond', 8, 10)">Buy</button></div>
-  <div class="upgrade-item">Ruby (15x) - 20 USDT (Best Deal)<br><button onclick="purchaseUpgrade('Ruby', 15, 20)">Buy</button></div>
-</div>
-
-  </div>  <div class="nav-bar">
-    <div class="nav-icon" onclick="openTab('earnTab')">Earn</div>
-    <div class="nav-icon" onclick="openTab('skinsTab')">Skins</div>
-    <div class="nav-icon" onclick="openTab('upgradeTab')">Upgrade</div>
+  <div class="container" id="home">
+    <img id="coinImage" src="bronze_coin.png" class="coin" onclick="tapCoin()">
+    <div class="tap-count" id="tapCount">Taps: 0</div>
+  </div>  <div class="energy-bar" id="energyBar">Energy: 1000</div>  <div class="nav">
+    <button onclick="showTab('home')">Home</button>
+    <button onclick="showTab('skins')">Skins</button>
+    <button onclick="showTab('upgrades')">Upgrades</button>
+    <button onclick="showTab('referrals')">Referrals</button>
+  </div>  <div id="skins" class="tab">
+    <h2>Marketplace Skins</h2>
+    <div class="skin-preview">
+      <img src="Pakistan.png"><br>Pakistan Skin - 5 USDT
+      <button class="purchase-btn">Purchase</button>
+    </div>
+    <div class="skin-preview">
+      <img src="suadiaarab.png"><br>Saudi Arabia Skin - 5 USDT
+      <button class="purchase-btn">Purchase</button>
+    </div>
+    <!-- Add other country skins similarly -->
+  </div>  <div id="upgrades" class="tab">
+    <h2>Upgrade Plans</h2>
+    <div class="upgrade-option">Bronze - 2x Tap - 3 USDT <button class="purchase-btn">Buy</button></div>
+    <div class="upgrade-option">Silver - 4x Tap - 5 USDT <button class="purchase-btn">Buy</button></div>
+    <div class="upgrade-option">Gold - 6x Tap - 7.5 USDT <button class="purchase-btn">Buy</button></div>
+    <div class="upgrade-option">Diamond - 8x Tap - 10 USDT <button class="purchase-btn">Buy</button></div>
+    <div class="upgrade-option">Ruby (Best Deal) - 15x Tap - 20 USDT <button class="purchase-btn">Buy</button></div>
+  </div>  <div id="referrals" class="tab">
+    <h2>Referral System</h2>
+    <p>Share your referral link: <br><b id="refLink">https://uascoin.game?ref=USER123</b></p>
+    <p>Your Team:</p>
+    <ul>
+      <li>Referred User 1</li>
+      <li>Referred User 2</li>
+    </ul>
   </div>  <script>
     let taps = 0;
-    let uas = 0;
     let energy = 1000;
-    let multiplier = 1;
 
     function tapCoin() {
       if (energy > 0) {
         taps++;
-        uas += multiplier;
         energy--;
-        document.getElementById('tapCount').innerText = taps;
-        document.getElementById('uasCount').innerText = uas;
-        document.getElementById('energy').innerText = energy;
+        document.getElementById("tapCount").innerText = "Taps: " + taps;
+        document.getElementById("energyBar").innerText = "Energy: " + energy;
       }
     }
 
-    function openTab(tabId) {
-      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active-tab'));
-      document.getElementById(tabId).classList.add('active-tab');
-    }
-
-    function purchaseUpgrade(name, newMultiplier, cost) {
-      alert(`You selected ${name} upgrade for ${cost} USDT. You will receive ${newMultiplier}x tap power.`);
-      multiplier = newMultiplier;
+    function showTab(tabId) {
+      const tabs = document.querySelectorAll(".tab");
+      tabs.forEach(tab => tab.classList.remove("active"));
+      document.getElementById(tabId).classList.add("active");
     }
   </script></body>
 </html>
