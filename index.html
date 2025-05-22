@@ -6,14 +6,19 @@
   <title>UAScoin Game</title>
   <style>
     body {
-      background-image: url('background.png');
+      background: url('rainbow.png') no-repeat center center fixed;
       background-size: cover;
-      background-position: center;
       margin: 0;
       padding: 0;
       font-family: sans-serif;
       text-align: center;
       color: white;
+    }
+
+    #tap-count {
+      font-size: 2.5rem;
+      margin-top: 20px;
+      text-shadow: 0 0 5px black;
     }
 
     #coin {
@@ -28,37 +33,9 @@
       transform: scale(1.1);
     }
 
-    #tap-count {
-      font-size: 2.5rem;
-      margin: 10px 0;
-      text-shadow: 0 0 5px black;
-    }
-
-    .nav-bar {
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      padding: 8px 0;
-    }
-
-    .nav-item {
-      flex: 1;
-      font-size: 0.9rem;
-      padding: 8px;
-    }
-
-    .nav-item img {
-      width: 28px;
-      height: 28px;
-    }
-
     .tab-page {
       display: none;
-      padding-bottom: 80px;
+      padding-bottom: 100px;
     }
 
     .tab-page.active {
@@ -71,7 +48,7 @@
       background: rgba(255, 255, 255, 0.2);
       border: 2px solid white;
       border-radius: 10px;
-      margin: 10px auto;
+      margin: 10px auto 0;
       overflow: hidden;
     }
 
@@ -80,6 +57,23 @@
       width: 100%;
       background: limegreen;
       transition: width 0.5s;
+    }
+
+    .nav-bar {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 10px 0;
+    }
+
+    .nav-item {
+      flex: 1;
+      font-size: 1rem;
+      color: white;
     }
 
     .skin-card {
@@ -102,6 +96,7 @@
 
   <div id="tap-count">0</div>
   <img id="coin" src="bronze_coin.png" alt="Tap Coin" />
+
   <div id="energy-bar"><div id="energy-fill"></div></div>
 
   <div id="earn-tab" class="tab-page active"></div>
@@ -112,18 +107,10 @@
   <div id="referrals-tab" class="tab-page"></div>
 
   <div class="nav-bar">
-    <div class="nav-item" onclick="showTab('earn-tab')">
-      <img src="earn_icon.png" /><div>Earn</div>
-    </div>
-    <div class="nav-item" onclick="showTab('upgrades-tab')">
-      <img src="upgrade_icon.png" /><div>Upgrades</div>
-    </div>
-    <div class="nav-item" onclick="showTab('skins-tab')">
-      <img src="skin_icon.png" /><div>Skins</div>
-    </div>
-    <div class="nav-item" onclick="showTab('referrals-tab')">
-      <img src="referral_icon.png" /><div>Referrals</div>
-    </div>
+    <div class="nav-item" onclick="showTab('earn-tab')">Earn</div>
+    <div class="nav-item" onclick="showTab('upgrades-tab')">Upgrades</div>
+    <div class="nav-item" onclick="showTab('skins-tab')">Skins</div>
+    <div class="nav-item" onclick="showTab('referrals-tab')">Referrals</div>
   </div>
 
   <script>
