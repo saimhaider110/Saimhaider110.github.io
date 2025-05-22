@@ -1,138 +1,162 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>UAScoin Clicker Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UAScoin Tap Game</title>
   <style>
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
+      font-family: sans-serif;
       background: url('background.png') no-repeat center center fixed;
       background-size: cover;
+      color: white;
     }
     .container {
       text-align: center;
-      padding-top: 30px;
+      padding-bottom: 100px;
+    }
+    .energy-bar {
+      background: rgba(0,0,0,0.6);
+      margin: 0;
+      padding: 10px;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 999;
     }
     .coin {
       width: 180px;
-      height: 180px;
+      margin-top: 80px;
+      cursor: pointer;
     }
     .tap-count {
-      font-size: 28px;
+      font-size: 24px;
       font-weight: bold;
-      color: white;
-      margin-top: 15px;
+      margin: 15px 0;
     }
-    .energy-bar {
-      position: fixed;
-      bottom: 80px;
-      width: 100%;
-      background: rgba(255,255,255,0.8);
-      font-weight: bold;
-      padding: 10px 0;
-      text-align: center;
-      z-index: 10;
+    .tab-content {
+      display: none;
+      padding: 20px;
+    }
+    .tab-content.active {
+      display: block;
     }
     .nav {
       position: fixed;
       bottom: 0;
       width: 100%;
+      background: rgba(0,0,0,0.8);
       display: flex;
       justify-content: space-around;
-      background: rgba(0,0,0,0.7);
-      padding: 10px 0;
-      z-index: 5;
+      padding: 12px 0;
+      z-index: 999;
     }
     .nav button {
-      font-size: 20px;
-      font-weight: bold;
       background: none;
       border: none;
       color: white;
-    }
-    .tab {
-      display: none;
-      padding: 20px;
-      background: url('background.png') no-repeat center center fixed;
-      background-size: cover;
-    }
-    .tab.active {
-      display: block;
-    }
-    .skin-preview, .upgrade-option {
-      background: rgba(255,255,255,0.8);
-      padding: 10px;
-      border-radius: 10px;
-      margin: 10px auto;
-      width: 80%;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
     }
     .skin-preview img {
-      width: 80px;
-      height: 80px;
+      width: 100px;
+      margin: 10px;
     }
     .purchase-btn {
-      margin-top: 10px;
-      padding: 8px 15px;
-      background-color: green;
-      color: white;
+      background: #00cc66;
       border: none;
-      border-radius: 5px;
+      padding: 8px 16px;
+      color: white;
+      margin-top: 8px;
+      cursor: pointer;
+    }
+    .section-title {
+      font-weight: bold;
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
-  <div class="container" id="home">
-    <img id="coinImage" src="bronze_coin.png" class="coin" onclick="tapCoin()">
-    <div class="tap-count" id="tapCount">Taps: 0</div>
-  </div>  <div class="energy-bar" id="energyBar">Energy: 1000</div>  <div class="nav">
-    <button onclick="showTab('home')">Home</button>
-    <button onclick="showTab('skins')">Skins</button>
-    <button onclick="showTab('upgrades')">Upgrades</button>
-    <button onclick="showTab('referrals')">Referrals</button>
-  </div>  <div id="skins" class="tab">
-    <h2>Marketplace Skins</h2>
+
+<div class="energy-bar">Energy: <span id="energy">1000</span></div>
+
+<div class="container">
+  <img src="bronze_coin.png" id="coin" class="coin" />
+  <div class="tap-count">Taps: <span id="tapCount">0</span></div>
+
+  <div id="home" class="tab-content active">
+    <p class="section-title">Welcome to UAScoin Tap Game!</p>
+  </div>
+
+  <div id="skins" class="tab-content">
+    <p class="section-title">Skin Marketplace (5 USDT Each)</p>
     <div class="skin-preview">
-      <img src="Pakistan.png"><br>Pakistan Skin - 5 USDT
-      <button class="purchase-btn">Purchase</button>
+      <div>Pakistan<br><img src="Pakistan.png"><button class="purchase-btn">Buy</button></div>
+      <div>India<br><img src="india.png"><button class="purchase-btn">Buy</button></div>
+      <div>Iran<br><img src="iran.png"><button class="purchase-btn">Buy</button></div>
+      <div>Turkey<br><img src="turkey.png"><button class="purchase-btn">Buy</button></div>
+      <div>China<br><img src="china.png"><button class="purchase-btn">Buy</button></div>
+      <div>USA<br><img src="usa.png"><button class="purchase-btn">Buy</button></div>
+      <div>UK<br><img src="uk.png"><button class="purchase-btn">Buy</button></div>
+      <div>Germany<br><img src="germany.png"><button class="purchase-btn">Buy</button></div>
+      <div>France<br><img src="france.png"><button class="purchase-btn">Buy</button></div>
+      <div>Italy<br><img src="italy.png"><button class="purchase-btn">Buy</button></div>
+      <div>Africa<br><img src="africa.png"><button class="purchase-btn">Buy</button></div>
+      <div>Brazil<br><img src="brazil.png"><button class="purchase-btn">Buy</button></div>
+      <div>Saudi Arabia<br><img src="saudiaarab.png"><button class="purchase-btn">Buy</button></div>
     </div>
-    <div class="skin-preview">
-      <img src="suadiaarab.png"><br>Saudi Arabia Skin - 5 USDT
-      <button class="purchase-btn">Purchase</button>
-    </div>
-    <!-- Add other country skins similarly -->
-  </div>  <div id="upgrades" class="tab">
-    <h2>Upgrade Plans</h2>
-    <div class="upgrade-option">Bronze - 2x Tap - 3 USDT <button class="purchase-btn">Buy</button></div>
-    <div class="upgrade-option">Silver - 4x Tap - 5 USDT <button class="purchase-btn">Buy</button></div>
-    <div class="upgrade-option">Gold - 6x Tap - 7.5 USDT <button class="purchase-btn">Buy</button></div>
-    <div class="upgrade-option">Diamond - 8x Tap - 10 USDT <button class="purchase-btn">Buy</button></div>
-    <div class="upgrade-option">Ruby (Best Deal) - 15x Tap - 20 USDT <button class="purchase-btn">Buy</button></div>
-  </div>  <div id="referrals" class="tab">
-    <h2>Referral System</h2>
-    <p>Share your referral link: <br><b id="refLink">https://uascoin.game?ref=USER123</b></p>
+  </div>
+
+  <div id="upgrades" class="tab-content">
+    <p class="section-title">Upgrade Plans</p>
+    <p>Bronze: 2x Taps - 3 USDT <button class="purchase-btn">Buy</button></p>
+    <p>Silver: 4x Taps - 5 USDT <button class="purchase-btn">Buy</button></p>
+    <p>Gold: 6x Taps - 7.5 USDT <button class="purchase-btn">Buy</button></p>
+    <p>Diamond: 8x Taps - 10 USDT <button class="purchase-btn">Buy</button></p>
+    <p>Ruby (Best Deal): 15x Taps - 20 USDT <button class="purchase-btn">Buy</button></p>
+  </div>
+
+  <div id="referrals" class="tab-content">
+    <p class="section-title">Referral System</p>
+    <p>Your Code: <strong>ABC123</strong></p>
+    <p>Share this game with your code and earn 1000 UAS + 10% tap bonus from referrals.</p>
     <p>Your Team:</p>
     <ul>
-      <li>Referred User 1</li>
-      <li>Referred User 2</li>
+      <li>User001</li>
+      <li>User002</li>
     </ul>
-  </div>  <script>
-    let taps = 0;
-    let energy = 1000;
+  </div>
+</div>
 
-    function tapCoin() {
-      if (energy > 0) {
-        taps++;
-        energy--;
-        document.getElementById("tapCount").innerText = "Taps: " + taps;
-        document.getElementById("energyBar").innerText = "Energy: " + energy;
-      }
-    }
+<div class="nav">
+  <button onclick="switchTab('home')">Home</button>
+  <button onclick="switchTab('skins')">Skins</button>
+  <button onclick="switchTab('upgrades')">Upgrades</button>
+  <button onclick="switchTab('referrals')">Referrals</button>
+</div>
 
-    function showTab(tabId) {
-      const tabs = document.querySelectorAll(".tab");
-      tabs.forEach(tab => tab.classList.remove("active"));
-      document.getElementById(tabId).classList.add("active");
+<script>
+  let taps = 0;
+  let energy = 1000;
+
+  document.getElementById("coin").onclick = () => {
+    if (energy > 0) {
+      taps++;
+      energy--;
+      document.getElementById("tapCount").innerText = taps;
+      document.getElementById("energy").innerText = energy;
     }
-  </script></body>
-</html>
+  };
+
+  function switchTab(tabId) {
+    document.querySelectorAll('.tab-content').forEach(tab => {
+      tab.classList.remove('active');
+    });
+    document.getElementById(tabId).classList.add('active');
+  }
+</script>
+
+</body>
+  </html>
