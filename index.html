@@ -46,9 +46,9 @@
         .stats-bar {
             display: flex;
             justify-content: space-between;
-            padding: 10px;
+            padding: 10px 15px;
             background: var(--card-bg);
-            border-radius: 8px;
+            border-radius: 10px;
             margin-bottom: 15px;
         }
 
@@ -265,14 +265,6 @@
                 <button class="usdt-payment" onclick="showUsdtPayment(50, 'platinum')">50 USDT</button>
             </div>
         </div>
-        <div class="upgrade-card">
-            <h3>Diamond Package</h3>
-            <p>20x Multiplier</p>
-            <div class="payment-options">
-                <button class="pi-payment" onclick="handlePiPayment(2500, 'diamond')">2500 π</button>
-                <button class="usdt-payment" onclick="showUsdtPayment(100, 'diamond')">100 USDT</button>
-            </div>
-        </div>
     </div>
 
     <div class="page" id="skinsPage">
@@ -313,7 +305,6 @@
             activeSkin: 'bronze',
             purchasedSkins: ['bronze'],
             purchasedUpgrades: [],
-            activePackages: [],
             pendingPayment: null,
             lastUpdate: Date.now()
         };
@@ -329,20 +320,23 @@
         }
 
         function setupEventListeners() {
-            document.getElementById('coin').addEventListener('click', handleTap);
+            // Coin click handler
+            const coin = document.getElementById('coin');
+            coin.addEventListener('click', handleTap);
             
-            document.querySelector('.nav-buttons').addEventListener('click', (event) => {
-                const button = event.target.closest('.nav-button');
-                if (button) {
+            // Navigation handlers
+            document.querySelectorAll('.nav-button').forEach(button => {
+                button.addEventListener('click', (event) => {
                     const page = button.dataset.page;
                     showPage(page);
                     document.querySelectorAll('.nav-button').forEach(btn => {
                         btn.classList.remove('active');
                     });
                     button.classList.add('active');
-                }
+                });
             });
 
+            // Modal overlay
             document.getElementById('modalOverlay').addEventListener('click', hideModal);
         }
 
@@ -361,7 +355,9 @@
                 page.classList.remove('active');
             });
             const targetPage = document.getElementById(`${pageId}Page`);
-            if(targetPage) targetPage.classList.add('active');
+            if(targetPage) {
+                targetPage.classList.add('active');
+            }
         }
 
         function startEnergyRegeneration() {
@@ -418,7 +414,6 @@
 
         async function approvePiPayment(paymentId) {
             try {
-                // Simulate server approval
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 completePurchase(gameState.pendingPayment.itemType);
             } catch (error) {
@@ -468,35 +463,27 @@
             document.getElementById('energy').style.width = 
                 `${(gameState.energy/1000)*100}%`;
 
-            // Update owned items display
+            // Update owned items
             document.querySelectorAll('.skin-item').forEach(item => {
-                const skinType = item.querySelector('h4').textContent.toLowerCase();
-                if(gameState.purchasedSkins.includes(skinType)) {
+                const skinName = item.querySelector('h4').textContent.toLowerCase().replace(' ', '');
+                if(gameState.purchasedSkins.includes(skinName)) {
                     item.style.opacity = '0.6';
                     item.querySelector('.payment-options').innerHTML = '<button disabled>Owned</button>';
                 }
             });
 
             document.querySelectorAll('.upgrade-card').forEach(card => {
-                const title = card.querySelector('h3').textContent.toLowerCase();
-                const isPremium = ['platinum', 'diamond'].includes(title);
-                const owned = gameState.purchasedUpgrades.some(upgrade => 
-                    upgrade.toLowerCase().includes(title)
-                );
-                
-                if(owned) {
+                const upgradeName = card.querySelector('h3').textContent.toLowerCase().split(' ')[0];
+                if(gameState.purchasedUpgrades.some(u => u.toLowerCase().includes(upgradeName))) {
                     card.style.opacity = '0.6';
-                    const buttons = card.querySelectorAll('button');
-                    buttons.forEach(btn => btn.disabled = true);
+                    card.querySelectorAll('button').forEach(btn => btn.disabled = true);
                 }
             });
         }
 
         function updateCoinSkin() {
             const coin = document.getElementById('coin');
-            if(coin) {
-                coin.style.backgroundImage = `url('${gameState.activeSkin}_coin.png')`;
-            }
+            coin.style.backgroundImage = `url('${gameState.activeSkin}_coin.png')`;
         }
 
         function saveGame() {
@@ -507,19 +494,12 @@
             const saved = localStorage.getItem('uascoinGame');
             if(saved) {
                 gameState = JSON.parse(saved);
-                checkExpiredPackages();
+                updateDisplay();
             }
         }
 
-        function checkExpiredPackages() {
-            const now = Date.now();
-            gameState.activePackages = gameState.activePackages.filter(pkg => 
-                pkg.expires > now);
-            gameState.multiplier = 1 + gameState.activePackages.reduce((sum, pkg) => 
-                sum + pkg.multiplier, 0);
-        }
-
+        // Initialize game
         document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
-</html>
+    </html>
