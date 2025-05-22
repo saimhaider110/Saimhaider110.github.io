@@ -1,140 +1,131 @@
 <!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>UAScoin</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UAScoin Game</title>
   <style>
     body {
       margin: 0;
       font-family: sans-serif;
-      background-image: url('background.png');
+      background: url('background.png') no-repeat center center fixed;
       background-size: cover;
-      background-repeat: no-repeat;
-      background-position: center;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
+      color: white;
     }.container {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
   text-align: center;
-  padding: 10px;
+  padding-top: 30px;
 }
 
-#tap-count {
-  font-size: 48px;
-  color: white;
-  text-shadow: 0px 0px 6px black;
-}
-
-#coin {
+.coin-img {
   width: 200px;
   height: 200px;
-  margin: 20px 0;
-  cursor: pointer;
 }
 
-#energy-bar {
-  width: 90%;
+.energy-bar {
+  position: fixed;
+  bottom: 60px;
+  left: 10px;
+  right: 10px;
   height: 20px;
-  background-color: #ccc;
   border-radius: 10px;
+  background-color: white;
   overflow: hidden;
-  margin-bottom: 10px;
 }
 
-#energy-fill {
+.energy-fill {
   height: 100%;
-  width: 100%;
   background-color: limegreen;
-  border-radius: 10px;
+  width: 100%;
 }
 
-.nav {
+.nav-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0,0,0,0.7);
   display: flex;
   justify-content: space-around;
-  background-color: #333;
-  color: white;
   padding: 10px 0;
   font-size: 18px;
 }
 
-.nav div {
-  flex: 1;
-  text-align: center;
+.nav-bar div {
+  color: white;
   cursor: pointer;
 }
 
-.page {
+.hidden {
   display: none;
-  padding: 20px;
-  color: white;
-  background-color: rgba(0, 0, 0, 0.6);
-  flex: 1;
-  overflow-y: auto;
 }
 
-.page.active {
-  display: block;
+.tab {
+  padding: 20px;
 }
 
   </style>
 </head>
-<body>
-  <div class="container">
-    <div id="tap-count">0</div>
-    <img id="coin" src="bronze_coin.png" alt="UAScoin" onclick="handleTap()" />
-    <div id="energy-bar">
-      <div id="energy-fill"></div>
-    </div>
-    <div id="content">
-      <div id="Earn" class="page active">Tap to earn coins.</div>
-      <div id="Upgrades" class="page">Coming soon: Upgrade your taps!</div>
-      <div id="Skins" class="page">Coming soon: Unlock cool skins!</div>
-      <div id="Referrals" class="page">Coming soon: Refer and earn!</div>
-    </div>
-  </div>
-  <div class="nav">
-    <div onclick="navigate('Earn')">Earn</div>
-    <div onclick="navigate('Upgrades')">Upgrades</div>
-    <div onclick="navigate('Skins')">Skins</div>
-    <div onclick="navigate('Referrals')">Referrals</div>
+<body>  <div id="earn-tab" class="container">
+    <h1 id="tap-count">0</h1>
+    <img id="coin" class="coin-img" src="bronze_coin.png" alt="Coin" onclick="handleTap()">
+  </div>  <div id="upgrades-tab" class="tab hidden">
+    <h2>Upgrades (Coming Soon)</h2>
+  </div>  <div id="skins-tab" class="tab hidden">
+    <h2>Skins (Coming Soon)</h2>
+  </div>  <div id="referrals-tab" class="tab hidden">
+    <h2>Referrals (Coming Soon)</h2>
+  </div>  <div class="energy-bar">
+    <div id="energy-fill" class="energy-fill"></div>
+  </div>  <div class="nav-bar">
+    <div onclick="showTab('earn')">Earn</div>
+    <div onclick="showTab('upgrades')">Upgrades</div>
+    <div onclick="showTab('skins')">Skins</div>
+    <div onclick="showTab('referrals')">Referrals</div>
   </div>  <script>
-    let tapCount = 0;
+    let taps = 0;
     let energy = 1000;
+
+    const tapCount = document.getElementById("tap-count");
+    const coin = document.getElementById("coin");
+    const energyFill = document.getElementById("energy-fill");
+
+    const tabs = {
+      earn: document.getElementById("earn-tab"),
+      upgrades: document.getElementById("upgrades-tab"),
+      skins: document.getElementById("skins-tab"),
+      referrals: document.getElementById("referrals-tab"),
+    };
 
     function handleTap() {
       if (energy <= 0) return;
-      tapCount++;
+
+      taps++;
       energy--;
-      document.getElementById("tap-count").innerText = tapCount;
-      updateEnergyBar();
+      tapCount.textContent = taps;
+
       updateCoinSkin();
+      updateEnergyBar();
     }
 
     function updateEnergyBar() {
-      const fill = document.getElementById("energy-fill");
-      const percent = (energy / 1000) * 100;
-      fill.style.width = percent + "%";
+      energyFill.style.width = (energy / 1000) * 100 + "%";
     }
 
     function updateCoinSkin() {
-      const coin = document.getElementById("coin");
-      if (tapCount >= 200000000) coin.src = "vibranium_coin.png";
-      else if (tapCount >= 100000000) coin.src = "adamantium_coin.png";
-      else if (tapCount >= 50000000) coin.src = "platinum_coin.png";
-      else if (tapCount >= 1000000) coin.src = "diamond_coin.png";
-      else if (tapCount >= 500000) coin.src = "gold_coin.png";
-      else if (tapCount >= 10000) coin.src = "silver_coin.png";
+      if (taps >= 200_000_000) coin.src = "vibranium_coin.png";
+      else if (taps >= 100_000_000) coin.src = "adamantium_coin.png";
+      else if (taps >= 50_000_000) coin.src = "platinum_coin.png";
+      else if (taps >= 1_000_000) coin.src = "diamond_coin.png";
+      else if (taps >= 500_000) coin.src = "gold_coin.png";
+      else if (taps >= 10_000) coin.src = "silver_coin.png";
       else coin.src = "bronze_coin.png";
     }
 
-    function navigate(page) {
-      document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-      document.getElementById(page).classList.add("active");
+    function showTab(tabName) {
+      for (let tab in tabs) {
+        tabs[tab].classList.add("hidden");
+      }
+
+      tabs[tabName].classList.remove("hidden");
     }
 
     updateEnergyBar();
