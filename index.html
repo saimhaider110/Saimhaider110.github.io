@@ -8,23 +8,24 @@
     body {
       margin: 0;
       padding: 0;
-      font-family: sans-serif;
       background: url('background.png') no-repeat center center fixed;
       background-size: cover;
+      font-family: sans-serif;
       text-align: center;
-      color: white;
     }
 
-    #tap-count {
-      font-size: 2.5rem;
-      text-shadow: 1px 1px 5px black;
-      margin-top: 10px;
+    .page {
+      display: none;
+      padding-bottom: 80px;
+    }
+
+    #earn {
+      display: block;
     }
 
     #coin {
-      width: 220px;
-      height: 220px;
-      display: block;
+      width: 180px;
+      height: 180px;
       margin: 20px auto;
       transition: transform 0.2s ease;
     }
@@ -33,75 +34,96 @@
       transform: scale(1.1);
     }
 
-    .energy-bar {
-      width: 80%;
-      height: 20px;
-      background: #555;
-      border-radius: 10px;
-      margin: 10px auto;
-      overflow: hidden;
+    #tap-count {
+      font-size: 2rem;
+      color: white;
+      text-shadow: 0 0 5px black;
+      margin-top: 20px;
     }
 
-    .energy-fill {
-      width: 100%;
-      height: 100%;
-      background: limegreen;
-      transition: width 0.3s ease;
-    }
-
-    .skin-card {
-      border-radius: 10px;
-      padding: 1rem;
-      margin: 1rem;
-      background: rgba(255, 255, 255, 0.85);
-      color: black;
-    }
-
-    .skin-card button {
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 5px;
-    }
-
-    .navigation {
+    nav {
       position: fixed;
       bottom: 0;
-      width: 100%;
-      background: rgba(0, 0, 0, 0.7);
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.8);
       display: flex;
       justify-content: space-around;
       padding: 10px 0;
-      z-index: 999;
+      z-index: 1000;
     }
 
-    .nav-btn {
-      flex: 1;
+    nav button {
+      background: none;
+      border: none;
       color: white;
-      font-size: 0.9rem;
+      font-size: 18px;
+      cursor: pointer;
     }
 
-    #skins-container {
-      margin-bottom: 100px;
+    .skin-card {
+      border: 1px solid #ccc;
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 15px;
+      width: 90%;
+      max-width: 300px;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+
+    .skin-card button {
+      margin-top: 0.5rem;
+      padding: 0.5rem 1.2rem;
+      border: none;
+      border-radius: 8px;
+      background: #007bff;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <h1 id="tap-count">0</h1>
-  <img id="coin" src="bronze_coin.png" alt="Tap Coin" />
-  <div class="energy-bar">
-    <div class="energy-fill" id="energy-bar" style="width: 100%;"></div>
+
+  <!-- Earn Page -->
+  <div id="earn" class="page">
+    <h1 id="tap-count">0</h1>
+    <img id="coin" src="bronze_coin.png" alt="Tap Coin" />
   </div>
 
-  <div id="skins-container"></div>
-
-  <div class="navigation">
-    <div class="nav-btn" onclick="navigateTo('earn')">Earn</div>
-    <div class="nav-btn" onclick="navigateTo('upgrades')">Upgrades</div>
-    <div class="nav-btn" onclick="navigateTo('skins')">Skins</div>
-    <div class="nav-btn" onclick="navigateTo('leaderboard')">Leaderboard</div>
-    <div class="nav-btn" onclick="navigateTo('referrals')">Referrals</div>
+  <!-- Upgrades Page -->
+  <div id="upgrades" class="page">
+    <h2 style="color: white;">Upgrade Page (Coming Soon)</h2>
   </div>
 
+  <!-- Skins Page -->
+  <div id="skins" class="page">
+    <h2 style="color: white; margin-top: 20px;">Choose Your Skin</h2>
+    <div id="skins-container" style="display: flex; flex-direction: column; align-items: center;"></div>
+  </div>
+
+  <!-- Leaderboard Page -->
+  <div id="leaderboard" class="page">
+    <h2 style="color: white;">Leaderboard (Coming Soon)</h2>
+  </div>
+
+  <!-- Referrals Page -->
+  <div id="referrals" class="page">
+    <h2 style="color: white;">Referrals (Coming Soon)</h2>
+  </div>
+
+  <!-- Bottom Nav -->
+  <nav>
+    <button onclick="showPage('earn')">Earn</button>
+    <button onclick="showPage('upgrades')">Upgrades</button>
+    <button onclick="showPage('skins')">Skins</button>
+    <button onclick="showPage('leaderboard')">Leaderboard</button>
+    <button onclick="showPage('referrals')">Referrals</button>
+  </nav>
+
+  <!-- Scripts -->
   <script>
     const coinSkins = [
       { id: 1, name: "Bronze Skin", bonus: 1.1, priceUSDT: 0.5, pricePi: 0.1, image: "bronze_coin.png" },
@@ -109,8 +131,8 @@
       { id: 3, name: "Gold Skin", bonus: 1.3, priceUSDT: 2, pricePi: 0.3, image: "gold_coin.png" },
     ];
 
-    const ownedSkins = JSON.parse(localStorage.getItem("ownedSkins")) || [];
-    let currentSkin = localStorage.getItem("currentSkin") || null;
+    let ownedSkins = JSON.parse(localStorage.getItem("ownedSkins")) || [1]; // bronze skin free
+    let currentSkin = localStorage.getItem("currentSkin") || 1;
     let tapCount = parseInt(localStorage.getItem("tapCount")) || 0;
 
     function getLeagueSkin() {
@@ -133,50 +155,9 @@
 
     function updateCoinImage() {
       const coin = document.getElementById("coin");
-      coin.src = getCurrentCoinImage();
-    }
-
-    function renderSkins() {
-      const container = document.getElementById("skins-container");
-      container.innerHTML = "";
-      coinSkins.forEach((skin) => {
-        const owned = ownedSkins.includes(skin.id);
-        container.innerHTML += `
-          <div class="skin-card">
-            <h3>${skin.name}</h3>
-            <p>Bonus: x${skin.bonus}</p>
-            ${owned ? `<button onclick="selectSkin(${skin.id})">Select</button>` : `
-              <button onclick="buySkinWithUSDT(${skin.id}, ${skin.priceUSDT})">Buy with USDT (${skin.priceUSDT})</button>
-              <button onclick="buySkinWithPi(${skin.id}, ${skin.pricePi})">Buy with Pi (${skin.pricePi})</button>
-            `}
-          </div>
-        `;
-      });
-    }
-
-    function selectSkin(skinId) {
-      if (!ownedSkins.includes(skinId)) return alert("You don't own this skin.");
-      currentSkin = skinId;
-      localStorage.setItem("currentSkin", skinId);
-      updateCoinImage();
-    }
-
-    function unlockSkin(skinId) {
-      if (!ownedSkins.includes(skinId)) {
-        ownedSkins.push(skinId);
-        localStorage.setItem("ownedSkins", JSON.stringify(ownedSkins));
-        renderSkins();
+      if (coin) {
+        coin.src = getCurrentCoinImage();
       }
-    }
-
-    function buySkinWithUSDT(skinId, amountUSDT) {
-      alert(`Pretend to redirect to pay ${amountUSDT} USDT`);
-      unlockSkin(skinId);
-    }
-
-    function buySkinWithPi(skinId, amountPi) {
-      alert(`Pretend to pay ${amountPi} Pi`);
-      unlockSkin(skinId);
     }
 
     function updateTapCountDisplay() {
@@ -188,22 +169,61 @@
       tapCount++;
       localStorage.setItem("tapCount", tapCount);
       updateTapCountDisplay();
-      updateEnergyBar();
     }
 
-    function updateEnergyBar() {
-      const percent = 100 - (tapCount % 100);
-      document.getElementById("energy-bar").style.width = percent + "%";
+    function renderSkins() {
+      const container = document.getElementById("skins-container");
+      container.innerHTML = "";
+      coinSkins.forEach(skin => {
+        const owned = ownedSkins.includes(skin.id);
+        container.innerHTML += `
+          <div class="skin-card">
+            <h3>${skin.name}</h3>
+            <p>Bonus: x${skin.bonus}</p>
+            ${owned
+              ? `<button onclick="selectSkin(${skin.id})">Select</button>`
+              : `<button onclick="buySkinWithUSDT(${skin.id}, ${skin.priceUSDT})">Buy with USDT (${skin.priceUSDT})</button>
+                 <button onclick="buySkinWithPi(${skin.id}, ${skin.pricePi})">Buy with Pi (${skin.pricePi})</button>`}
+          </div>
+        `;
+      });
     }
 
-    function navigateTo(section) {
-      alert(`Navigated to ${section}`);
+    function selectSkin(skinId) {
+      if (!ownedSkins.includes(skinId)) return alert("You don't own this skin.");
+      currentSkin = skinId;
+      localStorage.setItem("currentSkin", skinId);
+      updateCoinImage();
+      alert("Skin selected!");
+    }
+
+    function unlockSkin(skinId) {
+      if (!ownedSkins.includes(skinId)) {
+        ownedSkins.push(skinId);
+        localStorage.setItem("ownedSkins", JSON.stringify(ownedSkins));
+        renderSkins();
+      }
+    }
+
+    function buySkinWithUSDT(skinId, amountUSDT) {
+      alert(`Pretend to pay ${amountUSDT} USDT for skin ${skinId}`);
+      unlockSkin(skinId);
+    }
+
+    async function buySkinWithPi(skinId, amountPi) {
+      alert(`Pretend to pay ${amountPi} Pi for skin ${skinId}`);
+      unlockSkin(skinId);
+    }
+
+    function showPage(pageId) {
+      document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+      document.getElementById(pageId).style.display = 'block';
     }
 
     document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("coin").addEventListener("click", handleTap);
       renderSkins();
       updateTapCountDisplay();
-      document.getElementById("coin").addEventListener("click", handleTap);
     });
   </script>
 </body>
