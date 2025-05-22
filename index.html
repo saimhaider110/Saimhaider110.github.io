@@ -43,6 +43,98 @@
       <button class="bg-blue-600 text-white px-4 py-2 rounded-lg" onclick="closeModal()">Close</button>
     </div>
   </div>  <script>
+  const coinSkins = [
+    { id: 1, name: "Bronze Skin", bonus: 1.1, priceUSDT: 0.5, pricePi: 0.1 },
+    { id: 2, name: "Silver Skin", bonus: 1.2, priceUSDT: 1, pricePi: 0.2 },
+    { id: 3, name: "Gold Skin", bonus: 1.3, priceUSDT: 2, pricePi: 0.3 },
+  ];
+
+  const ownedSkins = JSON.parse(localStorage.getItem("ownedSkins")) || [];
+  let currentSkin = localStorage.getItem("currentSkin") || null;
+
+  function renderSkins() {
+    const container = document.getElementById("skins-container");
+    container.innerHTML = "";
+    coinSkins.forEach((skin) => {
+      const owned = ownedSkins.includes(skin.id);
+      container.innerHTML += `
+        <div class="skin-card">
+          <h3>${skin.name}</h3>
+          <p>Bonus: x${skin.bonus}</p>
+          ${owned ? `<button onclick="selectSkin(${skin.id})">Select</button>` : `
+            <button onclick="buySkinWithUSDT(${skin.id}, ${skin.priceUSDT})">Buy with USDT (${skin.priceUSDT})</button>
+            <button onclick="buySkinWithPi(${skin.id}, ${skin.pricePi})">Buy with Pi (${skin.pricePi})</button>
+          `}
+        </div>
+      `;
+    });
+  }
+
+  function selectSkin(skinId) {
+    currentSkin = skinId;
+    localStorage.setItem("currentSkin", skinId);
+    alert("Skin selected! Bonus applied.");
+  }
+
+  function unlockSkin(skinId) {
+    if (!ownedSkins.includes(skinId)) {
+      ownedSkins.push(skinId);
+      localStorage.setItem("ownedSkins", JSON.stringify(ownedSkins));
+      renderSkins();
+    }
+  }
+
+  function buySkinWithUSDT(skinId, amountUSDT) {
+    alert(`Pretend to redirect to pay ${amountUSDT} USDT for skin ${skinId}`);
+    // Simulate successful payment
+    unlockSkin(skinId);
+  }
+
+  async function buySkinWithPi(skinId, amountPi) {
+    const paymentData = {
+      amount: amountPi,
+      memo: `Purchase skin ${skinId}`,
+      metadata: { skinId },
+    };
+
+    const scopes = ['payments'];
+    Pi.init({ version: '2.0' });
+
+    Pi.createPayment(paymentData, {
+      onReadyForServerApproval: async (paymentId) => {
+        await fetch('/approve-payment', {
+          method: 'POST',
+          body: JSON.stringify({ paymentId }),
+          headers: { 'Content-Type': 'application/json' }
+        });
+      },
+      onReadyForServerCompletion: async (paymentId, txid) => {
+        await fetch('/complete-payment', {
+          method: 'POST',
+          body: JSON.stringify({ paymentId, txid }),
+          headers: { 'Content-Type': 'application/json' }
+        });
+        unlockSkin(skinId);
+      },
+      onCancel: (paymentId) => alert("Payment cancelled."),
+      onError: (err) => console.error("Payment error:", err),
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    renderSkins();
+  });
+</script><style>
+  .skin-card {
+    border: 1px solid #ccc;
+    padding: 1rem;
+    margin: 1rem;
+    border-radius: 10px;
+  }
+  .skin-card button {
+    margin: 0.2rem;
+  }
+</style><div id="skins-container"></div><script>
     let coins = 0;
     let perTap = 1;
 
