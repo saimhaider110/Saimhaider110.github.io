@@ -1,54 +1,108 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>UAScoin Game</title>
   <style>
     body {
-      background-image: url('background.png');
-      background-size: cover;
-      background-position: center;
       margin: 0;
       padding: 0;
       font-family: sans-serif;
+      background: url('background.png') no-repeat center center fixed;
+      background-size: cover;
       text-align: center;
-    }#coin {
-  width: 180px;
-  height: 180px;
-  margin: 20px auto;
-  display: block;
-  transition: transform 0.2s ease;
-}
+      color: white;
+    }
 
-#coin:active {
-  transform: scale(1.1);
-}
+    #tap-count {
+      font-size: 2.5rem;
+      text-shadow: 1px 1px 5px black;
+      margin-top: 10px;
+    }
 
-.skin-card {
-  border: 1px solid #ccc;
-  padding: 1rem;
-  margin: 1rem;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.8);
-}
+    #coin {
+      width: 220px;
+      height: 220px;
+      display: block;
+      margin: 20px auto;
+      transition: transform 0.2s ease;
+    }
 
-.skin-card button {
-  margin: 0.3rem;
-  padding: 0.4rem 1rem;
-}
+    #coin:active {
+      transform: scale(1.1);
+    }
 
-#tap-count {
-  font-size: 2rem;
-  color: white;
-  text-shadow: 0 0 5px black;
-}
+    .energy-bar {
+      width: 80%;
+      height: 20px;
+      background: #555;
+      border-radius: 10px;
+      margin: 10px auto;
+      overflow: hidden;
+    }
 
+    .energy-fill {
+      width: 100%;
+      height: 100%;
+      background: limegreen;
+      transition: width 0.3s ease;
+    }
+
+    .skin-card {
+      border-radius: 10px;
+      padding: 1rem;
+      margin: 1rem;
+      background: rgba(255, 255, 255, 0.85);
+      color: black;
+    }
+
+    .skin-card button {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 5px;
+    }
+
+    .navigation {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+      z-index: 999;
+    }
+
+    .nav-btn {
+      flex: 1;
+      color: white;
+      font-size: 0.9rem;
+    }
+
+    #skins-container {
+      margin-bottom: 100px;
+    }
   </style>
 </head>
 <body>
   <h1 id="tap-count">0</h1>
   <img id="coin" src="bronze_coin.png" alt="Tap Coin" />
-  <div id="skins-container"></div>  <script>
+  <div class="energy-bar">
+    <div class="energy-fill" id="energy-bar" style="width: 100%;"></div>
+  </div>
+
+  <div id="skins-container"></div>
+
+  <div class="navigation">
+    <div class="nav-btn" onclick="navigateTo('earn')">Earn</div>
+    <div class="nav-btn" onclick="navigateTo('upgrades')">Upgrades</div>
+    <div class="nav-btn" onclick="navigateTo('skins')">Skins</div>
+    <div class="nav-btn" onclick="navigateTo('leaderboard')">Leaderboard</div>
+    <div class="nav-btn" onclick="navigateTo('referrals')">Referrals</div>
+  </div>
+
+  <script>
     const coinSkins = [
       { id: 1, name: "Bronze Skin", bonus: 1.1, priceUSDT: 0.5, pricePi: 0.1, image: "bronze_coin.png" },
       { id: 2, name: "Silver Skin", bonus: 1.2, priceUSDT: 1, pricePi: 0.2, image: "silver_coin.png" },
@@ -105,7 +159,6 @@
       currentSkin = skinId;
       localStorage.setItem("currentSkin", skinId);
       updateCoinImage();
-      alert("Skin selected and applied!");
     }
 
     function unlockSkin(skinId) {
@@ -117,38 +170,13 @@
     }
 
     function buySkinWithUSDT(skinId, amountUSDT) {
-      alert(`Pretend to redirect to pay ${amountUSDT} USDT for skin ${skinId}`);
+      alert(`Pretend to redirect to pay ${amountUSDT} USDT`);
       unlockSkin(skinId);
     }
 
-    async function buySkinWithPi(skinId, amountPi) {
-      const paymentData = {
-        amount: amountPi,
-        memo: `Purchase skin ${skinId}`,
-        metadata: { skinId },
-      };
-
-      Pi.init({ version: '2.0' });
-
-      Pi.createPayment(paymentData, {
-        onReadyForServerApproval: async (paymentId) => {
-          await fetch('/approve-payment', {
-            method: 'POST',
-            body: JSON.stringify({ paymentId }),
-            headers: { 'Content-Type': 'application/json' }
-          });
-        },
-        onReadyForServerCompletion: async (paymentId, txid) => {
-          await fetch('/complete-payment', {
-            method: 'POST',
-            body: JSON.stringify({ paymentId, txid }),
-            headers: { 'Content-Type': 'application/json' }
-          });
-          unlockSkin(skinId);
-        },
-        onCancel: () => alert("Payment cancelled."),
-        onError: (err) => console.error("Payment error:", err),
-      });
+    function buySkinWithPi(skinId, amountPi) {
+      alert(`Pretend to pay ${amountPi} Pi`);
+      unlockSkin(skinId);
     }
 
     function updateTapCountDisplay() {
@@ -160,13 +188,23 @@
       tapCount++;
       localStorage.setItem("tapCount", tapCount);
       updateTapCountDisplay();
+      updateEnergyBar();
+    }
+
+    function updateEnergyBar() {
+      const percent = 100 - (tapCount % 100);
+      document.getElementById("energy-bar").style.width = percent + "%";
+    }
+
+    function navigateTo(section) {
+      alert(`Navigated to ${section}`);
     }
 
     document.addEventListener("DOMContentLoaded", () => {
       renderSkins();
       updateTapCountDisplay();
-      updateCoinImage();
       document.getElementById("coin").addEventListener("click", handleTap);
     });
-  </script></body>
+  </script>
+</body>
 </html>
