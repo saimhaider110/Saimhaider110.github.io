@@ -1,99 +1,132 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>UAScoin Game</title>
   <style>
     body {
+      background-image: url('background.png');
+      background-size: cover;
+      background-position: center;
       margin: 0;
       padding: 0;
-      background: url('background.png') no-repeat center center fixed;
-      background-size: cover;
       font-family: sans-serif;
       text-align: center;
-    }.page {
-  display: none;
-  padding-bottom: 100px;
-}
+      color: white;
+    }
 
-#earn {
-  display: block;
-}
+    #coin {
+      width: 200px;
+      height: 200px;
+      margin: 20px auto;
+      display: block;
+      transition: transform 0.2s ease;
+    }
 
-#coin {
-  width: 360px;
-  height: 360px;
-  margin: 30px auto;
-  transition: transform 0.2s ease;
-}
+    #coin:active {
+      transform: scale(1.1);
+    }
 
-#coin:active {
-  transform: scale(1.1);
-}
+    #tap-count {
+      font-size: 2.5rem;
+      margin: 10px 0;
+      text-shadow: 0 0 5px black;
+    }
 
-#tap-count {
-  font-size: 2.5rem;
-  color: white;
-  text-shadow: 0 0 5px black;
-  margin-top: 20px;
-}
+    .nav-bar {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 8px 0;
+    }
 
-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  justify-content: space-around;
-  padding: 15px 0;
-  z-index: 1000;
-}
+    .nav-item {
+      flex: 1;
+      font-size: 0.9rem;
+      padding: 8px;
+    }
 
-nav button {
-  background: none;
-  border: none;
-  color: white;
-  font-size: 36px;
-  cursor: pointer;
-}
+    .nav-item img {
+      width: 28px;
+      height: 28px;
+    }
 
-.skin-card {
-  border: 1px solid #ccc;
-  padding: 1rem;
-  margin: 1rem auto;
-  border-radius: 15px;
-  width: 90%;
-  max-width: 300px;
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  text-align: center;
-}
+    .tab-page {
+      display: none;
+      padding-bottom: 80px;
+    }
 
-.skin-card button {
-  margin-top: 0.5rem;
-  padding: 0.5rem 1.2rem;
-  border: none;
-  border-radius: 8px;
-  background: #007bff;
-  color: white;
-  font-size: 14px;
-  cursor: pointer;
-}
+    .tab-page.active {
+      display: block;
+    }
 
+    #energy-bar {
+      width: 90%;
+      height: 14px;
+      background: rgba(255, 255, 255, 0.2);
+      border: 2px solid white;
+      border-radius: 10px;
+      margin: 10px auto;
+      overflow: hidden;
+    }
+
+    #energy-fill {
+      height: 100%;
+      width: 100%;
+      background: limegreen;
+      transition: width 0.5s;
+    }
+
+    .skin-card {
+      border: 1px solid #ccc;
+      padding: 1rem;
+      margin: 1rem auto;
+      max-width: 300px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.85);
+      color: black;
+    }
+
+    .skin-card button {
+      margin: 0.3rem;
+      padding: 0.4rem 1rem;
+    }
   </style>
 </head>
 <body>
-  <div id="earn" class="page">
-    <h1 id="tap-count">0</h1>
-    <img id="coin" src="bronze_coin.png" alt="Tap Coin" />
-  </div>
-  <div id="skins" class="page">
+
+  <div id="tap-count">0</div>
+  <img id="coin" src="bronze_coin.png" alt="Tap Coin" />
+  <div id="energy-bar"><div id="energy-fill"></div></div>
+
+  <div id="earn-tab" class="tab-page active"></div>
+  <div id="upgrades-tab" class="tab-page"></div>
+  <div id="skins-tab" class="tab-page">
     <div id="skins-container"></div>
-  </div>  <nav>
-    <button onclick="showPage('earn')">Earn</button>
-    <button onclick="showPage('skins')">Skins</button>
-  </nav>  <script>
+  </div>
+  <div id="referrals-tab" class="tab-page"></div>
+
+  <div class="nav-bar">
+    <div class="nav-item" onclick="showTab('earn-tab')">
+      <img src="earn_icon.png" /><div>Earn</div>
+    </div>
+    <div class="nav-item" onclick="showTab('upgrades-tab')">
+      <img src="upgrade_icon.png" /><div>Upgrades</div>
+    </div>
+    <div class="nav-item" onclick="showTab('skins-tab')">
+      <img src="skin_icon.png" /><div>Skins</div>
+    </div>
+    <div class="nav-item" onclick="showTab('referrals-tab')">
+      <img src="referral_icon.png" /><div>Referrals</div>
+    </div>
+  </div>
+
+  <script>
     const coinSkins = [
       { id: 1, name: "Bronze Skin", bonus: 1.1, priceUSDT: 0.5, pricePi: 0.1, image: "bronze_coin.png" },
       { id: 2, name: "Silver Skin", bonus: 1.2, priceUSDT: 1, pricePi: 0.2, image: "silver_coin.png" },
@@ -103,11 +136,7 @@ nav button {
     const ownedSkins = JSON.parse(localStorage.getItem("ownedSkins")) || [];
     let currentSkin = localStorage.getItem("currentSkin") || null;
     let tapCount = parseInt(localStorage.getItem("tapCount")) || 0;
-
-    function showPage(id) {
-      document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
-      document.getElementById(id).style.display = 'block';
-    }
+    let energy = 100;
 
     function getLeagueSkin() {
       if (tapCount >= 200000000) return "vibranium_coin.png";
@@ -128,14 +157,13 @@ nav button {
     }
 
     function updateCoinImage() {
-      const coin = document.getElementById("coin");
-      coin.src = getCurrentCoinImage();
+      document.getElementById("coin").src = getCurrentCoinImage();
     }
 
     function renderSkins() {
       const container = document.getElementById("skins-container");
       container.innerHTML = "";
-      coinSkins.forEach((skin) => {
+      coinSkins.forEach(skin => {
         const owned = ownedSkins.includes(skin.id);
         container.innerHTML += `
           <div class="skin-card">
@@ -155,7 +183,7 @@ nav button {
       currentSkin = skinId;
       localStorage.setItem("currentSkin", skinId);
       updateCoinImage();
-      alert("Skin selected and applied!");
+      alert("Skin applied!");
     }
 
     function unlockSkin(skinId) {
@@ -167,38 +195,22 @@ nav button {
     }
 
     function buySkinWithUSDT(skinId, amountUSDT) {
-      alert(`Pretend to redirect to pay ${amountUSDT} USDT for skin ${skinId}`);
+      alert(`Pay ${amountUSDT} USDT for skin ${skinId}`);
       unlockSkin(skinId);
     }
 
-    async function buySkinWithPi(skinId, amountPi) {
-      const paymentData = {
-        amount: amountPi,
-        memo: `Purchase skin ${skinId}`,
-        metadata: { skinId },
-      };
+    function buySkinWithPi(skinId, amountPi) {
+      alert(`Simulate Pi payment of ${amountPi}`);
+      unlockSkin(skinId);
+    }
 
-      Pi.init({ version: '2.0' });
-
-      Pi.createPayment(paymentData, {
-        onReadyForServerApproval: async (paymentId) => {
-          await fetch('/approve-payment', {
-            method: 'POST',
-            body: JSON.stringify({ paymentId }),
-            headers: { 'Content-Type': 'application/json' }
-          });
-        },
-        onReadyForServerCompletion: async (paymentId, txid) => {
-          await fetch('/complete-payment', {
-            method: 'POST',
-            body: JSON.stringify({ paymentId, txid }),
-            headers: { 'Content-Type': 'application/json' }
-          });
-          unlockSkin(skinId);
-        },
-        onCancel: () => alert("Payment cancelled."),
-        onError: (err) => console.error("Payment error:", err),
-      });
+    function handleTap() {
+      if (energy <= 0) return;
+      tapCount++;
+      localStorage.setItem("tapCount", tapCount);
+      updateTapCountDisplay();
+      energy -= 1;
+      updateEnergyBar();
     }
 
     function updateTapCountDisplay() {
@@ -206,17 +218,28 @@ nav button {
       updateCoinImage();
     }
 
-    function handleTap() {
-      tapCount++;
-      localStorage.setItem("tapCount", tapCount);
-      updateTapCountDisplay();
+    function updateEnergyBar() {
+      document.getElementById("energy-fill").style.width = `${energy}%`;
+    }
+
+    function showTab(id) {
+      document.querySelectorAll(".tab-page").forEach(t => t.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
     }
 
     document.addEventListener("DOMContentLoaded", () => {
-      renderSkins();
       updateTapCountDisplay();
-      updateCoinImage();
+      updateEnergyBar();
+      renderSkins();
       document.getElementById("coin").addEventListener("click", handleTap);
     });
-  </script></body>
+
+    setInterval(() => {
+      if (energy < 100) {
+        energy += 1;
+        updateEnergyBar();
+      }
+    }, 1000);
+  </script>
+</body>
 </html>
