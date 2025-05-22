@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>UAScoin Game</title>
   <style>
@@ -22,8 +22,8 @@
     }
 
     #coin {
-      width: 200px;
-      height: 200px;
+      width: 220px;
+      height: 220px;
       margin: 10px auto;
       display: block;
       transition: transform 0.2s ease;
@@ -34,13 +34,15 @@
     }
 
     .energy-bar {
+      position: fixed;
+      bottom: 70px;
       width: 100%;
       background-color: rgba(255, 255, 255, 0.2);
-      margin: 0;
+      z-index: 2;
     }
 
     .energy-bar-inner {
-      height: 20px;
+      height: 18px;
       background-color: limegreen;
       width: 100%;
       transition: width 0.3s;
@@ -48,7 +50,7 @@
 
     .tab-content {
       display: none;
-      padding: 10px;
+      padding: 20px 10px 80px;
     }
 
     .tab-content.active {
@@ -62,18 +64,19 @@
       bottom: 0;
       width: 100%;
       background: rgba(0, 0, 0, 0.8);
+      z-index: 3;
     }
 
     .nav-item {
       flex: 1;
-      padding: 15px 5px;
-      font-size: 18px;
+      padding: 16px 5px;
+      font-size: 20px;
       color: white;
       cursor: pointer;
     }
 
     .skin-card {
-      background: rgba(255, 255, 255, 0.85);
+      background: rgba(255, 255, 255, 0.9);
       color: black;
       margin: 10px auto;
       padding: 10px;
@@ -87,35 +90,47 @@
       height: 100px;
     }
 
-    .skin-card button {
-      margin: 5px;
-      padding: 5px 10px;
-    }
-
-    .referral-section {
-      margin-top: 20px;
-    }
-
     .referral-code {
-      font-size: 1.2rem;
+      font-size: 1.3rem;
       font-weight: bold;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    ul li {
+      background: rgba(255, 255, 255, 0.2);
+      margin: 5px;
+      padding: 5px;
+      border-radius: 5px;
     }
   </style>
 </head>
 <body>
+
+  <!-- Earn Tab -->
+  <div id="earn" class="tab-content active">
+    <h1 id="tap-count">0</h1>
+    <img id="coin" src="bronze_coin.png" alt="Tap Coin" />
+  </div>
+
+  <!-- Skins Tab -->
+  <div id="skins" class="tab-content"></div>
+
+  <!-- Referral Tab -->
+  <div id="referrals" class="tab-content"></div>
+
+  <!-- Leaderboard Tab -->
+  <div id="leaderboard" class="tab-content"><h2>Coming soon</h2></div>
+
+  <!-- Energy Bar (Visible Always) -->
   <div class="energy-bar">
     <div class="energy-bar-inner" id="energy-fill"></div>
   </div>
 
-  <h1 id="tap-count">0</h1>
-  <img id="coin" src="bronze_coin.png" alt="Tap Coin" />
-
-  <div id="earn" class="tab-content active"></div>
-  <div id="skins" class="tab-content"></div>
-  <div id="referrals" class="tab-content"></div>
-  <div id="leaderboard" class="tab-content"><p>Coming soon</p></div>
-  <div id="upgrades" class="tab-content"><p>Coming soon</p></div>
-
+  <!-- Navigation -->
   <div class="nav-bar">
     <div class="nav-item" onclick="showTab('earn')">Earn</div>
     <div class="nav-item" onclick="showTab('skins')">Skins</div>
@@ -154,17 +169,19 @@
     }
 
     function getCoinImage() {
-      const skinName = countrySkins.find(s => s === currentSkin);
-      if (skinName && ownedSkins.includes(skinName)) return skinName + ".png";
+      if (currentSkin && ownedSkins.includes(currentSkin)) {
+        return currentSkin + ".png";
+      }
       return getLeagueSkin();
     }
 
     function updateCoinImage() {
-      document.getElementById("coin").src = getCoinImage();
+      const coin = document.getElementById("coin");
+      if (coin) coin.src = getCoinImage();
     }
 
     function handleTap() {
-      if (energy <= 0) return alert("No energy!");
+      if (energy <= 0) return alert("Out of energy!");
       tapCount++;
       energy--;
       localStorage.setItem("tapCount", tapCount);
@@ -184,16 +201,16 @@
 
     function renderSkinShop() {
       const container = document.getElementById("skins");
-      container.innerHTML = "<h2>Country Flag Skins</h2>";
+      container.innerHTML = "<h2>Buy Flag Skins (5 USDT)</h2>";
       countrySkins.forEach(skin => {
         const owned = ownedSkins.includes(skin);
         container.innerHTML += `
           <div class="skin-card">
             <h3>${skin.toUpperCase()}</h3>
-            <img src="${skin}.png" alt="${skin}" />
-            <p>Price: 5 USDT</p>
-            ${owned ? `<button onclick="selectSkin('${skin}')">Select</button>` :
-              `<button onclick="buySkin('${skin}')">Buy</button>`}
+            <img src="${skin}.png" alt="${skin}"/>
+            ${owned
+              ? `<button onclick="selectSkin('${skin}')">Select</button>`
+              : `<button onclick="buySkin('${skin}')">Buy</button>`}
           </div>`;
       });
     }
@@ -202,45 +219,42 @@
       ownedSkins.push(skin);
       localStorage.setItem("ownedSkins", JSON.stringify(ownedSkins));
       renderSkinShop();
-      alert(`Purchased ${skin} skin!`);
+      alert(`Purchased ${skin} skin for 5 USDT`);
     }
 
     function selectSkin(skin) {
       currentSkin = skin;
       localStorage.setItem("currentSkin", skin);
       updateCoinImage();
-      alert("Skin applied!");
+      alert(`Skin "${skin}" applied`);
     }
 
     function renderReferrals() {
       const container = document.getElementById("referrals");
       container.innerHTML = `
         <h2>Referral System</h2>
-        <div class="referral-section">
-          <p>Your Code:</p>
-          <div class="referral-code">${referralCode}</div>
-          <button onclick="copyCode()">Copy</button>
-          <p>Referral Link: <br><small>https://yourgame.com?ref=${referralCode}</small></p>
-        </div>
+        <p>Your Referral Code:</p>
+        <div class="referral-code">${referralCode}</div>
+        <button onclick="copyCode()">Copy</button>
+        <p>Link: https://yourgame.com?ref=${referralCode}</p>
         <h3>Your Team</h3>
-        <ul>${team.map(u => `<li>${u}</li>`).join("")}</ul>`;
+        <ul>${team.map(member => `<li>${member}</li>`).join("")}</ul>`;
     }
 
     function copyCode() {
       navigator.clipboard.writeText(referralCode);
-      alert("Code copied!");
+      alert("Referral code copied!");
     }
 
-    // Coin tap
-    document.getElementById("coin").addEventListener("click", handleTap);
-
-    // On load
+    // Event setup
     document.addEventListener("DOMContentLoaded", () => {
       updateTapDisplay();
       updateEnergy();
       renderSkinShop();
       renderReferrals();
     });
+
+    document.getElementById("coin").addEventListener("click", handleTap);
   </script>
 </body>
 </html>
