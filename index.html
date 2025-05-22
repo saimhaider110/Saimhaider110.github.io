@@ -1,9 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>UAScoin Clicker Game</title>
+<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UAScoin Tap Game</title>
   <style>
     body {
       margin: 0;
@@ -11,235 +9,244 @@
       background: url('background.png') no-repeat center center fixed;
       background-size: cover;
       color: white;
-    }
+    }header {
+  background: rgba(0, 0, 0, 0.7);
+  padding: 8px 10px;
+  display: flex;
+  justify-content: space-around;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}
 
-    header {
-      background: rgba(0, 0, 0, 0.7);
-      padding: 10px;
-      display: flex;
-      justify-content: space-around;
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-    }
+header button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 16px;
+  padding: 10px;
+  cursor: pointer;
+}
 
-    header button {
-      background: none;
-      border: none;
-      color: white;
-      font-size: 16px;
-      padding: 10px;
-      cursor: pointer;
-    }
+.section {
+  display: none;
+  padding: 20px;
+  padding-bottom: 100px;
+}
 
-    .section {
-      display: none;
-      padding: 20px;
-    }
+.active {
+  display: block;
+}
 
-    .active {
-      display: block;
-    }
+.coin {
+  width: 180px;
+  height: 180px;
+  margin: 40px auto 20px;
+  animation: bounce 0.6s infinite alternate;
+  display: block;
+}
 
-    .coin {
-      width: 120px;
-      height: 120px;
-      margin: 40px auto;
-      animation: bounce 0.6s infinite alternate;
-    }
+@keyframes bounce {
+  to {
+    transform: scale(1.05) translateY(-10px);
+  }
+}
 
-    @keyframes bounce {
-      to {
-        transform: scale(1.05) translateY(-10px);
-      }
-    }
+.skin-card {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 15px;
+  margin: 10px 0;
+}
 
-    .skin-card {
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      padding: 15px;
-      margin: 10px 0;
-    }
+.skin-card button {
+  margin: 5px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  background-color: #444;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
 
-    .skin-card button {
-      margin: 5px;
-      padding: 6px 12px;
-      border-radius: 6px;
-      background-color: #444;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
+.center {
+  text-align: center;
+}
 
-    .center {
-      text-align: center;
-    }
+.energy-bar-wrapper {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  height: 16px;
+  position: fixed;
+  bottom: 58px;
+  z-index: 99;
+}
+
+.energy-bar {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(to right, #00ff99, #00ccff);
+  transition: width 0.2s;
+}
+
   </style>
-</head>
-<body>
+</head><body>
+  <div class="energy-bar-wrapper">
+    <div id="energy-bar" class="energy-bar"></div>
+  </div>  <div id="game-section" class="section active center">
+    <h1>UAScoin</h1>
+    <p>Taps: <span id="tapCount">0</span></p>
+    <img id="coinImage" class="coin" src="bronze_coin.png" onclick="handleTap()" alt="Coin">
+  </div>  <div id="skins-section" class="section">
+    <h2>Coin Skins</h2>
+    <div id="skins-container"></div>
+  </div>  <header>
+    <button onclick="showSection('game-section')">Earn</button>
+    <button onclick="showSection('skins-section')">Skins</button>
+    <button onclick="showSection('upgrades-section')">Upgrades</button>
+    <button onclick="showSection('leaderboard-section')">Leaderboard</button>
+    <button onclick="showSection('referrals-section')">Referrals</button>
+  </header>  <script>
+    let taps = parseInt(localStorage.getItem("taps")) || 0;
+    const tapDisplay = document.getElementById("tapCount");
+    tapDisplay.textContent = taps;
 
-<div class="section active" id="earn">
-  <div class="center">
-    <h2>Taps: <span id="tap-count">0</span></h2>
-    <img id="coin-img" class="coin" src="bronze_coin.png" onclick="handleTap()" alt="Coin"/>
-  </div>
-</div>
+    const coinImage = document.getElementById("coinImage");
 
-<div class="section" id="upgrades">
-  <h3>Upgrade Section</h3>
-  <p>Coming soon...</p>
-</div>
+    const coinSkins = [
+      { id: 1, name: "Bronze Skin", bonus: 1.1, priceUSDT: 0.5, pricePi: 0.1 },
+      { id: 2, name: "Silver Skin", bonus: 1.2, priceUSDT: 1, pricePi: 0.2 },
+      { id: 3, name: "Gold Skin", bonus: 1.3, priceUSDT: 2, pricePi: 0.3 }
+    ];
 
-<div class="section" id="skins">
-  <h3>Buy Coin Skins</h3>
-  <div id="skins-container"></div>
-</div>
+    const ownedSkins = JSON.parse(localStorage.getItem("ownedSkins")) || [];
+    let currentSkin = localStorage.getItem("currentSkin") || null;
 
-<div class="section" id="leaderboard">
-  <h3>Leaderboard</h3>
-  <p>Coming soon...</p>
-</div>
-
-<div class="section" id="referrals">
-  <h3>Referrals</h3>
-  <p>Invite friends & earn bonuses! (Coming soon...)</p>
-</div>
-
-<header>
-  <button onclick="switchSection('earn')">Earn</button>
-  <button onclick="switchSection('upgrades')">Upgrades</button>
-  <button onclick="switchSection('skins')">Skins</button>
-  <button onclick="switchSection('leaderboard')">Leaderboard</button>
-  <button onclick="switchSection('referrals')">Referrals</button>
-</header>
-
-<script>
-  const leagueLevels = [
-    { name: "bronze", taps: 0 },
-    { name: "silver", taps: 10000 },
-    { name: "gold", taps: 500000 },
-    { name: "diamond", taps: 1000000 },
-    { name: "platinum", taps: 50000000 },
-    { name: "adamantium", taps: 100000000 },
-    { name: "vibranium", taps: 200000000 },
-  ];
-
-  let taps = parseInt(localStorage.getItem("taps") || 0);
-  let ownedSkins = JSON.parse(localStorage.getItem("ownedSkins") || "[]");
-  let currentSkin = localStorage.getItem("currentSkin") || null;
-
-  const tapDisplay = document.getElementById("tap-count");
-  const coinImg = document.getElementById("coin-img");
-
-  const coinSkins = [
-    { id: 1, name: "Bronze Skin", bonus: 1.1, priceUSDT: 0.5, pricePi: 0.1 },
-    { id: 2, name: "Silver Skin", bonus: 1.2, priceUSDT: 1, pricePi: 0.2 },
-    { id: 3, name: "Gold Skin", bonus: 1.3, priceUSDT: 2, pricePi: 0.3 },
-  ];
-
-  function switchSection(sectionId) {
-    document.querySelectorAll(".section").forEach(sec => sec.classList.remove("active"));
-    document.getElementById(sectionId).classList.add("active");
-  }
-
-  function getLeagueSkin() {
-    let skin = "bronze_coin.png";
-    for (let i = leagueLevels.length - 1; i >= 0; i--) {
-      if (taps >= leagueLevels[i].taps) {
-        skin = `${leagueLevels[i].name}_coin.png`;
-        break;
+    function updateCoinImage() {
+      if (taps >= 200000000) {
+        coinImage.src = "vibranium_coin.png";
+      } else if (taps >= 100000000) {
+        coinImage.src = "adamantium_coin.png";
+      } else if (taps >= 50000000) {
+        coinImage.src = "platinum_coin.png";
+      } else if (taps >= 1000000) {
+        coinImage.src = "diamond_coin.png";
+      } else if (taps >= 500000) {
+        coinImage.src = "gold_coin.png";
+      } else if (taps >= 10000) {
+        coinImage.src = "silver_coin.png";
+      } else {
+        coinImage.src = "bronze_coin.png";
       }
     }
-    return skin;
-  }
 
-  function updateCoinImage() {
-    const skinPath = getLeagueSkin();
-    coinImg.src = skinPath;
-  }
-
-  function handleTap() {
-    let bonus = 1;
-    const skin = coinSkins.find(s => s.id == currentSkin);
-    if (skin) bonus = skin.bonus;
-    taps += bonus;
-    localStorage.setItem("taps", taps);
-    tapDisplay.textContent = Math.floor(taps);
-    updateCoinImage();
-  }
-
-  function renderSkins() {
-    const container = document.getElementById("skins-container");
-    container.innerHTML = "";
-    coinSkins.forEach((skin) => {
-      const owned = ownedSkins.includes(skin.id);
-      container.innerHTML += `
-        <div class="skin-card">
-          <h4>${skin.name}</h4>
-          <p>Bonus: x${skin.bonus}</p>
-          ${owned ? `<button onclick="selectSkin(${skin.id})">Select</button>` : `
-            <button onclick="buySkinWithUSDT(${skin.id}, ${skin.priceUSDT})">Buy with USDT (${skin.priceUSDT})</button>
-            <button onclick="buySkinWithPi(${skin.id}, ${skin.pricePi})">Buy with Pi (${skin.pricePi})</button>
-          `}
-        </div>
-      `;
-    });
-  }
-
-  function selectSkin(skinId) {
-    currentSkin = skinId;
-    localStorage.setItem("currentSkin", skinId);
-    alert("Skin selected! Tap bonus applied.");
-  }
-
-  function unlockSkin(skinId) {
-    if (!ownedSkins.includes(skinId)) {
-      ownedSkins.push(skinId);
-      localStorage.setItem("ownedSkins", JSON.stringify(ownedSkins));
-      renderSkins();
+    function renderSkins() {
+      const container = document.getElementById("skins-container");
+      container.innerHTML = "";
+      coinSkins.forEach((skin) => {
+        const owned = ownedSkins.includes(skin.id);
+        container.innerHTML += `
+          <div class="skin-card">
+            <h3>${skin.name}</h3>
+            <p>Bonus: x${skin.bonus}</p>
+            ${owned ? `<button onclick="selectSkin(${skin.id})">Select</button>` : `
+              <button onclick="buySkinWithUSDT(${skin.id}, ${skin.priceUSDT})">Buy with USDT (${skin.priceUSDT})</button>
+              <button onclick="buySkinWithPi(${skin.id}, ${skin.pricePi})">Buy with Pi (${skin.pricePi})</button>
+            `}
+          </div>
+        `;
+      });
     }
-  }
 
-  function buySkinWithUSDT(skinId, amountUSDT) {
-    alert(`Redirect to pay ${amountUSDT} USDT...`);
-    unlockSkin(skinId);
-  }
+    function selectSkin(skinId) {
+      currentSkin = skinId;
+      localStorage.setItem("currentSkin", skinId);
+      alert("Skin selected! Bonus applied.");
+    }
 
-  async function buySkinWithPi(skinId, amountPi) {
-    const paymentData = {
-      amount: amountPi,
-      memo: `Purchase skin ${skinId}`,
-      metadata: { skinId },
-    };
+    function unlockSkin(skinId) {
+      if (!ownedSkins.includes(skinId)) {
+        ownedSkins.push(skinId);
+        localStorage.setItem("ownedSkins", JSON.stringify(ownedSkins));
+        renderSkins();
+      }
+    }
 
-    Pi.init({ version: '2.0' });
+    function buySkinWithUSDT(skinId, amountUSDT) {
+      alert(`Pretend to redirect to pay ${amountUSDT} USDT for skin ${skinId}`);
+      unlockSkin(skinId);
+    }
 
-    Pi.createPayment(paymentData, {
-      onReadyForServerApproval: async (paymentId) => {
-        await fetch('/approve-payment', {
-          method: 'POST',
-          body: JSON.stringify({ paymentId }),
-          headers: { 'Content-Type': 'application/json' }
-        });
-      },
-      onReadyForServerCompletion: async (paymentId, txid) => {
-        await fetch('/complete-payment', {
-          method: 'POST',
-          body: JSON.stringify({ paymentId, txid }),
-          headers: { 'Content-Type': 'application/json' }
-        });
-        unlockSkin(skinId);
-      },
-      onCancel: (paymentId) => alert("Payment cancelled."),
-      onError: (err) => console.error("Payment error:", err),
+    async function buySkinWithPi(skinId, amountPi) {
+      const paymentData = {
+        amount: amountPi,
+        memo: `Purchase skin ${skinId}`,
+        metadata: { skinId },
+      };
+
+      Pi.init({ version: '2.0' });
+
+      Pi.createPayment(paymentData, {
+        onReadyForServerApproval: async (paymentId) => {
+          await fetch('/approve-payment', {
+            method: 'POST',
+            body: JSON.stringify({ paymentId }),
+            headers: { 'Content-Type': 'application/json' }
+          });
+        },
+        onReadyForServerCompletion: async (paymentId, txid) => {
+          await fetch('/complete-payment', {
+            method: 'POST',
+            body: JSON.stringify({ paymentId, txid }),
+            headers: { 'Content-Type': 'application/json' }
+          });
+          unlockSkin(skinId);
+        },
+        onCancel: (paymentId) => alert("Payment cancelled."),
+        onError: (err) => console.error("Payment error:", err),
+      });
+    }
+
+    function showSection(id) {
+      document.querySelectorAll(".section").forEach(sec => sec.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+    }
+
+    let energy = 100;
+
+    function updateEnergyBar() {
+      document.getElementById("energy-bar").style.width = energy + "%";
+    }
+
+    function drainEnergy() {
+      if (energy > 0) {
+        energy -= 0.5;
+        updateEnergyBar();
+      }
+    }
+
+    function rechargeEnergy() {
+      energy = Math.min(100, energy + 0.1);
+      updateEnergyBar();
+    }
+
+    setInterval(rechargeEnergy, 200);
+
+    function handleTap() {
+      if (energy < 1) return alert("You're out of energy!");
+      let bonus = 1;
+      const skin = coinSkins.find(s => s.id == currentSkin);
+      if (skin) bonus = skin.bonus;
+      taps += bonus;
+      localStorage.setItem("taps", taps);
+      tapDisplay.textContent = Math.floor(taps);
+      updateCoinImage();
+      drainEnergy();
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      renderSkins();
+      updateCoinImage();
+      updateEnergyBar();
     });
-  }
-
-  document.addEventListener("DOMContentLoaded", () => {
-    renderSkins();
-    updateCoinImage();
-    tapDisplay.textContent = Math.floor(taps);
-  });
-</script>
-</body>
-</html>
+  </script></body></html>
