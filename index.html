@@ -2,234 +2,161 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>UASCOIN A NEW CRYPTOCURRENCY</title>
+  <title>UAScoin A NEW CRYPTO</title>
   <style>
     body {
       margin: 0;
-      font-family: BOLD, sans-serif;
+      font-family: sans-serif;
       background: url('background.png') no-repeat center center fixed;
       background-size: cover;
-      color: black;
     }
     .energy-bar {
-      background: rgba(0, 0, 0, 0.7);
-      padding: 10px;
-      text-align: center;
-      position: fixed;
-      top: 0;
-      width: 100%;
-      color: white;
-      z-index: 1000;
-    }
-    .tab-section {
-      display: none;
-      padding: 70px 15px 80px;
-      min-height: 100vh;
-      box-sizing: border-box;
-    }
-    .tab-section.active {
-      display: block;
-    }
-    .coin {
-      display: block;
-      margin: 80px auto 10px;
-      width: 180px;
-    }
-    .coin-count {
-      text-align: center;
-      font-size: 24px;
-      font-weight: bold;
-    }
-    .nav-bar {
-      display: flex;
-      justify-content: space-around;
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      background: rgba(0, 0, 0, 0.8);
-      padding: 10px 0;
-      z-index: 10;
-    }
-    .nav-item {
-      color: white;
-      font-size: 16px;
-      text-align: center;
-      flex: 1;
-      cursor: pointer;
-    }
-    .referral-btn {
-      position: fixed;
-      right: 10px;
-      bottom: 80px;
-      background: #007bff;
-      color: white;
-      padding: 10px 14px;
-      border-radius: 8px;
-      font-size: 14px;
-      cursor: pointer;
-      z-index: 11;
-    }
-    .skin-item, .upgrade-item {
-      background: rgba(255, 255, 255, 0.1);
-      padding: 10px;
-      border-radius: 8px;
-      margin-bottom: 10px;
-    }
-    .buy-btn {
-      background: #28a745;
-      color: white;
-      border: none;
-      padding: 8px 12px;
-      margin-top: 5px;
-      cursor: pointer;
-      border-radius: 4px;
-    }
-    .preview-img {
-      width: 40px;
-      vertical-align: middle;
-      margin-right: 10px;
-    }
-    .modal {
-      display: none;
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.8);
-      justify-content: center;
-      align-items: center;
-      z-index: 20;
+      background: green;
+      height: 10px;
+      z-index: 10;
     }
-    .modal-content {
-      background: white;
-      color: black;
-      padding: 20px;
-      border-radius: 10px;
-      max-width: 400px;
-      width: 90%;
+    .nav-bar {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-around;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 10px 0;
+      z-index: 10;
     }
-    .modal-close {
-      float: right;
+    .nav-icon {
+      color: white;
+      font-size: 20px;
+    }
+    .sidebar-referral {
+      position: fixed;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0, 0, 0, 0.7);
+      padding: 10px;
+      color: white;
+      font-size: 20px;
       cursor: pointer;
+      z-index: 10;
+    }
+    .section {
+      display: none;
+      padding: 20px;
+      color: white;
+    }
+    .section.active {
+      display: block;
+    }
+    .skin-option, .upgrade-option {
+      margin: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 10px;
+      border-radius: 8px;
     }
   </style>
 </head>
 <body>
-  <div class="energy-bar">Energy: <span id="energy">1000</span></div>
-  <div class="referral-btn" onclick="toggleReferral()">Referrals</div>  <div id="homeTab" class="tab-section active">
-    <img src="bronze_coin.png" id="coinImage" class="coin" onclick="tapCoin()">
-    <div class="coin-count" id="tapCount">Taps: 0</div>
-  </div>  <div id="earnTab" class="tab-section">
-    <h3>Earn by watching monetization videos!</h3>
-    <p>Coming soon...</p>
-  </div>  <div id="skinTab" class="tab-section">
-    <h3>Buy Country Skins (5 USDT Each)</h3>
+  <div class="energy-bar" id="energyBar"></div>
+  <div class="sidebar-referral" onclick="showSection('referrals')">Referral</div>  <div id="home" class="section active">
+    <h2>Tap Coin</h2>
+    <button onclick="tapCoin()">Tap</button>
+    <p>Taps: <span id="tapCount">0</span></p>
+  </div>  <div id="skins" class="section">
+    <h2>Buy Skins (5 USDT)</h2>
     <div id="skinList"></div>
-  </div>  <div id="upgradeTab" class="tab-section">
-    <h3>Upgrade Packages</h3>
-    <div class="upgrade-item">Bronze Upgrade - 3 USDT <button class="buy-btn" onclick="openUpgradeModal('bronze')">Buy</button></div>
-    <div class="upgrade-item">Silver Upgrade - 5 USDT <button class="buy-btn" onclick="openUpgradeModal('silver')">Buy</button></div>
-    <div class="upgrade-item">Gold Upgrade - 8 USDT <button class="buy-btn" onclick="openUpgradeModal('gold')">Buy</button></div>
-    <div class="upgrade-item">Diamond Upgrade - 12 USDT <button class="buy-btn" onclick="openUpgradeModal('diamond')">Buy</button></div>
-    <div class="upgrade-item">Platinum Upgrade - 20 USDT <button class="buy-btn" onclick="openUpgradeModal('platinum')">Buy</button></div>
-    <div class="upgrade-item">AutoBot - 10 USDT <button class="buy-btn" onclick="openUpgradeModal('autobot')">Buy</button></div>
-  </div>  <div id="referralTab" class="tab-section">
-    <h3>Your Referral Code: <span id="refCode"></span></h3>
-    <img src="referral_banner.png" width="100%">
-    <p>Share this code with your friends and earn bonuses!</p>
-  </div>  <div class="modal" id="paymentModal">
-    <div class="modal-content">
-      <span class="modal-close" onclick="closeModal()">&times;</span>
-      <h3>Send Payment</h3>
-      <p>Send USDT or Pi to: <b>0x86d69358e89e1ec95b9a35828363f41d7e55d880</b></p>
-      <img src="qr.png" width="150"><br>
-      <form id="usdtForm">
-        <input type="text" name="wallet" required placeholder="Your Wallet Address"><br><br>
-        <input type="text" name="txid" required placeholder="TXID"><br><br>
-        <button type="submit">Submit</button>
-      </form>
-    </div>
+  </div>  <div id="upgrades" class="section">
+    <h2>Upgrade Plans (USDT Only)</h2>
+    <div id="upgradeList"></div>
+  </div>  <div id="earn" class="section">
+    <h2>Earn by Watching Ads</h2>
+    <p>Coming Soon...</p>
+  </div>  <div id="referrals" class="section">
+    <h2>Referral Program</h2>
+    <p>Share your code: <strong id="referralCode">user_12345</strong></p>
+    <img src="referral_banner.png" width="100%" />
   </div>  <div class="nav-bar">
-    <div class="nav-item" onclick="showTab('homeTab')">Home</div>
-    <div class="nav-item" onclick="showTab('earnTab')">Earn</div>
-    <div class="nav-item" onclick="showTab('skinTab')">Skins</div>
-    <div class="nav-item" onclick="showTab('upgradeTab')">Upgrades</div>
-  </div>  <script>
-    let taps = 0;
-    let energy = 1000;
+    <div class="nav-icon" onclick="showSection('home')">Home</div>
+    <div class="nav-icon" onclick="showSection('skins')">Skins</div>
+    <div class="nav-icon" onclick="showSection('upgrades')">Upgrades</div>
+    <div class="nav-icon" onclick="showSection('earn')">Earn</div>
+  </div>  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
 
-    const skins = [
-      'pakistan', 'india', 'iran', 'turkey', 'china', 'usa', 'uk', 'germany', 'france', 'italy', 'africa', 'brazil', 'suadiaarab'
-    ];
-
-    window.onload = () => {
-      const skinList = document.getElementById("skinList");
-      skins.forEach(name => {
-        skinList.innerHTML += `
-          <div class="skin-item">
-            <img class="preview-img" src="${name}.png" alt="${name} Skin"> ${name.charAt(0).toUpperCase() + name.slice(1)}
-            <button class="buy-btn" onclick="openSkinModal('${name}.png')">Buy 5 USDT</button>
-          </div>`;
-      });
+    const firebaseConfig = {
+      apiKey: "AIzaSyDIDQDBNQfjjgZQyFW40huka1c3ZAs1NGk",
+      authDomain: "uascoin-1f6a6.firebaseapp.com",
+      databaseURL: "https://uascoin-1f6a6-default-rtdb.firebaseio.com",
+      projectId: "uascoin-1f6a6",
+      storageBucket: "uascoin-1f6a6.appspot.com",
+      messagingSenderId: "886994583675",
+      appId: "1:886994583675:web:48fcdbd7bf56709d5362de"
     };
 
-    function tapCoin() {
-      if (energy <= 0) return;
-      taps++;
-      energy--;
-      document.getElementById('tapCount').innerText = `Taps: ${taps}`;
-      document.getElementById('energy').innerText = energy;
-    }
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
-    function showTab(tabId) {
-      document.querySelectorAll('.tab-section').forEach(t => t.classList.remove('active'));
-      document.getElementById(tabId).classList.add('active');
-    }
-
-    function toggleReferral() {
-      showTab('referralTab');
-    }
-
-    function openSkinModal(skin) {
-      document.getElementById('paymentModal').style.display = 'flex';
-    }
-
-    function openUpgradeModal(upgrade) {
-      document.getElementById('paymentModal').style.display = 'flex';
-    }
-
-    function closeModal() {
-      document.getElementById('paymentModal').style.display = 'none';
-    }
+    let tapCount = 0;
+    let energy = 100;
 
     setInterval(() => {
-      if (energy < 1000) {
+      if (energy < 100) {
         energy++;
-        document.getElementById('energy').innerText = energy;
+        document.getElementById("energyBar").style.width = energy + "%";
       }
     }, 3000);
 
-    document.getElementById('usdtForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const data = {
-        wallet: e.target.wallet.value,
-        txid: e.target.txid.value
-      };
-      fetch("https://script.google.com/macros/s/AKfycbw7eWh28YYBH7PBBb7yoi77YjqEUeBAMBOyhOQBVJBy9-JrCxMOIPC39brMbrOqu6wm/exec", {
-        method: "POST",
-        body: JSON.stringify(data),
-        headers: { "Content-Type": "application/json" }
-      })
-      .then(res => res.text())
-      .then(() => {
-        alert("Submitted Successfully!");
-        closeModal();
-      })
-      .catch(() => alert("Submission failed."));
+    function tapCoin() {
+      if (energy > 0) {
+        energy--;
+        tapCount++;
+        document.getElementById("tapCount").innerText = tapCount;
+        document.getElementById("energyBar").style.width = energy + "%";
+      }
+    }
+
+    const skins = [
+      "pakistan", "india", "iran", "turkey", "china", "usa", "uk", "germany",
+      "france", "italy", "africa", "brazil", "suadiaarab", "japan"
+    ];
+
+    skins.forEach(skin => {
+      document.getElementById("skinList").innerHTML += `
+        <div class="skin-option">
+          <img src="${skin}.png" width="50" />
+          <span>${skin.toUpperCase()}</span>
+          <button>Buy for 5 USDT</button>
+        </div>`;
     });
 
-    const userCode = 'UAS' + Math.floor(100000 + Math.random() * 900000);
-    document.getElementById('refCode').innerText = userCode;
+    const upgrades = [
+      { name: "Bronze", price: 4 },
+      { name: "Silver", price: 7 },
+      { name: "Gold", price: 12 },
+      { name: "Diamond", price: 15 },
+      { name: "Platinum", price: 25 },
+      { name: "AutoBot", price: 10 }
+    ];
+
+    upgrades.forEach(upg => {
+      document.getElementById("upgradeList").innerHTML += `
+        <div class="upgrade-option">
+          <span>${upg.name} Upgrade</span>
+          <button>Buy for ${upg.price} USDT</button>
+        </div>`;
+    });
+
+    window.showSection = function (id) {
+      document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    };
+
+    document.getElementById("referralCode").innerText = "user_" + Math.floor(Math.random() * 1000000);
   </script></body>
 </html>
