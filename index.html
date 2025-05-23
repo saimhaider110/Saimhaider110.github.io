@@ -1,45 +1,28 @@
 <!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>UAScoin</title>
   <style>
     body {
       margin: 0;
-      font-family: bold, sans-serif;
-      background-image: url('background.png');
+      font-family: Arial, sans-serif;
+      background: url('background.png') no-repeat center center fixed;
       background-size: cover;
-      background-attachment: fixed;
-      color: black;
+      color: white;
       text-align: center;
     }
-    .energy {
-      background: cyan;
-      color: black;
-      font-weight: bold;
-      padding: 5px;
-      position: fixed;
-      top: 0;
-      width: 100%;
-      z-index: 2;
-    }
-    #coin {
-      width: 180px;
-      height: 180px;
-      margin: 100px auto 20px;
-      display: block;
-    }
-    .nav {
+    #navigation {
       position: fixed;
       bottom: 0;
       width: 100%;
-      background: rgba(0, 0, 0, 0.8);
       display: flex;
       justify-content: space-around;
+      background-color: #000;
       padding: 10px 0;
-      z-index: 2;
+      z-index: 999;
     }
-    .nav button {
+    #navigation button {
       background: none;
       border: none;
       color: white;
@@ -47,10 +30,22 @@
     }
     .tab {
       display: none;
-      padding: 20px;
+      padding-bottom: 60px;
     }
-    .active-tab {
+    .active {
       display: block;
+    }
+    #coin {
+      width: 180px;
+      height: 180px;
+      margin: 20px auto;
+    }
+    #energy {
+      font-weight: bold;
+      font-size: 18px;
+      background: cyan;
+      color: black;
+      padding: 5px;
     }
     .skin-card {
       display: inline-block;
@@ -59,93 +54,119 @@
     .skin-card img {
       width: 100px;
       height: 100px;
-      display: block;
-      margin: 0 auto;
     }
-    form {
-      margin-top: 20px;
+    .qr-code {
+      margin-top: 10px;
     }
   </style>
 </head>
-<body><div class="energy">Energy: <span id="energy">1000</span></div>
-<img src="bronze_coin.png" id="coin" onclick="tapCoin()">
-<div id="tapCount" style="font-weight:bold; font-size:20px;">Taps: 0</div><div id="Earn" class="tab active-tab"></div>
-<div id="Skins" class="tab"></div>
-<div id="Upgrades" class="tab"></div>
-<div id="Referrals" class="tab"></div><div class="nav">
-  <button onclick="openTab('Earn')">Earn</button>
-  <button onclick="openTab('Skins')">Skins</button>
-  <button onclick="openTab('Upgrades')">Upgrades</button>
-  <button onclick="openTab('Referrals')">Referrals</button>
-</div><script>
-let taps = 0;
-const coin = document.getElementById('coin');
-const tapDisplay = document.getElementById('tapCount');
-const energyDisplay = document.getElementById('energy');
-
-function tapCoin() {
-  taps++;
-  tapDisplay.innerText = 'Taps: ' + taps;
-  updateCoinSkin();
-}
-
-function updateCoinSkin() {
-  if (taps >= 200000000) coin.src = 'vibranium_coin.png';
-  else if (taps >= 100000000) coin.src = 'adamantium_coin.png';
-  else if (taps >= 50000000) coin.src = 'platinum_coin.png';
-  else if (taps >= 1000000) coin.src = 'diamond_coin.png';
-  else if (taps >= 500000) coin.src = 'gold_coin.png';
-  else if (taps >= 10000) coin.src = 'silver_coin.png';
-  else coin.src = 'bronze_coin.png';
-}
-
-function openTab(tabId) {
-  document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active-tab'));
-  document.getElementById(tabId).classList.add('active-tab');
-}
-
-// Load skins marketplace
-const skinTab = document.getElementById('Skins');
-const skins = ["pakistan","india","iran","turkey","china","usa","uk","germany","france","italy","africa","brazil","saudiaarab"];
-skins.forEach(skin => {
-  skinTab.innerHTML += `
-    <div class="skin-card">
-      <img src="${skin}.png" alt="${skin}">
-      <div>${skin.toUpperCase()}</div>
-      <button>Buy - 5 USDT</button>
-    </div>
-  `;
-});
-
-skinTab.innerHTML += `
-  <form id="usdtForm">
+<body>
+  <div id="energy">Energy: <span id="energyValue">990</span></div>
+  <div id="earnTab" class="tab active">
+    <h1>UAScoin</h1>
+    <img id="coin" src="bronze_coin.png" onclick="tapCoin()" />
+    <div id="tapCount"><b>Taps: 0</b></div>
+  </div>  <div id="skinsTab" class="tab">
+    <h2>Skins Marketplace</h2>
+    <div id="skinsContainer"></div>
     <h3>Purchase Skin</h3>
-    <label>Your Wallet:</label><br>
-    <input type="text" name="wallet" required><br><br>
-    <label>TXID:</label><br>
-    <input type="text" name="txid" required><br><br>
-    <button type="submit">Submit</button>
-  </form>`;
+    <form id="usdtForm">
+      <label>Your Wallet:</label><br />
+      <input type="text" name="wallet" required placeholder="Enter your BEP-20 wallet address" /><br /><br />
+      <label>TXID:</label><br />
+      <input type="text" name="txid" required placeholder="Enter the TXID after payment" /><br /><br />
+      <button type="submit">Submit Payment</button>
+    </form>
+  </div>  <div id="upgradesTab" class="tab">
+    <h2>Upgrade Plans</h2>
+    <ul>
+      <li>Bronze Package - 3 USDT - 2x</li>
+      <li>Silver Package - 5 USDT - 4x</li>
+      <li>Gold Package - 7.5 USDT - 6x</li>
+      <li>Diamond Package - 10 USDT - 8x</li>
+      <li>Ruby Package - 20 USDT - 15x</li>
+    </ul>
+    <h3>Purchase Upgrade</h3>
+    <form id="upgradeForm">
+      <label>Your Wallet:</label><br />
+      <input type="text" name="wallet" required placeholder="Enter your BEP-20 wallet address" /><br /><br />
+      <label>TXID:</label><br />
+      <input type="text" name="txid" required placeholder="Enter the TXID after payment" /><br /><br />
+      <button type="submit">Submit Payment</button>
+    </form>
+  </div>  <div id="referralsTab" class="tab">
+    <h2>Referral System</h2>
+    <p>Your Code: <b id="refCode"></b></p>
+    <p>Share your referral code to earn 1000 UAS and 10% bonus</p>
+    <p>Referral Team:</p>
+    <ul id="refList"></ul>
+  </div>  <div id="navigation">
+    <button onclick="switchTab('earnTab')">Earn</button>
+    <button onclick="switchTab('skinsTab')">Skins</button>
+    <button onclick="switchTab('upgradesTab')">Upgrades</button>
+    <button onclick="switchTab('referralsTab')">Referrals</button>
+  </div>  <script>
+    let taps = 0;
+    function tapCoin() {
+      taps++;
+      document.getElementById("tapCount").innerHTML = `<b>Taps: ${taps}</b>`;
+    }
 
-// USDT form submission
-setTimeout(() => {
-  const form = document.getElementById('usdtForm');
-  form?.addEventListener('submit', function(e) {
-    e.preventDefault();
-    const data = {
-      wallet: form.wallet.value,
-      txid: form.txid.value
-    };
-    fetch("https://script.google.com/macros/s/AKfycbw7eWh28YYBH7PBBb7yoi77YjqEUeBAMBOyhOQBVJBy9-JrCxMOIPC39brMbrOqu6wm/exec", {
-      method: "POST",
-      body: JSON.stringify(data),
-      headers: { "Content-Type": "application/json" }
-    }).then(res => res.text())
-      .then(msg => {
-        alert("Payment Submitted! Please wait for manual confirmation.");
-        form.reset();
-      }).catch(err => alert("Error: " + err));
-  });
-}, 1000);
-</script></body>
+    function switchTab(tabId) {
+      document.querySelectorAll(".tab").forEach(tab => tab.classList.remove("active"));
+      document.getElementById(tabId).classList.add("active");
+    }
+
+    const skins = ["pakistan", "india", "iran", "turkey", "china", "usa", "uk", "germany", "france", "italy", "africa", "brazil", "saudiaarab"];
+    const container = document.getElementById("skinsContainer");
+    skins.forEach(skin => {
+      const card = document.createElement("div");
+      card.className = "skin-card";
+      card.innerHTML = `
+        <img src="${skin}.png" alt="${skin}" />
+        <div><b>${skin.toUpperCase()}</b></div>
+        <button onclick="showQR()">Buy - 5 USDT</button>
+        <div class="qr-code" id="qrCode"></div>
+      `;
+      container.appendChild(card);
+    });
+
+    function showQR() {
+      const qr = document.getElementById("qrCode");
+      qr.innerHTML = `<img src="https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=0x86d69358e89e1ec95b9a35828363f41d7e55d880" /><p>Address: <b>0x86d69358e89e1ec95b9a35828363f41d7e55d880</b></p>`;
+    }
+
+    document.getElementById("usdtForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const data = { wallet: form.wallet.value, txid: form.txid.value };
+      fetch("https://script.google.com/macros/s/AKfycbw7eWh28YYBH7PBBb7yoi77YjqEUeBAMBOyhOQBVJBy9-JrCxMOIPC39brMbrOqu6wm/exec", {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: { "Content-Type": "application/json" },
+      })
+      .then(res => res.text())
+      .then(msg => { alert("Payment Submitted! Please wait for confirmation."); form.reset(); })
+      .catch(err => { alert("Error submitting payment."); console.error(err); });
+    });
+
+    document.getElementById("upgradeForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const data = { wallet: form.wallet.value, txid: form.txid.value };
+      fetch("https://script.google.com/macros/s/AKfycbw7eWh28YYBH7PBBb7yoi77YjqEUeBAMBOyhOQBVJBy9-JrCxMOIPC39brMbrOqu6wm/exec", {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: { "Content-Type": "application/json" },
+      })
+      .then(res => res.text())
+      .then(msg => { alert("Upgrade Payment Submitted! Wait for confirmation."); form.reset(); })
+      .catch(err => { alert("Error submitting upgrade."); console.error(err); });
+    });
+
+    // Referral unique code simulation
+    const myCode = 'UAS' + Math.floor(Math.random() * 100000);
+    document.getElementById("refCode").innerText = myCode;
+    document.getElementById("refList").innerHTML = '<li>User123</li><li>User456</li>';
+  </script></body>
 </html>
