@@ -1,91 +1,143 @@
 <!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>UAScoin A NEW CRYPTO</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UAScoin Clicker Game</title>
   <style>
     body {
       margin: 0;
-      font-family: sans-serif;
+      font-family: Arial, sans-serif;
       background: url('background.png') no-repeat center center fixed;
       background-size: cover;
+      color: black;
     }
     .energy-bar {
-      position: fixed;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      padding: 5px 10px;
+      text-align: center;
+      position: sticky;
       top: 0;
-      left: 0;
-      width: 100%;
-      background: green;
-      height: 10px;
       z-index: 10;
     }
+    .coin {
+      display: block;
+      margin: 30px auto 10px;
+      width: 180px;
+      cursor: pointer;
+    }
+    .coin-count {
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
+    }
+    .tab-section {
+      display: none;
+      padding: 70px 15px 90px;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+    .tab-section.active {
+      display: block;
+    }
+    .skin-item, .upgrade-item {
+      background: rgba(255,255,255,0.1);
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+    .buy-btn {
+      background: #28a745;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      margin-top: 5px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .preview-img {
+      width: 40px;
+      vertical-align: middle;
+      margin-right: 10px;
+    }
     .nav-bar {
+      display: flex;
+      justify-content: space-around;
       position: fixed;
       bottom: 0;
       width: 100%;
-      display: flex;
-      justify-content: space-around;
-      background: rgba(0, 0, 0, 0.7);
+      background: rgba(0,0,0,0.8);
       padding: 10px 0;
       z-index: 10;
     }
-    .nav-icon {
+    .nav-item {
       color: white;
-      font-size: 20px;
-    }
-    .sidebar-referral {
-      position: fixed;
-      left: 0;
-      top: 50%;
-      transform: translateY(-50%);
-      background: rgba(0, 0, 0, 0.7);
-      padding: 10px;
-      color: white;
-      font-size: 20px;
+      font-size: 16px;
+      text-align: center;
+      flex: 1;
       cursor: pointer;
-      z-index: 10;
     }
-    .section {
-      display: none;
-      padding: 20px;
+    .referral-btn {
+      position: fixed;
+      left: 10px;
+      bottom: 80px;
+      background: #007bff;
       color: white;
-    }
-    .section.active {
-      display: block;
-    }
-    .skin-option, .upgrade-option {
-      margin: 10px;
-      background: rgba(255, 255, 255, 0.1);
-      padding: 10px;
+      padding: 10px 14px;
       border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      z-index: 11;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      justify-content: center;
+      align-items: center;
+      z-index: 20;
+    }
+    .modal-content {
+      background: white;
+      color: black;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 400px;
+      width: 90%;
+    }
+    .modal-close {
+      float: right;
+      cursor: pointer;
     }
   </style>
 </head>
-<body>
-  <div class="energy-bar" id="energyBar"></div>
-  <div class="sidebar-referral" onclick="showSection('referrals')">Referral</div>  <div id="home" class="section active">
-    <h2>Tap Coin</h2>
-    <button onclick="tapCoin()">Tap</button>
-    <p>Taps: <span id="tapCount">0</span></p>
-  </div>  <div id="skins" class="section">
-    <h2>Buy Skins (5 USDT)</h2>
+<body>  <div class="energy-bar">Energy: <span id="energy">1000</span></div>
+  <img src="bronze_coin.png" class="coin" onclick="tapCoin()">
+  <div class="coin-count" id="tapCount">Taps: 0</div>  <div class="referral-btn" onclick="showTab('referralTab')">Referrals</div>  <div class="tab-section active" id="homeTab">
+    <h2>Welcome to UAScoin</h2>
+    <p>Start tapping to earn!</p>
+  </div>  <div class="tab-section" id="earnTab">
+    <h2>Earn UAS</h2>
+    <p>Watch videos or complete offers (future feature)</p>
+  </div>  <div class="tab-section" id="skinTab">
+    <h2>Buy Skins (5 USDT Each)</h2>
     <div id="skinList"></div>
-  </div>  <div id="upgrades" class="section">
-    <h2>Upgrade Plans (USDT Only)</h2>
+  </div>  <div class="tab-section" id="upgradeTab">
+    <h2>Upgrade Packages (USDT Only)</h2>
     <div id="upgradeList"></div>
-  </div>  <div id="earn" class="section">
-    <h2>Earn by Watching Ads</h2>
-    <p>Coming Soon...</p>
-  </div>  <div id="referrals" class="section">
-    <h2>Referral Program</h2>
-    <p>Share your code: <strong id="referralCode">user_12345</strong></p>
-    <img src="referral_banner.png" width="100%" />
+  </div>  <div class="tab-section" id="referralTab">
+    <h2>Your Referral Code</h2>
+    <img src="referral_banner.png" width="100%"><br>
+    <p><b>Code:</b> <span id="refCode"></span></p>
+    <p>Share and earn 10% tapping bonus!</p>
   </div>  <div class="nav-bar">
-    <div class="nav-icon" onclick="showSection('home')">Home</div>
-    <div class="nav-icon" onclick="showSection('skins')">Skins</div>
-    <div class="nav-icon" onclick="showSection('upgrades')">Upgrades</div>
-    <div class="nav-icon" onclick="showSection('earn')">Earn</div>
-  </div>  <script type="module">
+    <div class="nav-item" onclick="showTab('homeTab')">Home</div>
+    <div class="nav-item" onclick="showTab('skinTab')">Skins</div>
+    <div class="nav-item" onclick="showTab('upgradeTab')">Upgrades</div>
+    <div class="nav-item" onclick="showTab('earnTab')">Earn</div>
+  </div>  <!-- Firebase SDK -->  <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
     import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
 
@@ -102,61 +154,60 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    let tapCount = 0;
-    let energy = 100;
+    let taps = 0;
+    let energy = 1000;
 
-    setInterval(() => {
-      if (energy < 100) {
-        energy++;
-        document.getElementById("energyBar").style.width = energy + "%";
-      }
-    }, 3000);
-
-    function tapCoin() {
-      if (energy > 0) {
-        energy--;
-        tapCount++;
-        document.getElementById("tapCount").innerText = tapCount;
-        document.getElementById("energyBar").style.width = energy + "%";
-      }
+    window.tapCoin = function() {
+      if (energy <= 0) return;
+      taps++;
+      energy--;
+      document.getElementById('tapCount').innerText = `Taps: ${taps}`;
+      document.getElementById('energy').innerText = energy;
     }
 
-    const skins = [
-      "pakistan", "india", "iran", "turkey", "china", "usa", "uk", "germany",
-      "france", "italy", "africa", "brazil", "suadiaarab", "japan"
-    ];
+    function refillEnergy() {
+      if (energy < 1000) {
+        energy++;
+        document.getElementById('energy').innerText = energy;
+      }
+    }
+    setInterval(refillEnergy, 3000);
 
-    skins.forEach(skin => {
-      document.getElementById("skinList").innerHTML += `
-        <div class="skin-option">
-          <img src="${skin}.png" width="50" />
-          <span>${skin.toUpperCase()}</span>
-          <button>Buy for 5 USDT</button>
-        </div>`;
+    window.showTab = function(id) {
+      document.querySelectorAll('.tab-section').forEach(tab => tab.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    const userId = 'UAS' + Math.floor(100000 + Math.random() * 900000);
+    document.getElementById('refCode').innerText = userId;
+
+    const skinList = [
+      'pakistan','india','iran','turkey','china','usa','uk','germany','france','italy','africa','brazil','suadiaarab','japan'
+    ];
+    skinList.forEach(skin => {
+      const div = document.createElement('div');
+      div.className = 'skin-item';
+      div.innerHTML = `<img src="${skin}.png" class="preview-img"> ${skin.toUpperCase()} <button class="buy-btn" onclick="openModal('${skin}')">Buy - 5 USDT</button>`;
+      document.getElementById('skinList').appendChild(div);
     });
 
     const upgrades = [
-      { name: "Bronze", price: 4 },
-      { name: "Silver", price: 7 },
-      { name: "Gold", price: 12 },
-      { name: "Diamond", price: 15 },
-      { name: "Platinum", price: 25 },
-      { name: "AutoBot", price: 10 }
+      { name: "Bronze Package", price: 3 },
+      { name: "Silver Package", price: 6 },
+      { name: "Gold Package", price: 10 },
+      { name: "Diamond Package", price: 12 },
+      { name: "Platinum Package", price: 30 },
+      { name: "Auto Bot", price: 10 }
     ];
-
     upgrades.forEach(upg => {
-      document.getElementById("upgradeList").innerHTML += `
-        <div class="upgrade-option">
-          <span>${upg.name} Upgrade</span>
-          <button>Buy for ${upg.price} USDT</button>
-        </div>`;
+      const div = document.createElement('div');
+      div.className = 'upgrade-item';
+      div.innerHTML = `${upg.name} <button class="buy-btn" onclick="openModal('${upg.name}')">Buy - ${upg.price} USDT</button>`;
+      document.getElementById('upgradeList').appendChild(div);
     });
 
-    window.showSection = function (id) {
-      document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-    };
-
-    document.getElementById("referralCode").innerText = "user_" + Math.floor(Math.random() * 1000000);
+    window.openModal = function(item) {
+      alert(`Open payment modal for: ${item}`);
+    }
   </script></body>
 </html>
