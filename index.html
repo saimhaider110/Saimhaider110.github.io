@@ -6,7 +6,7 @@
   <style>
     body {
       margin: 0;
-      font-family: Italic bold, sans-serif;
+      font-family: 'Arial', sans-serif;
       background: url('background.png') no-repeat center center fixed;
       background-size: cover;
       color: black;
@@ -73,156 +73,178 @@
       font-size: 20px;
       text-align: center;
     }
+    .referral-btn {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: #007bff;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      z-index: 11;
+    }
     .modal {
       display: none;
       position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.8);
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
       justify-content: center;
       align-items: center;
-      z-index: 999;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 100;
     }
     .modal-content {
       background: white;
       padding: 20px;
       border-radius: 10px;
-      text-align: center;
-      max-width: 300px;
       width: 90%;
+      max-width: 400px;
+      text-align: center;
     }
     .modal-close {
-      position: absolute;
-      top: 20px;
-      right: 30px;
-      font-size: 30px;
+      float: right;
       cursor: pointer;
-      color: white;
+      font-size: 20px;
+      font-weight: bold;
     }
   </style>
 </head>
-<body><div class="energy-bar">Energy: <span id="energy">1000</span></div><div id="homeTab" class="tab-section active">
-  <img src="bronze_coin.png" class="coin" id="coinImg" onclick="tapCoin()"/>
-  <div class="coin-count" id="tapCount">Taps: 0</div>
-</div><div id="earnTab" class="tab-section">
-  <h2>Earn Tasks & Ads will appear here.</h2>
-</div><div id="skinsTab" class="tab-section">
-  <h3>Skin Marketplace</h3>
-  <!-- Skin items... -->
-</div><div id="upgradeTab" class="tab-section">
-  <h3>Upgrade Packages</h3>
-  <!-- Upgrade items... -->
-</div><div class="nav-bar">
-  <div class="nav-item" onclick="showTab('homeTab')">Home</div>
-  <div class="nav-item" onclick="showTab('skinsTab')">Skins</div>
-  <div class="nav-item" onclick="showTab('upgradeTab')">Upgrades</div>
-  <div class="nav-item" onclick="showTab('earnTab')">Earn</div>
-</div><div class="referral-btn" onclick="toggleReferral()">Referrals</div><div id="referralTab" class="tab-section">
-  <h3>Your Referral Code:</h3>
-  <p><b id="refCode"></b></p>
-  <p>Telegram Referral Link:</p>
-  <input type="text" id="refLink" readonly style="width: 90%; padding: 8px; border: 1px solid #ccc; border-radius: 6px;">
-  <button onclick="copyReferralLink()" style="margin-top: 10px;">Copy Referral Link</button>
-  <p style="margin-top: 20px;">Each friend you invite earns you:</p>
-  <ul>
-    <li><b>+5000 UAS</b> reward instantly</li>
-    <li><b>+10% permanent tap bonus</b></li>
-  </ul>
-  <p style="font-size: 12px; color: gray; margin-top: 15px;">
-    Share your link with friends. When they join via your Telegram referral, your bonus is automatically saved in our database.
-  </p>
-</div><div class="modal" id="paymentModal">
-  <div class="modal-content">
-    <span class="modal-close" onclick="closeModal()">&times;</span>
-    <h3>Send Payment</h3>
-    <p>Send USDT to: <b>0x86d69358e89e1ec95b9a35828363f41d7e55d880</b></p>
-    <img src="qr.png" width="150"><br>
-    <form id="usdtForm">
-      <input type="text" name="wallet" required placeholder="Your Wallet Address"><br><br>
-      <input type="text" name="txid" required placeholder="TXID"><br><br>
-      <button type="submit">Submit</button>
-    </form>
-  </div>
-</div><script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script><script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyDqe5RWgCRflbVciWJ-qNiWqZrcoM5_AwE",
-    authDomain: "uascoin.firebaseapp.com",
-    databaseURL: "https://uascoin-default-rtdb.firebaseio.com",
-    projectId: "uascoin",
-    storageBucket: "uascoin.appspot.com",
-    messagingSenderId: "358987815918",
-    appId: "1:358987815918:web:08e78ff0d2e264fb83d2c0"
-  };
+<body>  <div class="energy-bar">
+    Energy: <span id="energy">1000</span>
+  </div>  <img src="bronze_coin.png" class="coin" onclick="tapCoin()">
+  <div class="coin-count" id="tapCount">Taps: 0</div>  <!-- Tabs -->  <div id="homeTab" class="tab-section active"></div>  <div id="earnTab" class="tab-section">
+    <h2>Earn Tasks & Ads will appear here.</h2>
+  </div>  <div id="skinsTab" class="tab-section">
+    <h3>Skin Marketplace</h3>
+  </div>  <div id="upgradeTab" class="tab-section">
+    <h3>Upgrade Packages</h3>
+  </div>  <div class="nav-bar">
+    <div class="nav-item" onclick="showTab('homeTab')">Home</div>
+    <div class="nav-item" onclick="showTab('skinsTab')">Skins</div>
+    <div class="nav-item" onclick="showTab('upgradeTab')">Upgrades</div>
+    <div class="nav-item" onclick="showTab('earnTab')">Earn</div>
+  </div>  <div class="referral-btn" onclick="toggleReferral()">Referrals</div>  <div id="referralTab" class="tab-section">
+    <h3>Your Referral Code:</h3>
+    <p><b id="refCode"></b></p>
+    <p>Telegram Referral Link:</p>
+    <input type="text" id="refLink" readonly style="width: 90%; padding: 8px; border: 1px solid #ccc; border-radius: 6px;">
+    <button onclick="copyReferralLink()" style="margin-top: 10px;">Copy Referral Link</button>
+    <p style="margin-top: 20px;">Each friend you invite earns you:</p>
+    <ul>
+      <li><b>+5000 UAS</b> reward instantly</li>
+      <li><b>+10% permanent tap bonus</b></li>
+    </ul>
+    <p style="font-size: 12px; color: gray; margin-top: 15px;">
+      Share your link with friends. When they join via your Telegram referral, your bonus is automatically saved in our database.
+    </p>
+  </div>  <div class="modal" id="paymentModal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeModal()">&times;</span>
+      <h3>Send Payment</h3>
+      <p>Send USDT to: <b>0x86d69358e89e1ec95b9a35828363f41d7e55d880</b></p>
+      <img src="qr.png" width="150"><br>
+      <form id="usdtForm">
+        <input type="text" name="wallet" required placeholder="Your Wallet Address"><br><br>
+        <input type="text" name="txid" required placeholder="TXID"><br><br>
+        <button type="submit">Submit</button>
+      </form>
+    </div>
+  </div>  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDqe5RWgCRflbVciWJ-qNiWqZrcoM5_AwE",
+      authDomain: "uascoin.firebaseapp.com",
+      databaseURL: "https://uascoin-default-rtdb.firebaseio.com",
+      projectId: "uascoin",
+      storageBucket: "uascoin.appspot.com",
+      messagingSenderId: "358987815918",
+      appId: "1:358987815918:web:08e78ff0d2e264fb83d2c0"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
-  const userId = 'user_' + Math.floor(100000 + Math.random() * 900000);
-  const refCode = 'UAS' + userId.slice(-6);
-  document.getElementById('refCode').innerText = refCode;
+    const userId = 'user_' + Math.floor(100000 + Math.random() * 900000);
+    const refCode = 'UAS' + userId.slice(-6);
+    document.getElementById('refCode').innerText = refCode;
 
-  const telegramBotUsername = "YourTelegramBot";
-  const referralLink = `https://t.me/${telegramBotUsername}?start=${refCode}`;
-  document.getElementById("refLink").value = referralLink;
+    const telegramBotUsername = "YourTelegramBot";
+    const referralLink = `https://t.me/${telegramBotUsername}?start=${refCode}`;
+    document.getElementById("refLink").value = referralLink;
 
-  function copyReferralLink() {
-    const input = document.getElementById("refLink");
-    input.select();
-    input.setSelectionRange(0, 99999);
-    document.execCommand("copy");
-    alert("Referral link copied to clipboard!");
-  }
+    function copyReferralLink() {
+      const input = document.getElementById("refLink");
+      input.select();
+      input.setSelectionRange(0, 99999);
+      document.execCommand("copy");
+      alert("Referral link copied to clipboard!");
+    }
 
-  let taps = 0;
-  let energy = 1000;
+    let taps = 0;
+    let energy = 1000;
 
-  function tapCoin() {
-    if (energy <= 0) return;
-    taps++;
-    energy--;
-    document.getElementById('tapCount').innerText = `Taps: ${taps}`;
-    document.getElementById('energy').innerText = energy;
-    db.ref('users/' + userId).update({ taps, energy });
-  }
+    function tapCoin() {
+      if (energy <= 0) return;
+      taps++;
+      energy--;
+      updateLeagueImage(taps);
+      document.getElementById('tapCount').innerText = `Taps: ${taps}`;
+      document.getElementById('energy').innerText = energy;
+      db.ref('users/' + userId).update({ taps, energy });
+    }
 
-  function showTab(tabId) {
-    document.querySelectorAll('.tab-section').forEach(t => t.classList.remove('active'));
-    document.getElementById(tabId).classList.add('active');
-  }
+    function updateLeagueImage(taps) {
+      let img = 'bronze_coin.png';
+      if (taps >= 200_000_000) img = 'vibranium_coin.png';
+      else if (taps >= 100_000_000) img = 'adamantium_coin.png';
+      else if (taps >= 50_000_000) img = 'platinum_coin.png';
+      else if (taps >= 1_000_000) img = 'diamond_coin.png';
+      else if (taps >= 500_000) img = 'gold_coin.png';
+      else if (taps >= 10_000) img = 'silver_coin.png';
 
-  function toggleReferral() {
-    showTab('referralTab');
-  }
+      document.querySelector('.coin').src = img;
+    }
 
-  function openModal(item) {
-    document.getElementById('paymentModal').style.display = 'flex';
-    selectedItem = item;
-  }
+    function showTab(tabId) {
+      document.querySelectorAll('.tab-section').forEach(t => t.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+    }
 
-  function closeModal() {
-    document.getElementById('paymentModal').style.display = 'none';
-  }
+    function toggleReferral() {
+      showTab('referralTab');
+    }
 
-  let selectedItem = null;
+    function openModal(item) {
+      document.getElementById('paymentModal').style.display = 'flex';
+      selectedItem = item;
+    }
 
-  document.getElementById('usdtForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const wallet = e.target.wallet.value;
-    const txid = e.target.txid.value;
+    function closeModal() {
+      document.getElementById('paymentModal').style.display = 'none';
+    }
 
-    db.ref('payments/' + userId + '/' + Date.now()).set({
-      wallet, txid, item: selectedItem
-    }).then(() => {
-      alert("Payment submitted successfully!");
-      closeModal();
-      e.target.reset();
-    }).catch(() => {
-      alert("Failed to submit payment.");
+    let selectedItem = null;
+
+    document.getElementById('usdtForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const wallet = e.target.wallet.value;
+      const txid = e.target.txid.value;
+
+      db.ref('payments/' + userId + '/' + Date.now()).set({
+        wallet, txid, item: selectedItem
+      }).then(() => {
+        alert("Payment submitted successfully!");
+        closeModal();
+        e.target.reset();
+      }).catch(() => {
+        alert("Failed to submit payment.");
+      });
     });
-  });
 
-  db.ref('users/' + userId).set({
-    taps: 0,
-    energy: 1000,
-    referralCode: refCode
-  });
-</script></body>
+    db.ref('users/' + userId).set({
+      taps: 0,
+      energy: 1000,
+      referralCode: refCode
+    });
+  </script></body>
 </html>
