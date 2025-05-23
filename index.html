@@ -1,183 +1,181 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>UAScoin Clicker Game</title>
-  <link rel="stylesheet" href="styles.css" />
-  <script type="module" src="firebase-config.js"></script>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: bold, sans-serif;
-      background-image: url('background.png');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      overflow-x: hidden;
-    }
-    #main-container {
-      padding: 10px;
-      max-width: 100%;
-      box-sizing: border-box;
-    }
-    #coin-container {
-      text-align: center;
-    }
-    #coin-image {
-      width: 100%;
-      max-width: 400px;
-      height: auto;
-    }
-    .tabs {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      display: flex;
-      justify-content: space-around;
-      background-color: rgba(255,255,255,0.9);
-      padding: 10px 0;
-      box-shadow: 0 -2px 5px rgba(0,0,0,0.2);
-      z-index: 999;
-    }
-    .tabs button {
-      padding: 10px;
-      font-size: 24px;
-      flex: 1;
-      background: none;
-      border: none;
-      font-weight: bold;
-    }
-    .tab-content {
-      display: none;
-      margin-bottom: 80px;
-    }
-    .skin-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      gap: 10px;
-    }
-    .skin-item {
-      text-align: center;
-      background: rgba(255, 255, 255, 0.8);
-      border-radius: 10px;
-      padding: 10px;
-    }
-    .skin-item img {
-      width: 100px;
-      height: auto;
-      border-radius: 8px;
-    }
-    #referral-sidebar, #donation-info {
-      padding: 10px;
-      background-color: rgba(255,255,255,0.85);
-      margin: 10px 0;
-      border-radius: 10px;
-    }
-    #referral-sidebar {
-      position: fixed;
-      top: 50px;
-      right: 0;
-      width: 90%;
-      max-width: 300px;
-      background: white;
-      border: 2px solid #ccc;
-      display: none;
-      z-index: 1000;
-    }
-    #buy-coffee {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      z-index: 1001;
-    }
-    @media screen and (max-width: 600px) {
-      #coin-image {
-        max-width: 300px;
-      }
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>UAScoin A NEW CRYPTOCURRENCY </title>
+<style>
+body {
+margin: 0;
+font-family: Italic bold, sans-serif;
+background: url('background.png') no-repeat center center fixed;
+background-size: cover;
+color: black;
+}
+  .energy-bar {
+background: rgba(0, 0, 0, 0.7);
+padding: 5px 10px;
+text-align: center;
+position: sticky;
+top: 0;
+z-index: 10;
+}
+.coin {
+display: block;
+margin: 40px auto 10px;
+width: 180px;
+}
+.coin-count {
+text-align: center;
+font-size: 24px;
+font-weight: bold;
+}
+.tab-section {
+  display: none;
+padding: 70px 15px 80px;
+min-height: 100vh;
+box-sizing: border-box;
+}
+.tab-section.active {
+display: block;
+}
+.skin-item, .upgrade-item {
+background: rgba(255, 255, 255, 0.1);
+padding: 10px;
+border-radius: 8px;
+margin-bottom: 10px;
+}
+.buy-btn {
+background: #28a745;
+color: white;
+border: none;
+padding: 8px 12px;
+margin-top: 5px;
+cursor: pointer;
+border-radius: 4px;
+}
+.preview-img {
+width: 40px;
+vertical-align: middle;
+margin-right: 10px;
+}
+.nav-bar {
+display: flex;
+justify-content: space-around;
+position: fixed;
+bottom: 0;
+width: 100%;
+background: rgba(0, 0, 0, 0.8);
+padding: 10px 0;
+z-index: 10;
+}
+.nav-item {
+color: white;
+font-size: 16px;
+text-align: center;
+font-size: 20px;
+}
+</style>
 </head>
 <body>
-  <div id="energy-bar">Energy: <span id="energy">100</span></div>
-  <div id="main-container">
-    <div id="coin-container">
-      <img id="coin-image" src="bronze_coin.png" alt="Coin" onclick="tapCoin()" />
-      <div id="tap-count">0</div>
-    </div>
-
-    <div class="tabs">
-      <button onclick="openTab('home')">Home</button>
-      <button onclick="openTab('earn')">Earn</button>
-      <button onclick="openTab('skins')">Skins</button>
-      <button onclick="openTab('upgrades')">Upgrades</button>
-    </div>
-
-    <div id="referral-sidebar">
-      <p><strong>Your Referral Link:</strong></p>
-      <input type="text" id="referral-link" readonly value="https://t.me/uascoin_bot?start=USER12345" style="width: 100%;" />
-      <p>Share with friends to earn <strong>10% tapping commission</strong> and <strong>5000 UAS</strong>!</p>
-      <p>Your Team: <span id="referral-team">0</span> members</p>
-    </div>
-
-    <div id="home" class="tab-content">
-      <button id="buy-coffee" onclick="openDonationForm()">Buy me a coffee</button>
-      <p style="margin-top: 10px;">Har purchase ya donation per apka data hmary pass mehfuz rahega aur jab coin launch hoga to apko <strong>10X</strong> rewards milenge.</p>
-    </div>
-
-    <div id="earn" class="tab-content">
-      <h2>Earn UAScoin</h2>
-      <p>Watch ads to earn 1500 UAScoin per video</p>
-      <p>Complete tasks to earn 2500 UAScoin per task</p>
-      <p>Ad Quota Submission: 50 USDT for 15 days ad promotion</p>
-    </div>
-
-    <div id="skins" class="tab-content">
-      <h2><strong>Country Themed Skins</strong> (5 USDT Each)</h2>
-      <div class="skin-list">
-        <div class="skin-item"><img src="Pakistan.png" alt="Pakistan" /><p>Pakistan</p><button onclick="buySkin('Pakistan')">Buy</button></div>
-        <div class="skin-item"><img src="india.png" alt="India" /><p>India</p><button onclick="buySkin('India')">Buy</button></div>
-        <div class="skin-item"><img src="iran.png" alt="Iran" /><p>Iran</p><button onclick="buySkin('Iran')">Buy</button></div>
-        <div class="skin-item"><img src="turkey.png" alt="Turkey" /><p>Turkey</p><button onclick="buySkin('Turkey')">Buy</button></div>
-        <div class="skin-item"><img src="china.png" alt="China" /><p>China</p><button onclick="buySkin('China')">Buy</button></div>
-        <div class="skin-item"><img src="usa.png" alt="USA" /><p>USA</p><button onclick="buySkin('USA')">Buy</button></div>
-        <div class="skin-item"><img src="uk.png" alt="UK" /><p>UK</p><button onclick="buySkin('UK')">Buy</button></div>
-        <div class="skin-item"><img src="germany.png" alt="Germany" /><p>Germany</p><button onclick="buySkin('Germany')">Buy</button></div>
-        <div class="skin-item"><img src="france.png" alt="France" /><p>France</p><button onclick="buySkin('France')">Buy</button></div>
-        <div class="skin-item"><img src="italy.png" alt="Italy" /><p>Italy</p><button onclick="buySkin('Italy')">Buy</button></div>
-        <div class="skin-item"><img src="africa.png" alt="Africa" /><p>Africa</p><button onclick="buySkin('Africa')">Buy</button></div>
-        <div class="skin-item"><img src="brazil.png" alt="Brazil" /><p>Brazil</p><button onclick="buySkin('Brazil')">Buy</button></div>
-        <div class="skin-item"><img src="suadiaarab.png" alt="Saudi Arabia" /><p>Saudi Arabia</p><button onclick="buySkin('Saudi Arabia')">Buy</button></div>
-      </div>
-    </div>
-
-    <div id="upgrades" class="tab-content">
-      <h2><strong>Upgrade Plans</strong></h2>
-      <div class="upgrade-item"><p><strong>Bronze</strong> - 3x Taps</p><button onclick="buyUpgrade('bronze')">Buy for 2 USDT</button></div>
-      <div class="upgrade-item"><p><strong>Silver</strong> - 6x Taps</p><button onclick="buyUpgrade('silver')">Buy for 4 USDT</button></div>
-      <div class="upgrade-item"><p><strong>Gold</strong> - 10x Taps</p><button onclick="buyUpgrade('gold')">Buy for 8 USDT</button></div>
-      <div class="upgrade-item"><p><strong>Diamond</strong> - 20x Taps</p><button onclick="buyUpgrade('diamond')">Buy for 15 USDT</button></div>
-      <div class="upgrade-item"><p><strong>Platinum</strong> - 50x Taps</p><button onclick="buyUpgrade('platinum')">Buy for 30 USDT</button></div>
-      <div class="upgrade-item"><p><strong>Auto Bot</strong> - Auto Tapping</p><button onclick="buyUpgrade('autobot')">Buy for 15 USDT</button></div>
-    </div>
-  </div>
-
-  <div id="donation-info" style="display:none;">
-    <h3>Support Game Development</h3>
-    <p><strong>Send USDT (BEP20):</strong> 0x86d69358e89e1ec95b9a35828363f41d7e55d880</p>
-    <p>Har purchase ya donation per apka data hmary pass mehfuz rahega. Jab coin launch hoga to apko <strong>10X</strong> rewards milenge.</p>
-  </div>
-
-  <div id="payment-form" style="display:none;">
-    <h3>Complete Payment</h3>
-    <p>Send the amount to this wallet address:</p>
-    <p><strong>USDT BEP20:</strong> 0x86d69358e89e1ec95b9a35828363f41d7e55d880</p>
-    <p>After sending, click confirm.</p>
-    <button onclick="confirmPayment()">Confirm Payment</button>
-  </div>
-
-  <script src="script.js"></script>
+<div class="energy-bar">Energy: <span id="energy">1000</span></div>
+<div id="homeTab" class="tab-section active">
+<img src="bronze_coin.png" class="coin" id="coinImg" onclick="tapCoin()"/>
+<div class="coin-count" id="tapCount">Taps: 0</div>
+</div>
+<div id="earnTab" class="tab-section">
+<h2>Earn Tasks & Ads will appear here.</h2>
+</div>
+<div id="skinsTab" class="tab-section">
+<h3>Skin Marketplace</h3>
+<div class="skin-item"><img src="pakistan.png" class="preview-img">Pakistan <button class="buy-btn" onclick="openModal('pakistan.png')">Buy - 5 USDT</button></div>
+<div class="skin-item"><img src="india.png" class="preview-img">India <button class="buy-btn" onclick="openModal('india.png')">Buy - 5 USDT</button></div>
+<div class="skin-item"><img src="china.png" class="preview-img">China <button class="buy-btn" onclick="openModal('china.png')">Buy - 5 USDT</button></div>
+<div class="skin-item"><img src="germany.png" class="preview-img">Germany <button class="buy-btn" onclick="openModal('germany.png')">Buy - 5 USDT</button></div>
+<div class="skin-item"><img src="suadiaarab.png" class="preview-img">Saudi Arabia <button class="buy-btn" onclick="openModal('suadiaarab.png')">Buy - 5 USDT</button></div>
+<div class="skin-item"><img src="iran.png" class="preview-img">Iran <button class="buy-btn" onclick="openModal('iran.png')">Buy - 5 USDT</button></div>
+<div class="skin-item"><img src="france.png" class="preview-img">France <button class="buy-btn" onclick="openModal('france.png')">Buy - 5 USDT</button></div>
+<div class="skin-item"><img src="italy.png" class="preview-img">Italy <button class="buy-btn" onclick="openModal('italy.png')">Buy - 5 USDT</button></div>
+<div class="skin-item"><img src="brazil.png" class="preview-img">Brazil <button class="buy-btn" onclick="openModal('brazil.png')">Buy - 5 USDT</button></div>
+<div class="skin-item"><img src="africa.png" class="preview-img">Africa <button class="buy-btn" onclick="openModal('africa.png')">Buy - 5 USDT</button></div>
+</div>
+<div id="upgradeTab" class="tab-section">
+<h3>Upgrade Packages</h3>
+<div class="upgrade-item">Bronze Pack (2x) - 3 USDT <button class="buy-btn" onclick="openModal('Bronze')">Buy</button></div>
+<div class="upgrade-item">Silver Pack (4x) - 6 USDT <button class="buy-btn" onclick="openModal('Silver')">Buy</button></div>
+<div class="upgrade-item">Gold Pack (8x) - 10 USDT <button class="buy-btn" onclick="openModal('Gold')">Buy</button></div>
+<div class="upgrade-item">Diamond Pack (15x) - 15 USDT <button class="buy-btn" onclick="openModal('Diamond')">Buy</button></div>
+<div class="upgrade-item">Platinum Pack (40x) - 30 USDT <button class="buy-btn" onclick="openModal('Platinum')">Buy</button></div>
+<div class="upgrade-item">Auto Bot (Offline Collection) - 10 USDT <button class="buy-btn" onclick="openModal('Auto Bot')">Buy</button></div>
+</div>
+<div class="nav-bar">
+<div class="nav-item" onclick="showTab('homeTab')">Home</div>
+<div class="nav-item" onclick="showTab('skinsTab')">Skins</div>
+<div class="nav-item" onclick="showTab('upgradeTab')">Upgrades</div>
+<div class="nav-item" onclick="showTab('earnTab')">Earn</div>
+</div>
+<div class="referral-btn" onclick="toggleReferral()">Referrals</div>
+<div id="referralTab" class="tab-section">
+<h3>Your Referral Code: <span id="refCode"></span></h3>
+<p>Share this code with your friends and earn bonuses!</p>
+</div>
+<div class="modal" id="paymentModal">
+<div class="modal-content">
+<span class="modal-close" onclick="closeModal()">&times;</span>
+<h3>Send Payment</h3>
+<p>Send USDT to: <b>0x86d69358e89e1ec95b9a35828363f41d7e55d880</b></p>
+<img src="qr.png" width="150"><br>
+<form id="usdtForm">
+<input type="text" name="wallet" required placeholder="Your Wallet Address"><br><br>
+<input type="text" name="txid" required placeholder="TXID"><br><br>
+<button type="submit">Submit</button>
+</form>
+</div>
+</div>
+<script>
+let taps = 0;
+let energy = 1000;
+function tapCoin() {
+if (energy <= 0) return;
+taps++;
+energy--;
+document.getElementById('tapCount').innerText = `Taps: ${taps}`;
+document.getElementById('energy').innerText = energy;
+}
+function showTab(tabId) {
+document.querySelectorAll('.tab-section').forEach(t => t.classList.remove('active'));
+document.getElementById(tabId).classList.add('active');
+}
+function toggleReferral() {
+showTab('referralTab');
+}
+function openModal(item) {
+document.getElementById('paymentModal').style.display = 'flex';
+}
+function closeModal() {
+document.getElementById('paymentModal').style.display = 'none';
+}
+document.getElementById('usdtForm').addEventListener('submit', function(e) {
+e.preventDefault();
+const data = {
+wallet: e.target.wallet.value,
+txid: e.target.txid.value
+};
+fetch("https://script.google.com/macros/s/AKfycbw7eWh28YYBH7PBBb7yoi77YjqEUeBAMBOyhOQBVJBy9-JrCxMOIPC39brMbrOqu6wm/exec", {
+method: "POST",
+body: JSON.stringify(data),
+headers: { "Content-Type": "application/json" }
+})
+.then(res => res.text())
+.then(() => {
+alert("Submitted Successfully!");
+closeModal();
+})
+.catch(() => alert("Submission failed."));
+});
+const userCode = 'UAS' + Math.floor(100000 + Math.random() * 900000);
+document.getElementById('refCode').innerText = userCode;
+</script>
 </body>
 </html>
+
