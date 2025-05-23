@@ -1,155 +1,172 @@
-<!DOCTYPE html><html>
+<!DOCTYPE html><html lang="en">
 <head>
-  <title>UAScoin</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UAScoin Clicker</title>
   <style>
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: url('background.png') no-repeat center center fixed;
+      padding: 0;
+      font-family: sans-serif;
+      background-image: url('background.png');
       background-size: cover;
-      color: white;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
       text-align: center;
+      color: #fff;
     }
-    .energy {
-      background: cyan;
-      color: black;
+    .coin {
+      width: 180px;
+      height: 180px;
+      cursor: pointer;
+    }
+    .energy-bar {
+      background: #222;
+      padding: 10px;
+      position: fixed;
+      bottom: 70px;
+      left: 0;
+      right: 0;
       font-weight: bold;
-      padding: 5px;
     }
-    #coin {
-      width: 200px;
-      margin-top: 20px;
-    }
-    nav {
+    .nav {
+      display: flex;
+      justify-content: space-around;
       position: fixed;
       bottom: 0;
       width: 100%;
-      background: rgba(0, 0, 0, 0.8);
-      display: flex;
-      justify-content: space-around;
+      background: rgba(0,0,0,0.8);
+      padding: 10px 0;
     }
-    nav button {
-      flex: 1;
-      padding: 10px;
-      background: none;
-      color: white;
-      font-weight: bold;
+    .nav button {
+      background: transparent;
       border: none;
+      color: white;
+      font-size: 16px;
     }
     .tab {
       display: none;
+      padding: 20px;
     }
     .tab.active {
       display: block;
     }
-    .skin {
-      display: inline-block;
+    .upgrade-option, .skin-option {
       margin: 10px;
-      text-align: center;
+      background: rgba(255,255,255,0.1);
+      padding: 15px;
+      border-radius: 10px;
     }
-    .skin img {
-      width: 100px;
-      height: 100px;
-      display: block;
-      margin: 0 auto 5px;
+    img.skin-img {
+      width: 80px;
     }
   </style>
 </head>
 <body>
-  <div class="energy">Energy: <span id="energy">1000</span></div>  <div id="home" class="tab active">
-    <img id="coin" src="bronze_coin.png" onclick="tapCoin()">
-    <h2 id="taps">Taps: 0</h2>
-  </div>  <div id="skins" class="tab">
-    <h2>Skins Marketplace</h2>
-    <div id="skinContainer"></div>
-    <h3>Purchase Skin</h3>
-    <form id="usdtForm">
-      <label>Your Wallet:</label><br>
-      <input type="text" name="wallet" required placeholder="Enter your BEP-20 wallet address"><br><br><label>TXID:</label><br>
-  <input type="text" name="txid" required placeholder="Enter the TXID after payment"><br><br>
-
-  <button type="submit">Submit Payment</button>
-</form>
-
-  </div>  <div id="upgrades" class="tab">
+  <h1>UAScoin Clicker</h1>
+  <div id="mainTab" class="tab active">
+    <img src="bronze_coin.png" class="coin" onclick="tapCoin()" id="coin">
+    <h2 id="tapCount">Taps: 0</h2>
+  </div>  <div id="skinsTab" class="tab">
+    <h2>Skin Marketplace</h2>
+    <div id="skinsList"></div>
+  </div>  <div id="upgradeTab" class="tab">
     <h2>Upgrade Plans</h2>
-    <div>
-      <p><b>Bronze Package</b>: 3 USDT for 2x</p>
-      <p><b>Silver Package</b>: 5 USDT for 4x</p>
-      <p><b>Gold Package</b>: 7.5 USDT for 6x</p>
-      <p><b>Diamond Package</b>: 10 USDT for 8x</p>
-      <p><b>Ruby Package</b>: 20 USDT for 15x</p>
-    </div>
-    <h3>Purchase Upgrade</h3>
-    <form id="upgradeForm">
-      <label>Your Wallet:</label><br>
-      <input type="text" name="wallet" required><br><br><label>TXID:</label><br>
-  <input type="text" name="txid" required><br><br>
-
-  <button type="submit">Submit Payment</button>
-</form>
-
-  </div>  <div id="referrals" class="tab">
+    <div class="upgrade-option">Bronze Package - 2x - $3 USDT <button onclick="showUSDTForm('Bronze Package')">Buy</button></div>
+    <div class="upgrade-option">Silver Package - 4x - $5 USDT <button onclick="showUSDTForm('Silver Package')">Buy</button></div>
+    <div class="upgrade-option">Gold Package - 6x - $7.5 USDT <button onclick="showUSDTForm('Gold Package')">Buy</button></div>
+    <div class="upgrade-option">Diamond Package - 8x - $10 USDT <button onclick="showUSDTForm('Diamond Package')">Buy</button></div>
+    <div class="upgrade-option">Ruby Package - 15x - $20 USDT <button onclick="showUSDTForm('Ruby Package')">Buy</button></div>
+    <div id="paymentForm"></div>
+  </div>  <div id="referralTab" class="tab">
     <h2>Referrals</h2>
-    <p>Your referral code: <b id="refCode"></b></p>
-    <p>Share this code with others to earn rewards.</p>
+    <p>Your Referral Code: <strong id="refCode">ABC123</strong></p>
+    <button onclick="shareReferral()">Share Referral</button>
+    <p>Your Team:</p>
     <ul id="refTeam"></ul>
-  </div>  <nav>
-    <button onclick="showTab('home')">Earn</button>
-    <button onclick="showTab('skins')">Skins</button>
-    <button onclick="showTab('upgrades')">Upgrades</button>
-    <button onclick="showTab('referrals')">Referrals</button>
-  </nav>  <script>
+  </div>  <div class="energy-bar">Energy: <span id="energy">1000</span></div>
+  <div class="nav">
+    <button onclick="showTab('mainTab')">Tap</button>
+    <button onclick="showTab('skinsTab')">Skins</button>
+    <button onclick="showTab('upgradeTab')">Upgrades</button>
+    <button onclick="showTab('referralTab')">Referrals</button>
+  </div>  <script>
     let taps = 0;
-    const energyElem = document.getElementById("energy");
-    const tapsElem = document.getElementById("taps");
+    let energy = 1000;
+    let multiplier = 1;
+    const tapCount = document.getElementById("tapCount");
+    const energyDisplay = document.getElementById("energy");
 
     function tapCoin() {
-      if (parseInt(energyElem.innerText) > 0) {
-        taps++;
-        tapsElem.innerText = "Taps: " + taps;
-        energyElem.innerText = parseInt(energyElem.innerText) - 1;
-      }
+      if (energy <= 0) return;
+      taps += 1 * multiplier;
+      energy--;
+      tapCount.textContent = "Taps: " + taps;
+      energyDisplay.textContent = energy;
     }
 
     function showTab(tabId) {
-      document.querySelectorAll(".tab").forEach(tab => tab.classList.remove("active"));
-      document.getElementById(tabId).classList.add("active");
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
     }
 
-    const skins = ["pakistan", "india", "iran", "turkey", "china", "usa", "uk", "germany", "france", "italy", "africa", "brazil", "saudiaarab"];
-    const skinContainer = document.getElementById("skinContainer");
+    function shareReferral() {
+      const code = document.getElementById("refCode").textContent;
+      const url = window.location.href + "?ref=" + code;
+      navigator.clipboard.writeText(url);
+      alert("Referral link copied: " + url);
+    }
 
-    skins.forEach(skin => {
-      const div = document.createElement("div");
-      div.className = "skin";
-      div.innerHTML = `
-        <img src="${skin}.png" alt="${skin}">
-        <p>${skin.toUpperCase()}</p>
-        <button onclick="showQR('${skin}')">Buy - 5 USDT</button>
+    function showUSDTForm(itemName) {
+      document.getElementById("paymentForm").innerHTML = `
+        <form id="usdtForm">
+          <p><strong>Send USDT (BEP-20) to this Address:</strong><br>
+          <input type="text" value="0x86d69358e89e1ec95b9a35828363f41d7e55d880" readonly style="width:100%"></p>
+
+          <label>Your Wallet Address:</label><br>
+          <input type="text" name="wallet" required><br>
+
+          <label>Transaction ID (TXID):</label><br>
+          <input type="text" name="txid" required><br>
+
+          <input type="hidden" name="item" value="${itemName}">
+          <button type="submit">Submit Payment</button>
+        </form>
       `;
-      skinContainer.appendChild(div);
-    });
-
-    function showQR(skin) {
-      alert("Send 5 USDT to: 0x86d69358e89e1ec95b9a35828363f41d7e55d880\nThen enter TXID below.");
-      // Optional: Show QR modal here
+      document.getElementById("usdtForm").addEventListener('submit', function(e) {
+        e.preventDefault();
+        const form = e.target;
+        const data = {
+          wallet: form.wallet.value,
+          txid: form.txid.value,
+          item: form.item.value
+        };
+        fetch("https://script.google.com/macros/s/AKfycbw7eWh28YYBH7PBBb7yoi77YjqEUeBAMBOyhOQBVJBy9-JrCxMOIPC39brMbrOqu6wm/exec", {
+          method: "POST",
+          body: JSON.stringify(data),
+          headers: { "Content-Type": "application/json" }
+        }).then(res => res.text())
+          .then(msg => {
+            alert("Payment Submitted! Wait for manual confirmation.");
+            form.reset();
+          }).catch(err => {
+            alert("Submission error. Try again.");
+            console.error(err);
+          });
+      });
     }
 
-    document.getElementById('usdtForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      alert("Payment submitted for skin.");
-      this.reset();
+    // Load marketplace skins
+    const skins = ["Pakistan.png","india.png","iran.png","turkey.png","china.png","usa.png","uk.png","germany.png","france.png","italy.png","africa.png","brazil.png","saudiaarab.png"];
+    const skinList = document.getElementById("skinsList");
+    skins.forEach(skin => {
+      skinList.innerHTML += `
+        <div class="skin-option">
+          <img class="skin-img" src="${skin}" alt="${skin}"><br>
+          ${skin.replace(".png", "")} - 5 USDT
+          <button onclick="showUSDTForm('${skin}')">Buy</button>
+        </div>
+      `;
     });
-
-    document.getElementById('upgradeForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      alert("Payment submitted for upgrade.");
-      this.reset();
-    });
-
-    // Referral system basic logic
-    const refCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-    document.getElementById("refCode").innerText = refCode;
   </script></body>
 </html>
