@@ -1,167 +1,151 @@
 <!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>UAS Coin Clicker</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UAScoin</title>
   <style>
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: url('background.png') no-repeat center center fixed;
+      font-family: bold, sans-serif;
+      background-image: url('background.png');
       background-size: cover;
-      color: white;
-      overflow-x: hidden;
+      background-attachment: fixed;
+      color: black;
+      text-align: center;
     }
-    .coin {
-      width: 160px;
-      height: 160px;
-    }
-    .energy-bar {
-      background: #00ffcc;
-      height: 20px;
-      width: 100%;
+    .energy {
+      background: cyan;
+      color: black;
+      font-weight: bold;
+      padding: 5px;
       position: fixed;
       top: 0;
-      z-index: 999;
-      text-align: center;
-      font-weight: bold;
-      color: black;
+      width: 100%;
+      z-index: 2;
+    }
+    #coin {
+      width: 180px;
+      height: 180px;
+      margin: 100px auto 20px;
+      display: block;
     }
     .nav {
-      display: flex;
-      justify-content: space-around;
       position: fixed;
       bottom: 0;
       width: 100%;
-      background-color: rgba(0,0,0,0.8);
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: space-around;
       padding: 10px 0;
-      z-index: 999;
+      z-index: 2;
     }
     .nav button {
       background: none;
       border: none;
       color: white;
-      font-size: 18px;
+      font-size: 16px;
     }
     .tab {
       display: none;
-      padding-bottom: 60px;
+      padding: 20px;
     }
-    .tab.active {
+    .active-tab {
       display: block;
     }
-    .marketplace img {
-      width: 100px;
-      height: 100px;
-    }
-    .marketplace div {
+    .skin-card {
+      display: inline-block;
       margin: 10px;
     }
-    .bold-label {
-      font-weight: bold;
+    .skin-card img {
+      width: 100px;
+      height: 100px;
+      display: block;
+      margin: 0 auto;
+    }
+    form {
+      margin-top: 20px;
     }
   </style>
 </head>
-<body>
-  <div class="energy-bar" id="energyBar">Energy: <span id="energy">1000</span></div>  <div id="earn" class="tab active">
-    <center>
-      <h1 class="bold-label">UAS Coin Clicker</h1>
-      <img id="coin" src="bronze_coin.png" class="coin" onclick="tapCoin()" />
-      <p class="bold-label">Taps: <span id="tapCount">0</span></p>
-    </center>
-  </div>  <div id="skins" class="tab">
-    <center>
-      <h2>Skins Marketplace</h2>
-      <div class="marketplace">
-        ["pakistan", "india", "iran", "turkey", "china", "usa", "uk", "germany", "france", "italy", "africa", "brazil", "saudiaarab"].forEach(skin => {
-          document.write(`<div><img src='${skin}.png'><br>${skin.toUpperCase()}<br><button onclick="buySkin('${skin}')">Buy - 5 USDT</button></div>`);
-        });
-      </div><form id="usdtFormSkins">
+<body><div class="energy">Energy: <span id="energy">1000</span></div>
+<img src="bronze_coin.png" id="coin" onclick="tapCoin()">
+<div id="tapCount" style="font-weight:bold; font-size:20px;">Taps: 0</div><div id="Earn" class="tab active-tab"></div>
+<div id="Skins" class="tab"></div>
+<div id="Upgrades" class="tab"></div>
+<div id="Referrals" class="tab"></div><div class="nav">
+  <button onclick="openTab('Earn')">Earn</button>
+  <button onclick="openTab('Skins')">Skins</button>
+  <button onclick="openTab('Upgrades')">Upgrades</button>
+  <button onclick="openTab('Referrals')">Referrals</button>
+</div><script>
+let taps = 0;
+const coin = document.getElementById('coin');
+const tapDisplay = document.getElementById('tapCount');
+const energyDisplay = document.getElementById('energy');
+
+function tapCoin() {
+  taps++;
+  tapDisplay.innerText = 'Taps: ' + taps;
+  updateCoinSkin();
+}
+
+function updateCoinSkin() {
+  if (taps >= 200000000) coin.src = 'vibranium_coin.png';
+  else if (taps >= 100000000) coin.src = 'adamantium_coin.png';
+  else if (taps >= 50000000) coin.src = 'platinum_coin.png';
+  else if (taps >= 1000000) coin.src = 'diamond_coin.png';
+  else if (taps >= 500000) coin.src = 'gold_coin.png';
+  else if (taps >= 10000) coin.src = 'silver_coin.png';
+  else coin.src = 'bronze_coin.png';
+}
+
+function openTab(tabId) {
+  document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active-tab'));
+  document.getElementById(tabId).classList.add('active-tab');
+}
+
+// Load skins marketplace
+const skinTab = document.getElementById('Skins');
+const skins = ["pakistan","india","iran","turkey","china","usa","uk","germany","france","italy","africa","brazil","saudiaarab"];
+skins.forEach(skin => {
+  skinTab.innerHTML += `
+    <div class="skin-card">
+      <img src="${skin}.png" alt="${skin}">
+      <div>${skin.toUpperCase()}</div>
+      <button>Buy - 5 USDT</button>
+    </div>
+  `;
+});
+
+skinTab.innerHTML += `
+  <form id="usdtForm">
     <h3>Purchase Skin</h3>
     <label>Your Wallet:</label><br>
-    <input type="text" name="wallet" required><br>
+    <input type="text" name="wallet" required><br><br>
     <label>TXID:</label><br>
-    <input type="text" name="txid" required><br>
+    <input type="text" name="txid" required><br><br>
     <button type="submit">Submit</button>
-  </form>
-</center>
+  </form>`;
 
-  </div>  <div id="upgrades" class="tab">
-    <center>
-      <h2>Upgrade Plans</h2>
-      <div>
-        <p>Bronze: 2x Taps - 3 USDT <button>Buy</button></p>
-        <p>Silver: 4x Taps - 5 USDT <button>Buy</button></p>
-        <p>Gold: 6x Taps - 7.5 USDT <button>Buy</button></p>
-        <p>Diamond: 8x Taps - 10 USDT <button>Buy</button></p>
-        <p>Ruby: 15x Taps - 20 USDT <button>Buy</button></p>
-      </div>
-      <form id="usdtFormUpgrades">
-        <h3>Upgrade Purchase</h3>
-        <label>Your Wallet:</label><br>
-        <input type="text" name="wallet" required><br>
-        <label>TXID:</label><br>
-        <input type="text" name="txid" required><br>
-        <button type="submit">Submit</button>
-      </form>
-    </center>
-  </div>  <div id="referrals" class="tab">
-    <center>
-      <h2>Referrals</h2>
-      <p>Your referral link:</p>
-      <p><input type="text" value="https://example.com?ref=USER123" readonly></p>
-      <p>Referral bonus: 10% tap reward + 1000 UAS</p>
-    </center>
-  </div>  <div class="nav">
-    <button onclick="openTab('earn')">Earn</button>
-    <button onclick="openTab('skins')">Skins</button>
-    <button onclick="openTab('upgrades')">Upgrades</button>
-    <button onclick="openTab('referrals')">Referrals</button>
-  </div>  <script>
-    let taps = 0;
-    let energy = 1000;
-    function openTab(tabId) {
-      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-      document.getElementById(tabId).classList.add('active');
-    }
-
-    function tapCoin() {
-      if (energy > 0) {
-        taps++;
-        energy--;
-        document.getElementById('tapCount').innerText = taps;
-        document.getElementById('energy').innerText = energy;
-      }
-    }
-
-    function buySkin(skin) {
-      alert("Skin selected: " + skin);
-    }
-
-    function submitUSDTForm(formId) {
-      const form = document.getElementById(formId);
-      form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const data = {
-          wallet: form.wallet.value,
-          txid: form.txid.value
-        };
-        fetch("https://script.google.com/macros/s/AKfycbw7eWh28YYBH7PBBb7yoi77YjqEUeBAMBOyhOQBVJBy9-JrCxMOIPC39brMbrOqu6wm/exec", {
-          method: "POST",
-          body: JSON.stringify(data),
-          headers: { "Content-Type": "application/json" }
-        }).then(res => res.text())
-          .then(() => {
-            alert("Payment Submitted! Please wait for confirmation.");
-            form.reset();
-          }).catch(err => {
-            alert("Error submitting payment.");
-            console.error(err);
-          });
-      });
-    }
-
-    submitUSDTForm('usdtFormSkins');
-    submitUSDTForm('usdtFormUpgrades');
-  </script></body>
+// USDT form submission
+setTimeout(() => {
+  const form = document.getElementById('usdtForm');
+  form?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const data = {
+      wallet: form.wallet.value,
+      txid: form.txid.value
+    };
+    fetch("https://script.google.com/macros/s/AKfycbw7eWh28YYBH7PBBb7yoi77YjqEUeBAMBOyhOQBVJBy9-JrCxMOIPC39brMbrOqu6wm/exec", {
+      method: "POST",
+      body: JSON.stringify(data),
+      headers: { "Content-Type": "application/json" }
+    }).then(res => res.text())
+      .then(msg => {
+        alert("Payment Submitted! Please wait for manual confirmation.");
+        form.reset();
+      }).catch(err => alert("Error: " + err));
+  });
+}, 1000);
+</script></body>
 </html>
