@@ -1,126 +1,194 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>UAScoin Clicker Game</title>
+  <link rel="stylesheet" href="style.css">
   <style>
     body {
       margin: 0;
-      padding: 0;
-      font-family: sans-serif;
-      background: url('background.png') no-repeat center center fixed;
+      background-image: url('background.png');
       background-size: cover;
-      overflow-x: hidden;
+      background-position: center;
+      font-family: Arial, sans-serif;
     }
-    .container {
-      text-align: center;
-      padding: 10px;
-      color: #fff;
-    }
-    .coin {
-      width: 180px;
-      height: 180px;
-      margin: 20px auto;
-      cursor: pointer;
+    .nav, .sidebar, .energy-bar {
+      position: fixed;
+      z-index: 10;
     }
     .energy-bar {
+      top: 0;
       width: 100%;
       height: 20px;
-      background-color: #333;
-      margin-bottom: 5px;
+      background: #444;
     }
-    .energy {
+    .energy-fill {
       height: 100%;
-      background-color: #4caf50;
+      background: #0f0;
       width: 100%;
+      transition: width 0.3s;
     }
-    .nav-bar {
-      position: fixed;
+    .nav {
       bottom: 0;
       width: 100%;
-      background-color: rgba(0,0,0,0.6);
       display: flex;
       justify-content: space-around;
+      background: rgba(0, 0, 0, 0.7);
     }
-    .nav-item {
+    .sidebar {
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0, 0, 0, 0.5);
+    }
+    .sidebar button, .nav button {
+      background: transparent;
+      border: none;
+      color: white;
       padding: 10px;
-      color: #fff;
-      font-size: 18px;
+      font-size: 20px;
     }
-    .section {
+    .container {
+      padding-top: 40px;
+      padding-bottom: 60px;
+      text-align: center;
+    }
+    #coin {
+      width: 200px;
+      cursor: pointer;
+    }
+    .tab {
       display: none;
-      padding: 20px;
+      color: white;
     }
     .active {
       display: block;
     }
-    .sidebar-referral {
-      position: fixed;
-      left: 0;
-      top: 50%;
-      transform: translateY(-50%);
-      background: rgba(0,0,0,0.7);
-      color: white;
-      padding: 10px;
-      writing-mode: vertical-lr;
-      cursor: pointer;
+    .skins img {
+      width: 80px;
+      margin: 5px;
+      border: 2px solid white;
+      border-radius: 10px;
     }
   </style>
 </head>
 <body>
-<div class="container">
-  <div class="energy-bar"><div id="energy" class="energy"></div></div>  <div id="Home" class="section active">
-    <img id="coin" src="bronze_coin.png" alt="coin" class="coin">
-    <h2 id="tapCount">0</h2>
-  </div>  <div id="Skin" class="section">
-    <h3>Buy Skins (5 USDT)</h3>
-    <div id="skinList"></div>
-  </div>  <div id="Upgrade" class="section">
-    <h3>Upgrade Packages (USDT)</h3>
-    <ul>
-      <li>Bronze (3x) - 2 USDT</li>
-      <li>Silver (6x) - 4 USDT</li>
-      <li>Gold (10x) - 6 USDT</li>
-      <li>Diamond (20x) - 8 USDT</li>
-      <li>Platinum (50x) - 10 USDT</li>
-      <li>AutoBot - 15 USDT</li>
-    </ul>
-  </div>  <div id="Earn" class="section">
-    <h3>How to Earn</h3>
-    <p>Watch Ads = +1500 UAScoin</p>
-    <p>Complete Tasks = +2500 UAScoin</p>
-  </div>  <div id="Referral" class="section">
-    <h3>Referral Program</h3>
-    <p>Your Code: <span id="referralCode"></span></p>
-    <p>Game Link: uascoin.com?ref=<span id="referralCodeGame"></span></p>
-    <p>Telegram Link: t.me/uascoinbot?start=<span id="referralCodeTG"></span></p>
-  </div>  <div class="sidebar-referral" onclick="showSection('Referral')">Referral</div>  <div class="nav-bar">
-    <div class="nav-item" onclick="showSection('Home')">Home</div>
-    <div class="nav-item" onclick="showSection('Skin')">Skin</div>
-    <div class="nav-item" onclick="showSection('Upgrade')">Upgrades</div>
-    <div class="nav-item" onclick="showSection('Earn')">Earn</div>
+  <div class="energy-bar"><div class="energy-fill" id="energy"></div></div>
+  <div class="sidebar">
+    <button onclick="showTab('referrals')">Referrals</button>
   </div>
-</div><!-- Payment Form --><div id="paymentForm" class="section">
-  <h3>Send USDT Payment</h3>
-  <p>Send to Wallet Address:</p>
-  <p><b>0xYourUSDTBEP20AddressHere</b></p>
-  <p>Once paid, contact support with your transaction ID.</p>
-</div><!-- Firebase Integration --><script type="module">
-  import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js';
-  import { getDatabase, ref, set, get, update } from 'https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js';
+  <div class="container">
+    <img id="coin" src="bronze_coin.png" onclick="tap()">
+    <h2 id="tapCount">0</h2>
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyDIDQDBNQfjjgZQyFW40huka1c3ZAs1NGk",
-    authDomain: "uascoin-1f6a6.firebaseapp.com",
-    databaseURL: "https://uascoin-1f6a6-default-rtdb.firebaseio.com",
-    projectId: "uascoin-1f6a6",
-    storageBucket: "uascoin-1f6a6.appspot.com",
-    messagingSenderId: "886994583675",
-    appId: "1:886994583675:web:48fcdbd7bf56709d5362de"
-  };
+    <div id="home" class="tab active"></div>
 
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
+    <div id="earn" class="tab">
+      <h3>Earn UAScoin</h3>
+      <p>Watch ads to earn 1500 UAS</p>
+      <p>Complete tasks to earn 2500 UAS</p>
+    </div>
 
-  let tapCount = 0;
-  let energy =
+    <div id="skins" class="tab">
+      <h3>Buy Skins (5 USDT each)</h3>
+      <div class="skins">
+        <img src="pakistan.png">
+        <img src="india.png">
+        <img src="iran.png">
+        <img src="turkey.png">
+        <img src="china.png">
+        <img src="usa.png">
+        <img src="uk.png">
+        <img src="germany.png">
+        <img src="france.png">
+        <img src="italy.png">
+        <img src="africa.png">
+        <img src="brazil.png">
+        <img src="suadiaarab.png">
+      </div>
+      <h4>Send payment to:</h4>
+      <p>0x86d69358e89e1ec95b9a35828363f41d7e55d880</p>
+    </div>
+
+    <div id="upgrade" class="tab">
+      <h3>Upgrade Packages (USDT)</h3>
+      <ul style="color: white;">
+        <li>Bronze Upgrade - 3x taps - 2 USDT</li>
+        <li>Silver Upgrade - 6x taps - 4 USDT</li>
+        <li>Gold Upgrade - 10x taps - 8 USDT</li>
+        <li>Diamond Upgrade - 20x taps - 15 USDT</li>
+        <li>Platinum Upgrade - 50x taps - 30 USDT</li>
+        <li>AutoBot - Automatic taps - 50 USDT</li>
+      </ul>
+      <h4>Send payment to:</h4>
+      <p>0x86d69358e89e1ec95b9a35828363f41d7e55d880</p>
+    </div>
+
+    <div id="referrals" class="tab">
+      <h3>Referral Program</h3>
+      <p>Your referral code: <span id="refCode"></span></p>
+      <p>Share this link: <span id="refLink"></span></p>
+    </div>
+  </div>
+
+  <div class="nav">
+    <button onclick="showTab('home')">Home</button>
+    <button onclick="showTab('skins')">Skins</button>
+    <button onclick="showTab('upgrade')">Upgrade</button>
+    <button onclick="showTab('earn')">Earn</button>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+    import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDIDQDBNQfjjgZQyFW40huka1c3ZAs1NGk",
+      authDomain: "uascoin-1f6a6.firebaseapp.com",
+      databaseURL: "https://uascoin-1f6a6-default-rtdb.firebaseio.com",
+      projectId: "uascoin-1f6a6",
+      storageBucket: "uascoin-1f6a6.appspot.com",
+      messagingSenderId: "886994583675",
+      appId: "1:886994583675:web:48fcdbd7bf56709d5362de"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    let count = 0;
+    let energy = 100;
+
+    const tapCount = document.getElementById("tapCount");
+    const coin = document.getElementById("coin");
+    const refCode = Math.random().toString(36).substring(2, 8);
+
+    document.getElementById("refCode").innerText = refCode;
+    document.getElementById("refLink").innerText = `https://uascoin.com?ref=${refCode}`;
+
+    function tap() {
+      if (energy > 0) {
+        count++;
+        energy -= 1;
+        tapCount.innerText = count;
+        document.getElementById("energy").style.width = energy + "%";
+        set(ref(db, 'users/' + refCode), {
+          taps: count
+        });
+      }
+    }
+    window.tap = tap;
+
+    function showTab(tab) {
+      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+      document.getElementById(tab).classList.add("active");
+    }
+    window.showTab = showTab;
+
+    setInterval(() => {
+      if (energy < 100) energy++;
+      document.getElementById("energy").style.width = energy + "%";
+    }, 3000);
+  </script>
+</body>
+</html>
