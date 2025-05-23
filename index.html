@@ -25,16 +25,32 @@
       text-align: center;
     }
     #coin-image {
-      width: 200px;
-      height: 200px;
+      width: 350px;
+      height: 350px;
+    }
+    .tabs {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-around;
+      background-color: rgba(255,255,255,0.9);
+      padding: 10px 0;
+      box-shadow: 0 -2px 5px rgba(0,0,0,0.2);
+      z-index: 999;
     }
     .tabs button {
       padding: 10px;
-      margin: 5px;
-      font-size: 16px;
+      font-size: 18px;
+      flex: 1;
+      background: none;
+      border: none;
+      font-weight: bold;
     }
     .tab-content {
       display: none;
+      margin-bottom: 80px;
     }
     .skin-list {
       display: grid;
@@ -58,6 +74,17 @@
       margin: 10px 0;
       border-radius: 10px;
     }
+    #referral-sidebar {
+      position: fixed;
+      top: 50px;
+      right: 0;
+      width: 90%;
+      max-width: 300px;
+      background: white;
+      border: 2px solid #ccc;
+      display: none;
+      z-index: 1000;
+    }
   </style>
 </head>
 <body>
@@ -73,13 +100,14 @@
       <button onclick="openTab('earn')">Earn</button>
       <button onclick="openTab('skins')">Skins</button>
       <button onclick="openTab('upgrades')">Upgrades</button>
+      <button onclick="toggleReferralSidebar()">Referral</button>
     </div>
 
     <div id="referral-sidebar">
-      <img src="referral_banner.png" alt="Referral Banner" style="width: 100%; border-radius: 10px; margin-bottom: 10px;" />
       <p><strong>Your Referral Link:</strong></p>
       <input type="text" id="referral-link" readonly value="https://t.me/uascoin_bot?start=USER12345" style="width: 100%;" />
       <p>Share with friends to earn <strong>10% tapping commission</strong> and <strong>5000 UAS</strong>!</p>
+      <p>Your Team: <span id="referral-team">0</span> members</p>
     </div>
 
     <div id="home" class="tab-content">
@@ -109,7 +137,7 @@
         <div class="skin-item"><img src="italy.png" alt="Italy" /><p><strong>Italy</strong></p><button onclick="buySkin('Italy')">Buy for 5 USDT</button></div>
         <div class="skin-item"><img src="africa.png" alt="Africa" /><p><strong>Africa</strong></p><button onclick="buySkin('Africa')">Buy for 5 USDT</button></div>
         <div class="skin-item"><img src="brazil.png" alt="Brazil" /><p><strong>Brazil</strong></p><button onclick="buySkin('Brazil')">Buy for 5 USDT</button></div>
-        <div class="skin-item"><img src="suadiaarab.png" alt="Saudi Arabia" /><p><strong>Saudi Arabia</strong></p><button onclick="buySkin('Saudi Arabia')">Buy for 5 USDT</button></div>
+        <div class="skin-item"><img src="saudiaarab.png" alt="Saudi Arabia" /><p><strong>Saudi Arabia</strong></p><button onclick="buySkin('Saudi Arabia')">Buy for 5 USDT</button></div>
         <div class="skin-item"><img src="japan.png" alt="Japan" /><p><strong>Japan</strong></p><button onclick="buySkin('Japan')">Buy for 5 USDT</button></div>
       </div>
     </div>
@@ -121,7 +149,7 @@
       <div class="upgrade-item"><p><strong>Gold</strong> - 10x Taps</p><button onclick="buyUpgrade('gold')">Buy for 8 USDT</button></div>
       <div class="upgrade-item"><p><strong>Diamond</strong> - 20x Taps</p><button onclick="buyUpgrade('diamond')">Buy for 15 USDT</button></div>
       <div class="upgrade-item"><p><strong>Platinum</strong> - 50x Taps</p><button onclick="buyUpgrade('platinum')">Buy for 30 USDT</button></div>
-      <div class="upgrade-item"><p><strong>Auto Bot</strong> - Auto Tapping</p><button onclick="buyUpgrade('autobot')">Buy for 50 USDT</button></div>
+      <div class="upgrade-item"><p><strong>Auto Bot</strong> - Auto Tapping</p><button onclick="buyUpgrade('autobot')">Buy for 15 USDT</button></div>
     </div>
   </div>
 
