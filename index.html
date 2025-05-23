@@ -14,6 +14,7 @@
       background-image: url('background.png');
       background-size: cover;
       background-position: center;
+      background-repeat: no-repeat;
       overflow-x: hidden;
     }
     #main-container {
@@ -25,8 +26,9 @@
       text-align: center;
     }
     #coin-image {
-      width: 350px;
-      height: 350px;
+      width: 100%;
+      max-width: 400px;
+      height: auto;
     }
     .tabs {
       position: fixed;
@@ -42,7 +44,7 @@
     }
     .tabs button {
       padding: 10px;
-      font-size: 18px;
+      font-size: 24px;
       flex: 1;
       background: none;
       border: none;
@@ -91,6 +93,11 @@
       right: 10px;
       z-index: 1001;
     }
+    @media screen and (max-width: 600px) {
+      #coin-image {
+        max-width: 300px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -106,7 +113,6 @@
       <button onclick="openTab('earn')">Earn</button>
       <button onclick="openTab('skins')">Skins</button>
       <button onclick="openTab('upgrades')">Upgrades</button>
-      <button onclick="toggleReferralSidebar()">Referral</button>
     </div>
 
     <div id="referral-sidebar">
@@ -131,8 +137,19 @@
     <div id="skins" class="tab-content">
       <h2><strong>Country Themed Skins</strong> (5 USDT Each)</h2>
       <div class="skin-list">
-        <!-- Skin items listed here -->
-        <!-- Already included above, not repeated here for brevity -->
+        <div class="skin-item"><img src="Pakistan.png" alt="Pakistan" /><p>Pakistan</p><button onclick="buySkin('Pakistan')">Buy</button></div>
+        <div class="skin-item"><img src="india.png" alt="India" /><p>India</p><button onclick="buySkin('India')">Buy</button></div>
+        <div class="skin-item"><img src="iran.png" alt="Iran" /><p>Iran</p><button onclick="buySkin('Iran')">Buy</button></div>
+        <div class="skin-item"><img src="turkey.png" alt="Turkey" /><p>Turkey</p><button onclick="buySkin('Turkey')">Buy</button></div>
+        <div class="skin-item"><img src="china.png" alt="China" /><p>China</p><button onclick="buySkin('China')">Buy</button></div>
+        <div class="skin-item"><img src="usa.png" alt="USA" /><p>USA</p><button onclick="buySkin('USA')">Buy</button></div>
+        <div class="skin-item"><img src="uk.png" alt="UK" /><p>UK</p><button onclick="buySkin('UK')">Buy</button></div>
+        <div class="skin-item"><img src="germany.png" alt="Germany" /><p>Germany</p><button onclick="buySkin('Germany')">Buy</button></div>
+        <div class="skin-item"><img src="france.png" alt="France" /><p>France</p><button onclick="buySkin('France')">Buy</button></div>
+        <div class="skin-item"><img src="italy.png" alt="Italy" /><p>Italy</p><button onclick="buySkin('Italy')">Buy</button></div>
+        <div class="skin-item"><img src="africa.png" alt="Africa" /><p>Africa</p><button onclick="buySkin('Africa')">Buy</button></div>
+        <div class="skin-item"><img src="brazil.png" alt="Brazil" /><p>Brazil</p><button onclick="buySkin('Brazil')">Buy</button></div>
+        <div class="skin-item"><img src="suadiaarab.png" alt="Saudi Arabia" /><p>Saudi Arabia</p><button onclick="buySkin('Saudi Arabia')">Buy</button></div>
       </div>
     </div>
 
@@ -143,7 +160,7 @@
       <div class="upgrade-item"><p><strong>Gold</strong> - 10x Taps</p><button onclick="buyUpgrade('gold')">Buy for 8 USDT</button></div>
       <div class="upgrade-item"><p><strong>Diamond</strong> - 20x Taps</p><button onclick="buyUpgrade('diamond')">Buy for 15 USDT</button></div>
       <div class="upgrade-item"><p><strong>Platinum</strong> - 50x Taps</p><button onclick="buyUpgrade('platinum')">Buy for 30 USDT</button></div>
-      <div class="upgrade-item"><p><strong>Auto Bot</strong> - Auto Tapping</p><button onclick="buyUpgrade('autobot')">Buy for 50 USDT</button></div>
+      <div class="upgrade-item"><p><strong>Auto Bot</strong> - Auto Tapping</p><button onclick="buyUpgrade('autobot')">Buy for 15 USDT</button></div>
     </div>
   </div>
 
