@@ -1,34 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>UAScoin A NEW CRYPTOCURRENCY </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UASCOIN A NEW CRYPTOCURRENCY</title>
   <style>
     body {
       margin: 0;
-      font-family: Italic bold, sans-serif;
+      font-family: BOLD, sans-serif;
       background: url('background.png') no-repeat center center fixed;
       background-size: cover;
       color: black;
     }
     .energy-bar {
       background: rgba(0, 0, 0, 0.7);
-      padding: 5px 10px;
+      padding: 10px;
       text-align: center;
-      position: sticky;
+      position: fixed;
       top: 0;
-      z-index: 10;
-    }
-    .coin {
-      display: block;
-      margin: 40px auto 10px;
-      width: 180px;
-    }
-    .coin-count {
-      text-align: center;
-      font-size: 24px;
-      font-weight: bold;
+      width: 100%;
+      color: white;
+      z-index: 1000;
     }
     .tab-section {
       display: none;
@@ -39,25 +30,15 @@
     .tab-section.active {
       display: block;
     }
-    .skin-item, .upgrade-item {
-      background: rgba(255, 255, 255, 0.1);
-      padding: 10px;
-      border-radius: 8px;
-      margin-bottom: 10px;
+    .coin {
+      display: block;
+      margin: 80px auto 10px;
+      width: 180px;
     }
-    .buy-btn {
-      background: #28a745;
-      color: white;
-      border: none;
-      padding: 8px 12px;
-      margin-top: 5px;
-      cursor: pointer;
-      border-radius: 4px;
-    }
-    .preview-img {
-      width: 40px;
-      vertical-align: middle;
-      margin-right: 10px;
+    .coin-count {
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
     }
     .nav-bar {
       display: flex;
@@ -88,11 +69,33 @@
       cursor: pointer;
       z-index: 11;
     }
+    .skin-item, .upgrade-item {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+    .buy-btn {
+      background: #28a745;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      margin-top: 5px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .preview-img {
+      width: 40px;
+      vertical-align: middle;
+      margin-right: 10px;
+    }
     .modal {
       display: none;
       position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
       background: rgba(0, 0, 0, 0.8);
       justify-content: center;
       align-items: center;
@@ -109,64 +112,37 @@
     .modal-close {
       float: right;
       cursor: pointer;
-      font-size: 20px;
     }
   </style>
 </head>
 <body>
   <div class="energy-bar">Energy: <span id="energy">1000</span></div>
-
-  <div id="homeTab" class="tab-section active">
-    <img src="bronze_coin.png" class="coin" id="coinImg" onclick="tapCoin()"/>
+  <div class="referral-btn" onclick="toggleReferral()">Referrals</div>  <div id="homeTab" class="tab-section active">
+    <img src="bronze_coin.png" id="coinImage" class="coin" onclick="tapCoin()">
     <div class="coin-count" id="tapCount">Taps: 0</div>
-  </div>
-
-  <div id="earnTab" class="tab-section">
-    <h2>Earn Tasks & Ads will appear here.</h2>
-  </div>
-
-  <div id="skinsTab" class="tab-section">
-    <h3>Skin Marketplace</h3>
-    <div class="skin-item"><img src="pakistan.png" class="preview-img">Pakistan <button class="buy-btn" onclick="openModal('pakistan.png')">Buy - 5 USDT</button></div>
-    <div class="skin-item"><img src="india.png" class="preview-img">India <button class="buy-btn" onclick="openModal('india.png')">Buy - 5 USDT</button></div>
-    <div class="skin-item"><img src="china.png" class="preview-img">China <button class="buy-btn" onclick="openModal('china.png')">Buy - 5 USDT</button></div>
-    <div class="skin-item"><img src="germany.png" class="preview-img">Germany <button class="buy-btn" onclick="openModal('germany.png')">Buy - 5 USDT</button></div>
-    <div class="skin-item"><img src="suadiaarab.png" class="preview-img">Saudi Arabia <button class="buy-btn" onclick="openModal('suadiaarab.png')">Buy - 5 USDT</button></div>
-    <div class="skin-item"><img src="iran.png" class="preview-img">Iran <button class="buy-btn" onclick="openModal('iran.png')">Buy - 5 USDT</button></div>
-    <div class="skin-item"><img src="france.png" class="preview-img">France <button class="buy-btn" onclick="openModal('france.png')">Buy - 5 USDT</button></div>
-    <div class="skin-item"><img src="italy.png" class="preview-img">Italy <button class="buy-btn" onclick="openModal('italy.png')">Buy - 5 USDT</button></div>
-    <div class="skin-item"><img src="brazil.png" class="preview-img">Brazil <button class="buy-btn" onclick="openModal('brazil.png')">Buy - 5 USDT</button></div>
-    <div class="skin-item"><img src="africa.png" class="preview-img">Africa <button class="buy-btn" onclick="openModal('africa.png')">Buy - 5 USDT</button></div>
-  </div>
-
-  <div id="upgradeTab" class="tab-section">
+  </div>  <div id="earnTab" class="tab-section">
+    <h3>Earn by watching monetization videos!</h3>
+    <p>Coming soon...</p>
+  </div>  <div id="skinTab" class="tab-section">
+    <h3>Buy Country Skins (5 USDT Each)</h3>
+    <div id="skinList"></div>
+  </div>  <div id="upgradeTab" class="tab-section">
     <h3>Upgrade Packages</h3>
-    <div class="upgrade-item">Bronze Pack (2x) - 3 USDT <button class="buy-btn" onclick="openModal('Bronze')">Buy</button></div>
-    <div class="upgrade-item">Silver Pack (4x) - 6 USDT <button class="buy-btn" onclick="openModal('Silver')">Buy</button></div>
-    <div class="upgrade-item">Gold Pack (8x) - 10 USDT <button class="buy-btn" onclick="openModal('Gold')">Buy</button></div>
-    <div class="upgrade-item">Diamond Pack (15x) - 15 USDT <button class="buy-btn" onclick="openModal('Diamond')">Buy</button></div>
-    <div class="upgrade-item">Platinum Pack (40x) - 22 USDT <button class="buy-btn" onclick="openModal('Platinum')">Buy</button></div>
-    <div class="upgrade-item">Auto Bot (Offline Collection) - 5 USDT <button class="buy-btn" onclick="openModal('Auto Bot')">Buy</button></div>
-  </div>
-
-  <div class="nav-bar">
-    <div class="nav-item" onclick="showTab('homeTab')">Home</div>
-    <div class="nav-item" onclick="showTab('skinsTab')">Skins</div>
-    <div class="nav-item" onclick="showTab('upgradeTab')">Upgrades</div>
-    <div class="nav-item" onclick="showTab('earnTab')">Earn</div>
-  </div>
-
-  <div class="referral-btn" onclick="toggleReferral()">Referrals</div>
-  <div id="referralTab" class="tab-section">
+    <div class="upgrade-item">Bronze Upgrade - 3 USDT <button class="buy-btn" onclick="openUpgradeModal('bronze')">Buy</button></div>
+    <div class="upgrade-item">Silver Upgrade - 5 USDT <button class="buy-btn" onclick="openUpgradeModal('silver')">Buy</button></div>
+    <div class="upgrade-item">Gold Upgrade - 8 USDT <button class="buy-btn" onclick="openUpgradeModal('gold')">Buy</button></div>
+    <div class="upgrade-item">Diamond Upgrade - 12 USDT <button class="buy-btn" onclick="openUpgradeModal('diamond')">Buy</button></div>
+    <div class="upgrade-item">Platinum Upgrade - 20 USDT <button class="buy-btn" onclick="openUpgradeModal('platinum')">Buy</button></div>
+    <div class="upgrade-item">AutoBot - 10 USDT <button class="buy-btn" onclick="openUpgradeModal('autobot')">Buy</button></div>
+  </div>  <div id="referralTab" class="tab-section">
     <h3>Your Referral Code: <span id="refCode"></span></h3>
+    <img src="referral_banner.png" width="100%">
     <p>Share this code with your friends and earn bonuses!</p>
-  </div>
-
-  <div class="modal" id="paymentModal">
+  </div>  <div class="modal" id="paymentModal">
     <div class="modal-content">
       <span class="modal-close" onclick="closeModal()">&times;</span>
       <h3>Send Payment</h3>
-      <p>Send USDT to: <b>0x86d69358e89e1ec95b9a35828363f41d7e55d880</b></p>
+      <p>Send USDT or Pi to: <b>0x86d69358e89e1ec95b9a35828363f41d7e55d880</b></p>
       <img src="qr.png" width="150"><br>
       <form id="usdtForm">
         <input type="text" name="wallet" required placeholder="Your Wallet Address"><br><br>
@@ -174,11 +150,29 @@
         <button type="submit">Submit</button>
       </form>
     </div>
-  </div>
-
-  <script>
+  </div>  <div class="nav-bar">
+    <div class="nav-item" onclick="showTab('homeTab')">Home</div>
+    <div class="nav-item" onclick="showTab('earnTab')">Earn</div>
+    <div class="nav-item" onclick="showTab('skinTab')">Skins</div>
+    <div class="nav-item" onclick="showTab('upgradeTab')">Upgrades</div>
+  </div>  <script>
     let taps = 0;
     let energy = 1000;
+
+    const skins = [
+      'pakistan', 'india', 'iran', 'turkey', 'china', 'usa', 'uk', 'germany', 'france', 'italy', 'africa', 'brazil', 'suadiaarab'
+    ];
+
+    window.onload = () => {
+      const skinList = document.getElementById("skinList");
+      skins.forEach(name => {
+        skinList.innerHTML += `
+          <div class="skin-item">
+            <img class="preview-img" src="${name}.png" alt="${name} Skin"> ${name.charAt(0).toUpperCase() + name.slice(1)}
+            <button class="buy-btn" onclick="openSkinModal('${name}.png')">Buy 5 USDT</button>
+          </div>`;
+      });
+    };
 
     function tapCoin() {
       if (energy <= 0) return;
@@ -197,13 +191,24 @@
       showTab('referralTab');
     }
 
-    function openModal(item) {
+    function openSkinModal(skin) {
+      document.getElementById('paymentModal').style.display = 'flex';
+    }
+
+    function openUpgradeModal(upgrade) {
       document.getElementById('paymentModal').style.display = 'flex';
     }
 
     function closeModal() {
       document.getElementById('paymentModal').style.display = 'none';
     }
+
+    setInterval(() => {
+      if (energy < 1000) {
+        energy++;
+        document.getElementById('energy').innerText = energy;
+      }
+    }, 3000);
 
     document.getElementById('usdtForm').addEventListener('submit', function(e) {
       e.preventDefault();
@@ -226,6 +231,5 @@
 
     const userCode = 'UAS' + Math.floor(100000 + Math.random() * 900000);
     document.getElementById('refCode').innerText = userCode;
-  </script>
-</body>
-  </html>
+  </script></body>
+</html>
