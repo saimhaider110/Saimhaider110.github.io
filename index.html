@@ -118,7 +118,7 @@
     
     <h1>REVOLUTIONARY COIN</h1>
     <img src="bronze_coin.png" id="coinImage" class="coin-img" onclick="tapCoin()" alt="Tap Coin" />
-    <h2 id="tapCount">Taps: 0</h2>
+    <h2 id="tapCount">UAS: 0</h2>
 
     <div id="tabContent">
       <div id="homeTab" class="tab-section active">
@@ -142,7 +142,7 @@
       </div>
       <div id="referralTab" class="tab-section">
         <h2>Referral System</h2>
-        <p id="refStatus">Invite friends & earn 10% of their taps + 1000 UAS bonus!</p>
+        <p id="refStatus">Invite friends & earn 10% of their UAS + 1000 UAS bonus!</p>
         <p>Your Referral Link:</p>
         <input type="text" id="referralLink" value="" readonly style="width:90%;padding:10px;border-radius:5px;">
         <p style="font-size:14px">Share with friends to grow your team!</p>
@@ -170,8 +170,8 @@
     <p>Send USDT to this wallet:</p>
     <code>0x86d69358e89e1ec95b9a35828363f41d7e55d880</code>
     <p>After payment, enter your transaction hash:</p>
-    <input type="text" placeholder="Transaction Hash" style="width:100%;padding:10px;margin-top:10px;">
-    <button style="margin-top:10px;padding:10px 20px;" onclick="closeModal()">Submit</button>
+    <input type="text" id="txHash" placeholder="Transaction Hash" style="width:100%;padding:10px;margin-top:10px;">
+    <button style="margin-top:10px;padding:10px 20px;" onclick="verifyPayment()">Submit</button>
   </div>
 
   <script>
@@ -187,217 +187,174 @@
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    
+
     // User Management
-    let userId = 'user_' + Math.floor(Math.random() * 1000000);
-    let taps = 0;
-    let energy = 100;
-    let refBonusMultiplier = 1;
-    let activeReferrer = null;
+    let userId = localStorage.getItem("userId");
+    if (!userId) {
+      userId = "user_" + Date.now();
+      localStorage.setItem("userId", userId);
+    }
 
-    // Initialize user data
-    db.ref('users/' + userId).set({
-      taps: 0,
+    let userData = {
+      coins: 0,
       energy: 100,
-      referrals: {},
+      skin: "bronze",
+      skinInventory: ["bronze"],
+      referralCode: userId,
+      referredBy: null,
+      referralTeam: [],
+      autoBot: false,
+      multiplier: 1,
       bonuses: 0
-    });
-<script>
-  const db = firebase.database();
+    };
 
-  // Generate or load user ID
-  let userId = localStorage.getItem("userId");
-  if (!userId) {
-    userId = "user_" + Date.now();
-    localStorage.setItem("userId", userId);
-  }
-
-  // Initialize user data
-  let userData = {
-    coins: 0,
-    energy: 100,
-    skin: "bronze",
-    skinInventory: ["bronze"],
-    referralCode: userId,
-    referredBy: null,
-    referralTeam: [],
-    autoBot: false,
-    multiplier: 1
-  };
-
-  // Load data
-  function loadUserData() {
-    db.ref("users/" + userId).once("value").then(snapshot => {
-      const data = snapshot.val();
-      if (data) {
-        userData = { ...userData, ...data };
-        updateUI();
-      } else {
-        saveUserData();
-      }
-    });
-  }
-
-  // Save data
-  function saveUserData() {
-    db.ref("users/" + userId).set(userData).then(() => {
-      console.log("User data saved");
-    }).catch(err => console.error("Save error:", err));
-  }
-
-  // Add referredBy (once only)
-  function setReferrer(refCode) {
-    if (!userData.referredBy && refCode && refCode !== userData.referralCode) {
-      userData.referredBy = refCode;
-      db.ref("users/" + refCode + "/referralTeam").once("value").then(snapshot => {
-        const team = snapshot.val() || [];
-        if (!team.includes(userId)) {
-          team.push(userId);
-          db.ref("users/" + refCode).update({ referralTeam: team });
+    // Initialize Firebase Data
+    function loadUserData() {
+      db.ref("users/" + userId).on("value", (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          userData = { ...userData, ...data };
+          updateUI();
+        } else {
+          saveUserData();
         }
       });
-      saveUserData();
     }
-  }
 
-  // Tap logic
-  function tapCoin() {
-    if (userData.energy <= 0) return;
-
-    const earned = 1 * userData.multiplier;
-    userData.coins += earned;
-    userData.energy -= 1;
-
-    updateUI();
-    saveUserData();
-  }
-
-  // Autobots tap every 2 sec
-  setInterval(() => {
-    if (userData.autoBot && userData.energy > 0) {
-      tapCoin();
+    function saveUserData() {
+      db.ref("users/" + userId).set(userData)
+        .catch(err => console.error("Save error:", err));
     }
-  }, 2000);
 
-  // Energy recharge
-  setInterval(() => {
-    if (userData.energy < 100) {
-      userData.energy += 1;
-      updateUI();
-      saveUserData();
-    }
-  }, 3000);
-
-  // Buy skin (cost: 5 USDT assumed paid)
-  function buySkin(skinName) {
-    if (!userData.skinInventory.includes(skinName)) {
-      userData.skinInventory.push(skinName);
-      userData.skin = skinName;
-      updateUI();
-      saveUserData();
-    }
-  }
-
-  // Equip owned skin
-  function equipSkin(skinName) {
-    if (userData.skinInventory.includes(skinName)) {
-      userData.skin = skinName;
-      updateUI();
-      saveUserData();
-    }
-  }
-
-  // Upgrade multiplier (paid upgrade)
-  function upgradeMultiplier(multiplier) {
-    userData.multiplier = multiplier;
-    saveUserData();
-    updateUI();
-  }
-
-  // Toggle AutoBot (paid)
-  function enableAutoBot() {
-    userData.autoBot = true;
-    saveUserData();
-  }
-
-  // Update UI
-  function updateUI() {
-    document.getElementById("coinCount").innerText = userData.coins;
-    document.getElementById("energyBar").style.width = userData.energy + "%";
-    document.getElementById("coinImage").src = userData.skin + "_coin.png";
-  }
-
-  // Load on start
-  document.addEventListener("DOMContentLoaded", () => {
-    loadUserData();
-
-    document.getElementById("tapCoin").addEventListener("click", tapCoin);
-
-    // Check for referral from URL (e.g. ?ref=refCode123)
-    const urlParams = new URLSearchParams(window.location.search);
-    const ref = urlParams.get("ref");
-    if (ref) setReferrer(ref);
-  });
-</script>
     // Referral System
-    const urlParams = new URLSearchParams(window.location.search);
-    const refCode = urlParams.get('start');
-
-    if (refCode && refCode !== userId) {
-      activeReferrer = refCode;
-      document.getElementById('refStatus').textContent = `Referred by: ${refCode}`;
+    function handleReferral() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const refCode = urlParams.get('start');
       
-      // Add to referrer's referrals
-      db.ref(`users/${refCode}/referrals/${userId}`).set(true);
-      
-      // Give 1000 taps to referrer
-      db.ref(`users/${refCode}/taps`).transaction(currentTaps => {
-        return (currentTaps || 0) + 1000;
-      });
+      if (refCode && refCode !== userId && !userData.referredBy) {
+        userData.referredBy = refCode;
+        
+        // Update referrer's data
+        db.ref(`users/${refCode}/referralTeam`).once("value", (snapshot) => {
+          const team = snapshot.val() || [];
+          if (!team.includes(userId)) {
+            team.push(userId);
+            db.ref(`users/${refCode}`).update({
+              referralTeam: team,
+              bonuses: firebase.database.ServerValue.increment(1000)
+            });
+          }
+        });
+        
+        saveUserData();
+      }
     }
 
     // Game Mechanics
     function tapCoin() {
-      if (energy > 0) {
-        taps++;
-        energy -= 2;
-        
-        // Update local display
-        document.getElementById("tapCount").innerText = `Taps: ${taps}`;
-        document.getElementById("energyFill").style.width = `${energy}%`;
-        
-        // Update Firebase
-        db.ref('users/' + userId).update({
-          taps: taps,
-          energy: energy
-        });
+      if (userData.energy <= 0) return;
 
-        // If has active referrer, give 10% bonus
-        if (activeReferrer) {
-          const bonus = Math.floor(taps * 0.1);
-          db.ref(`users/${activeReferrer}/bonuses`).transaction(current => {
-            return (current || 0) + bonus;
-          });
-        }
+      const earned = userData.multiplier;
+      userData.coins += earned;
+      userData.energy -= 2;
+
+      // Handle referral bonus
+      if (userData.referredBy) {
+        db.ref(`users/${userData.referredBy}/bonuses`).transaction(current => {
+          return (current || 0) + Math.round(earned * 0.1);
+        });
       }
+
+      updateUI();
+      saveUserData();
     }
 
-    // Energy Refill System
+    // Auto Tap System
     setInterval(() => {
-      if (energy < 100) {
-        energy = Math.min(energy + 1, 100);
-        document.getElementById("energyFill").style.width = `${energy}%`;
-        db.ref('users/' + userId).update({ energy: energy });
+      if (userData.autoBot && userData.energy > 0) {
+        tapCoin();
+      }
+    }, 2000);
+
+    // Energy Recharge
+    setInterval(() => {
+      if (userData.energy < 100) {
+        userData.energy = Math.min(userData.energy + 1, 100);
+        updateUI();
+        saveUserData();
       }
     }, 3000);
 
+    // Shop System
+    const skinPrices = {
+      pakistan: 5, india: 5, iran: 5, turkey: 5,
+      china: 5, usa: 5, uk: 5, germany: 5,
+      france: 5, italy: 5, africa: 5, brazil: 5,
+      suadiaarab: 5
+    };
+
+    function buySkin(skinName) {
+      if (!userData.skinInventory.includes(skinName)) {
+        openModal(skinName);
+      } else {
+        equipSkin(skinName);
+      }
+    }
+
+    function equipSkin(skinName) {
+      if (userData.skinInventory.includes(skinName)) {
+        userData.skin = skinName;
+        document.getElementById("coinImage").src = `${skinName}_coin.png`;
+        saveUserData();
+      }
+    }
+
+    // Payment Verification
+    let pendingPurchase = null;
+
+    function verifyPayment() {
+      const txHash = document.getElementById("txHash").value;
+      if (txHash.length > 10) { // Simplified validation
+        handlePurchaseSuccess(pendingPurchase);
+        closeModal();
+      }
+    }
+
+    function handlePurchaseSuccess(item) {
+      switch(item) {
+        case 'speedBoost2': userData.multiplier = 2; break;
+        case 'speedBoost5': userData.multiplier = 5; break;
+        case 'speedBoost10': userData.multiplier = 10; break;
+        case 'energyRefill2': userData.energy += 2; break;
+        case 'energyRefill10': userData.energy += 10; break;
+        case 'autoBot': userData.autoBot = true; break;
+        default:
+          if (skinPrices[item]) {
+            if (!userData.skinInventory.includes(item)) {
+              userData.skinInventory.push(item);
+            }
+            equipSkin(item);
+          }
+      }
+      saveUserData();
+      updateUI();
+    }
+
     // UI Functions
+    function updateUI() {
+      document.getElementById("tapCount").textContent = `UAS: ${userData.coins}`;
+      document.getElementById("energyFill").style.width = `${userData.energy}%`;
+      document.getElementById("referralLink").value = 
+        `https://t.me/UASReferralBot?start=${userData.referralCode}`;
+    }
+
     function showTab(id) {
-      document.querySelectorAll(".tab-section").forEach((el) => el.classList.remove("active"));
+      document.querySelectorAll(".tab-section").forEach(el => el.classList.remove("active"));
       document.getElementById(id).classList.add("active");
     }
 
     function openModal(item) {
+      pendingPurchase = item;
       document.getElementById("paymentModal").classList.add("active");
     }
 
@@ -405,29 +362,26 @@
       document.getElementById("paymentModal").classList.remove("active");
     }
 
-    // Skins System
-    const skins = ["pakistan", "india", "iran", "turkey", "china", "usa", "uk", 
-                 "germany", "france", "italy", "africa", "brazil", "suadiaarab"];
-    const skinsList = document.getElementById("skinsList");
-    skins.forEach(skin => {
-      const div = document.createElement("div");
-      div.className = "skin-item";
-      div.innerHTML = `<img src="${skin}.png" class="preview-img">${skin.charAt(0).toUpperCase() + skin.slice(1)} Skin 
-                      <button class="buy-btn" onclick="openModal('${skin}')">Buy</button>`;
-      skinsList.appendChild(div);
-    });
+    // Initialization
+    document.addEventListener("DOMContentLoaded", () => {
+      loadUserData();
+      handleReferral();
 
-    // Referral Link Generation
-    const referralCode = userId;
-    document.getElementById("referralLink").value = `https://t.me/UASReferralBot?start=${referralCode}`;
-
-    // Load initial data
-    db.ref('users/' + userId).on('value', (snapshot) => {
-      const data = snapshot.val();
-      taps = data.taps || 0;
-      energy = data.energy || 100;
-      document.getElementById("tapCount").innerText = `Taps: ${taps}`;
-      document.getElementById("energyFill").style.width = `${energy}%`;
+      // Initialize Skins List
+      const skins = Object.keys(skinPrices);
+      const skinsList = document.getElementById("skinsList");
+      skins.forEach(skin => {
+        const div = document.createElement("div");
+        div.className = "skin-item";
+        div.innerHTML = `
+          <img src="${skin}.png" class="preview-img">
+          ${skin.charAt(0).toUpperCase() + skin.slice(1)}
+          <button class="buy-btn" onclick="buySkin('${skin}')">
+            ${userData.skinInventory.includes(skin) ? 'Equip' : '5 USDT'}
+          </button>
+        `;
+        skinsList.appendChild(div);
+      });
     });
   </script>
 </body>
