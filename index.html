@@ -202,7 +202,143 @@
       referrals: {},
       bonuses: 0
     });
+<script>
+  const db = firebase.database();
 
+  // Generate or load user ID
+  let userId = localStorage.getItem("userId");
+  if (!userId) {
+    userId = "user_" + Date.now();
+    localStorage.setItem("userId", userId);
+  }
+
+  // Initialize user data
+  let userData = {
+    coins: 0,
+    energy: 100,
+    skin: "bronze",
+    skinInventory: ["bronze"],
+    referralCode: userId,
+    referredBy: null,
+    referralTeam: [],
+    autoBot: false,
+    multiplier: 1
+  };
+
+  // Load data
+  function loadUserData() {
+    db.ref("users/" + userId).once("value").then(snapshot => {
+      const data = snapshot.val();
+      if (data) {
+        userData = { ...userData, ...data };
+        updateUI();
+      } else {
+        saveUserData();
+      }
+    });
+  }
+
+  // Save data
+  function saveUserData() {
+    db.ref("users/" + userId).set(userData).then(() => {
+      console.log("User data saved");
+    }).catch(err => console.error("Save error:", err));
+  }
+
+  // Add referredBy (once only)
+  function setReferrer(refCode) {
+    if (!userData.referredBy && refCode && refCode !== userData.referralCode) {
+      userData.referredBy = refCode;
+      db.ref("users/" + refCode + "/referralTeam").once("value").then(snapshot => {
+        const team = snapshot.val() || [];
+        if (!team.includes(userId)) {
+          team.push(userId);
+          db.ref("users/" + refCode).update({ referralTeam: team });
+        }
+      });
+      saveUserData();
+    }
+  }
+
+  // Tap logic
+  function tapCoin() {
+    if (userData.energy <= 0) return;
+
+    const earned = 1 * userData.multiplier;
+    userData.coins += earned;
+    userData.energy -= 1;
+
+    updateUI();
+    saveUserData();
+  }
+
+  // Autobots tap every 2 sec
+  setInterval(() => {
+    if (userData.autoBot && userData.energy > 0) {
+      tapCoin();
+    }
+  }, 2000);
+
+  // Energy recharge
+  setInterval(() => {
+    if (userData.energy < 100) {
+      userData.energy += 1;
+      updateUI();
+      saveUserData();
+    }
+  }, 3000);
+
+  // Buy skin (cost: 5 USDT assumed paid)
+  function buySkin(skinName) {
+    if (!userData.skinInventory.includes(skinName)) {
+      userData.skinInventory.push(skinName);
+      userData.skin = skinName;
+      updateUI();
+      saveUserData();
+    }
+  }
+
+  // Equip owned skin
+  function equipSkin(skinName) {
+    if (userData.skinInventory.includes(skinName)) {
+      userData.skin = skinName;
+      updateUI();
+      saveUserData();
+    }
+  }
+
+  // Upgrade multiplier (paid upgrade)
+  function upgradeMultiplier(multiplier) {
+    userData.multiplier = multiplier;
+    saveUserData();
+    updateUI();
+  }
+
+  // Toggle AutoBot (paid)
+  function enableAutoBot() {
+    userData.autoBot = true;
+    saveUserData();
+  }
+
+  // Update UI
+  function updateUI() {
+    document.getElementById("coinCount").innerText = userData.coins;
+    document.getElementById("energyBar").style.width = userData.energy + "%";
+    document.getElementById("coinImage").src = userData.skin + "_coin.png";
+  }
+
+  // Load on start
+  document.addEventListener("DOMContentLoaded", () => {
+    loadUserData();
+
+    document.getElementById("tapCoin").addEventListener("click", tapCoin);
+
+    // Check for referral from URL (e.g. ?ref=refCode123)
+    const urlParams = new URLSearchParams(window.location.search);
+    const ref = urlParams.get("ref");
+    if (ref) setReferrer(ref);
+  });
+</script>
     // Referral System
     const urlParams = new URLSearchParams(window.location.search);
     const refCode = urlParams.get('start');
