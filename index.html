@@ -84,6 +84,17 @@
       cursor: pointer;
       z-index: 11;
     }
+    .coffee-btn {
+      position: fixed;
+      top: 50px;
+      right: 10px;
+      background: #6f4e37;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      z-index: 11;
+    }
     .modal {
       display: none;
       position: fixed;
@@ -113,19 +124,23 @@
 </head>
 <body>  <div class="energy-bar">
     Energy: <span id="energy">1000</span>
-  </div>  <img src="bronze_coin.png" class="coin" onclick="tapCoin()">
-  <div class="coin-count" id="tapCount">Taps: 0</div>  <!-- Tabs -->  <div id="homeTab" class="tab-section active"></div>  <div id="earnTab" class="tab-section">
+  </div>  <div class="referral-btn" onclick="toggleReferral()">Referrals</div>
+  <div class="coffee-btn" onclick="toggleCoffeeModal()">Buy Me a Coffee</div>  <img id="mainCoin" src="bronze_coin.png" class="coin" onclick="tapCoin()">
+  <div class="coin-count" id="tapCount">Taps: 0</div>  <!-- Tabs -->  <div id="homeTab" class="tab-section active"></div>
+  <div id="earnTab" class="tab-section">
     <h2>Earn Tasks & Ads will appear here.</h2>
-  </div>  <div id="skinsTab" class="tab-section">
+  </div>
+  <div id="skinsTab" class="tab-section">
     <h3>Skin Marketplace</h3>
-  </div>  <div id="upgradeTab" class="tab-section">
+  </div>
+  <div id="upgradeTab" class="tab-section">
     <h3>Upgrade Packages</h3>
   </div>  <div class="nav-bar">
     <div class="nav-item" onclick="showTab('homeTab')">Home</div>
     <div class="nav-item" onclick="showTab('skinsTab')">Skins</div>
     <div class="nav-item" onclick="showTab('upgradeTab')">Upgrades</div>
     <div class="nav-item" onclick="showTab('earnTab')">Earn</div>
-  </div>  <div class="referral-btn" onclick="toggleReferral()">Referrals</div>  <div id="referralTab" class="tab-section">
+  </div>  <div id="referralTab" class="tab-section">
     <h3>Your Referral Code:</h3>
     <p><b id="refCode"></b></p>
     <p>Telegram Referral Link:</p>
@@ -182,6 +197,7 @@
 
     let taps = 0;
     let energy = 1000;
+    let userSkin = null;
 
     function tapCoin() {
       if (energy <= 0) return;
@@ -194,6 +210,7 @@
     }
 
     function updateLeagueImage(taps) {
+      if (userSkin) return;
       let img = 'bronze_coin.png';
       if (taps >= 200_000_000) img = 'vibranium_coin.png';
       else if (taps >= 100_000_000) img = 'adamantium_coin.png';
@@ -201,8 +218,7 @@
       else if (taps >= 1_000_000) img = 'diamond_coin.png';
       else if (taps >= 500_000) img = 'gold_coin.png';
       else if (taps >= 10_000) img = 'silver_coin.png';
-
-      document.querySelector('.coin').src = img;
+      document.getElementById('mainCoin').src = img;
     }
 
     function showTab(tabId) {
@@ -212,6 +228,10 @@
 
     function toggleReferral() {
       showTab('referralTab');
+    }
+
+    function toggleCoffeeModal() {
+      alert("This would open a Buy Me a Coffee modal or link.");
     }
 
     function openModal(item) {
@@ -246,5 +266,14 @@
       energy: 1000,
       referralCode: refCode
     });
+
+    setInterval(() => {
+      if (energy < 1000) {
+        energy++;
+        document.getElementById('energy').innerText = energy;
+        db.ref('users/' + userId + '/energy').set(energy);
+      }
+    }, 3000);
+
   </script></body>
 </html>
