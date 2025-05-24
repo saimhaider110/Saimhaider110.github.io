@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -109,108 +110,126 @@
     .modal-content {
       background: white;
       padding: 20px;
-      border-radius: 10px;
-      width: 90%;
-      max-width: 400px;
+      border-radius: 8px;
+      width: 400px;
       text-align: center;
     }
-    .modal-close {
-      float: right;
+    .modal-content input,
+    .modal-content button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    .modal-content button {
+      background-color: #007bff;
+      color: white;
       cursor: pointer;
-      font-size: 20px;
-      font-weight: bold;
+    }
+    .modal-content button:hover {
+      background-color: #0056b3;
     }
   </style>
 </head>
-<body>  <div class="energy-bar">
-    Energy: <span id="energy">1000</span>
-  </div>  <div class="referral-btn" onclick="toggleReferral()">Referrals</div>
-  <div class="coffee-btn" onclick="toggleCoffeeModal()">Buy Me a Coffee</div>  <img id="mainCoin" src="bronze_coin.png" class="coin" onclick="tapCoin()">
-  <div class="coin-count" id="tapCount">Taps: 0</div>  <!-- Tabs -->  <div id="homeTab" class="tab-section active"></div>
-  <div id="earnTab" class="tab-section">
-    <h2>Earn Tasks & Ads will appear here.</h2>
+<body>
+  <div class="energy-bar">
+    <span>Energy: <span id="energy">1000</span> </span>
+  </div>
+  <img src="bronze_coin.png" id="mainCoin" class="coin" />
+  <div class="coin-count">
+    <span id="tapCount">Taps: 0</span>
+  </div>
+  <div id="homeTab" class="tab-section active">
+    <!-- Home Section -->
+    <button onclick="addTap()">Tap</button>
   </div>
   <div id="skinsTab" class="tab-section">
-    <h3>Skin Marketplace</h3>
+    <!-- Skins Section -->
+    <h2>Country Themed Skins (5 USDT each)</h2>
+    <div class="skin-item">
+      <img src="pakistan.png" alt="Pakistan" class="preview-img" /> Pakistan Skin
+      <button class="buy-btn" onclick="openModal('pakistan')">Buy</button>
+    </div>
+    <div class="skin-item">
+      <img src="india.png" alt="India" class="preview-img" /> India Skin
+      <button class="buy-btn" onclick="openModal('india')">Buy</button>
+    </div>
+    <div class="skin-item">
+      <img src="usa.png" alt="USA" class="preview-img" /> USA Skin
+      <button class="buy-btn" onclick="openModal('usa')">Buy</button>
+    </div>
+    <div class="skin-item">
+      <img src="brazil.png" alt="Brazil" class="preview-img" /> Brazil Skin
+      <button class="buy-btn" onclick="openModal('brazil')">Buy</button>
+    </div>
+    <!-- Add more countries similarly -->
   </div>
-  <div id="upgradeTab" class="tab-section">
-    <h3>Upgrade Packages</h3>
-  </div>  <div class="nav-bar">
+  <div id="upgradesTab" class="tab-section">
+    <!-- Upgrade Section -->
+    <h2>Upgrade Packages</h2>
+    <div class="upgrade-item">
+      <p>x2 Speed Boost (5 USDT)</p>
+      <button class="buy-btn" onclick="openModal('speedBoost2')">Buy</button>
+    </div>
+    <div class="upgrade-item">
+      <p>x5 Speed Boost (10 USDT)</p>
+      <button class="buy-btn" onclick="openModal('speedBoost5')">Buy</button>
+    </div>
+    <div class="upgrade-item">
+      <p>x10 Speed Boost (15 USDT)</p>
+      <button class="buy-btn" onclick="openModal('speedBoost10')">Buy</button>
+    </div>
+    <div class="upgrade-item">
+      <p>Energy Refill x2 (5 USDT)</p>
+      <button class="buy-btn" onclick="openModal('energyRefill2')">Buy</button>
+    </div>
+    <div class="upgrade-item">
+      <p>Energy Refill x10 (10 USDT)</p>
+      <button class="buy-btn" onclick="openModal('energyRefill10')">Buy</button>
+    </div>
+    <div class="upgrade-item">
+      <p>AutoBot Mode (20 USDT)</p>
+      <button class="buy-btn" onclick="openModal('autoBot')">Buy</button>
+    </div>
+  </div>
+  <div id="referralTab" class="tab-section">
+    <!-- Referral Section -->
+    <h2>Your Referral Code: <span id="referralCode">ABC123</span></h2>
+  </div>
+  <div class="nav-bar">
     <div class="nav-item" onclick="showTab('homeTab')">Home</div>
     <div class="nav-item" onclick="showTab('skinsTab')">Skins</div>
-    <div class="nav-item" onclick="showTab('upgradeTab')">Upgrades</div>
-    <div class="nav-item" onclick="showTab('earnTab')">Earn</div>
-  </div>  <div id="referralTab" class="tab-section">
-    <h3>Your Referral Code:</h3>
-    <p><b id="refCode"></b></p>
-    <p>Telegram Referral Link:</p>
-    <input type="text" id="refLink" readonly style="width: 90%; padding: 8px; border: 1px solid #ccc; border-radius: 6px;">
-    <button onclick="copyReferralLink()" style="margin-top: 10px;">Copy Referral Link</button>
-    <p style="margin-top: 20px;">Each friend you invite earns you:</p>
-    <ul>
-      <li><b>+5000 UAS</b> reward instantly</li>
-      <li><b>+10% permanent tap bonus</b></li>
-    </ul>
-    <p style="font-size: 12px; color: gray; margin-top: 15px;">
-      Share your link with friends. When they join via your Telegram referral, your bonus is automatically saved in our database.
-    </p>
-  </div>  <div class="modal" id="paymentModal">
+    <div class="nav-item" onclick="showTab('upgradesTab')">Upgrades</div>
+    <div class="nav-item" onclick="showTab('referralTab')">Referral</div>
+  </div>
+
+  <!-- Buy Me a Coffee Button -->
+  <button class="coffee-btn" onclick="toggleCoffeeModal()">Buy Me a Coffee</button>
+
+  <!-- Modal for payment -->
+  <div class="modal" id="paymentModal">
     <div class="modal-content">
-      <span class="modal-close" onclick="closeModal()">&times;</span>
-      <h3>Send Payment</h3>
-      <p>Send USDT to: <b>0x86d69358e89e1ec95b9a35828363f41d7e55d880</b></p>
-      <img src="qr.png" width="150"><br>
+      <h3>Complete Payment</h3>
       <form id="usdtForm">
-        <input type="text" name="wallet" required placeholder="Your Wallet Address"><br><br>
-        <input type="text" name="txid" required placeholder="TXID"><br><br>
-        <button type="submit">Submit</button>
+        <label for="wallet">Wallet Address:</label>
+        <input type="text" id="wallet" name="wallet" placeholder="Your USDT wallet address" required>
+        <label for="txid">Transaction ID:</label>
+        <input type="text" id="txid" name="txid" placeholder="Transaction ID" required>
+        <button type="submit">Submit Payment</button>
       </form>
+      <button onclick="closeModal()">Close</button>
     </div>
-  </div>  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyDqe5RWgCRflbVciWJ-qNiWqZrcoM5_AwE",
-      authDomain: "uascoin.firebaseapp.com",
-      databaseURL: "https://uascoin-default-rtdb.firebaseio.com",
-      projectId: "uascoin",
-      storageBucket: "uascoin.appspot.com",
-      messagingSenderId: "358987815918",
-      appId: "1:358987815918:web:08e78ff0d2e264fb83d2c0"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+  </div>
 
-    const userId = 'user_' + Math.floor(100000 + Math.random() * 900000);
-    const refCode = 'UAS' + userId.slice(-6);
-    document.getElementById('refCode').innerText = refCode;
-
-    const telegramBotUsername = "YourTelegramBot";
-    const referralLink = `https://t.me/${telegramBotUsername}?start=${refCode}`;
-    document.getElementById("refLink").value = referralLink;
-
-    function copyReferralLink() {
-      const input = document.getElementById("refLink");
-      input.select();
-      input.setSelectionRange(0, 99999);
-      document.execCommand("copy");
-      alert("Referral link copied to clipboard!");
-    }
-
-    let taps = 0;
-    let energy = 1000;
-    let userSkin = null;
-
-    function tapCoin() {
-      if (energy <= 0) return;
-      taps++;
-      energy--;
-      updateLeagueImage(taps);
+  <script>
+    function addTap() {
+      const taps = parseInt(document.getElementById('tapCount').innerText.split(': ')[1]) + 1;
       document.getElementById('tapCount').innerText = `Taps: ${taps}`;
-      document.getElementById('energy').innerText = energy;
-      db.ref('users/' + userId).update({ taps, energy });
+      updateLeagueImage(taps);
     }
 
     function updateLeagueImage(taps) {
-      if (userSkin) return;
       let img = 'bronze_coin.png';
       if (taps >= 200_000_000) img = 'vibranium_coin.png';
       else if (taps >= 100_000_000) img = 'adamantium_coin.png';
@@ -226,10 +245,6 @@
       document.getElementById(tabId).classList.add('active');
     }
 
-    function toggleReferral() {
-      showTab('referralTab');
-    }
-
     function toggleCoffeeModal() {
       alert("This would open a Buy Me a Coffee modal or link.");
     }
@@ -243,37 +258,13 @@
       document.getElementById('paymentModal').style.display = 'none';
     }
 
-    let selectedItem = null;
-
     document.getElementById('usdtForm').addEventListener('submit', function(e) {
       e.preventDefault();
       const wallet = e.target.wallet.value;
       const txid = e.target.txid.value;
-
-      db.ref('payments/' + userId + '/' + Date.now()).set({
-        wallet, txid, item: selectedItem
-      }).then(() => {
-        alert("Payment submitted successfully!");
-        closeModal();
-        e.target.reset();
-      }).catch(() => {
-        alert("Failed to submit payment.");
-      });
+      alert("Payment submitted successfully!");
+      closeModal();
     });
-
-    db.ref('users/' + userId).set({
-      taps: 0,
-      energy: 1000,
-      referralCode: refCode
-    });
-
-    setInterval(() => {
-      if (energy < 1000) {
-        energy++;
-        document.getElementById('energy').innerText = energy;
-        db.ref('users/' + userId + '/energy').set(energy);
-      }
-    }, 3000);
-
-  </script></body>
+  </script>
+</body>
 </html>
