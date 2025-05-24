@@ -1,69 +1,237 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Revolutionary UAScoin</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap">
+  <title>REVOLUTIONARY COIN </title>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
   <style>
     body {
-      font-family: 'Poppins', sans-serif;
       margin: 0;
-      padding: 0;
-      background-image: url('background.png');
+      font-family: sans-serif;
+      background: url('background.png') no-repeat center center fixed;
       background-size: cover;
-      background-position: center;
-      color: #fff;
+      color: white;
     }
-    .donation-toggle-box {
+    .container {
+      padding: 20px;
+      text-align: center;
+    }
+    .coin-img {
+      width: 200px;
+      height: 200px;
+      margin: 20px auto;
+      display: block;
+    }
+    .energy-bar {
+      background: #555;
+      height: 20px;
+      margin: 10px auto;
+      border-radius: 10px;
+      width: 90%;
+      overflow: hidden;
+      position: relative;
+    }
+    .energy-fill {
+      background: limegreen;
+      height: 100%;
+      width: 100%;
+      transition: width 0.5s;
+    }
+    .buy-coffee {
       position: absolute;
-      top: 10px;
       left: 10px;
-      z-index: 1000;
+      top: 30px;
     }
-    .donation-toggle-box button {
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+      z-index: 999;
+    }
+    .bottom-nav button {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 22px;
+    }
+    .tab-section {
+      display: none;
+    }
+    .tab-section.active {
+      display: block;
+    }
+    .skin-item, .upgrade-item {
+      margin: 10px auto;
+      padding: 10px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+      max-width: 90%;
+    }
+    .preview-img {
+      width: 60px;
+      height: 60px;
+      vertical-align: middle;
+      margin-right: 10px;
+    }
+    .buy-btn {
       padding: 6px 12px;
-      background: linear-gradient(45deg, #f39c12, #e67e22);
+      margin-left: 10px;
+      background: gold;
       border: none;
       border-radius: 8px;
       font-weight: bold;
-      color: white;
-      cursor: pointer;
     }
-    .donation-note {
+    .modal {
       display: none;
-      margin-top: 10px;
-      background: rgba(0, 0, 0, 0.85);
-      padding: 12px;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #222;
+      padding: 20px;
       border-radius: 10px;
       color: white;
-      max-width: 270px;
-      font-size: 13px;
+      z-index: 1000;
+      max-width: 90%;
+      width: 400px;
+      text-align: center;
     }
-    .donation-note code {
+    .modal.active {
       display: block;
-      background: #111;
-      padding: 6px;
-      border-radius: 6px;
-      margin-top: 5px;
-      word-break: break-word;
     }
   </style>
 </head>
 <body>
-  <!-- Donation Button & Box -->
-  <div class="donation-toggle-box">
-    <button onclick="toggleDonationNote()">Donate</button>
-    <div id="donationNote" class="donation-note">
-      <p><strong>USDT BEP20 Wallet Address:</strong></p>
-      <code>0x86d69358e89e1ec95b9a35828363f41d7e55d880</code>
-      <p style="margin-top: 10px;">
-        Note: Anyone who supports this development by making a purchase or donation will receive a guaranteed 20x return at launch. Your data is securely stored with us.
-      </p>
+  <div class="container">
+    <div class="energy-bar">
+      <div class="energy-fill" id="energyFill"></div>
+      <div class="buy-coffee">
+        <button class="buy-btn" onclick="showTab('coffeeTab')">Buy Me a Coffee</button>
+      </div>
     </div>
-  </div>  <!-- Toggle Script -->  <script>
-    function toggleDonationNote() {
-      const note = document.getElementById("donationNote");
-      note.style.display = note.style.display === "none" ? "block" : "none";
+    <h1>UAScoin Clicker</h1>
+    <img src="bronze_coin.png" id="coinImage" class="coin-img" onclick="tapCoin()" alt="Tap Coin" />
+    <h2 id="tapCount">Taps: 0</h2>
+
+    <div id="tabContent">
+      <div id="homeTab" class="tab-section">
+        <p>Keep tapping the coin to earn UAS!</p>
+      </div>
+      <div id="earnTab" class="tab-section">
+        <p>Watch monetization videos to earn rewards. (Coming Soon)</p>
+      </div>
+      <div id="skinsTab" class="tab-section">
+        <h2>Country Themed Skins (5 USDT each)</h2>
+        <div id="skinsList"></div>
+      </div>
+      <div id="upgradesTab" class="tab-section">
+        <h2>Upgrade Packages</h2>
+        <div class="upgrade-item">x2 Speed Boost (5 USDT) <button class="buy-btn" onclick="openModal('speedBoost2')">Buy</button></div>
+        <div class="upgrade-item">x5 Speed Boost (10 USDT) <button class="buy-btn" onclick="openModal('speedBoost5')">Buy</button></div>
+        <div class="upgrade-item">x10 Speed Boost (15 USDT) <button class="buy-btn" onclick="openModal('speedBoost10')">Buy</button></div>
+        <div class="upgrade-item">Energy Refill x2 (5 USDT) <button class="buy-btn" onclick="openModal('energyRefill2')">Buy</button></div>
+        <div class="upgrade-item">Energy Refill x10 (10 USDT) <button class="buy-btn" onclick="openModal('energyRefill10')">Buy</button></div>
+        <div class="upgrade-item">AutoBot Mode (10 USDT) <button class="buy-btn" onclick="openModal('autoBot')">Buy</button></div>
+      </div>
+      <div id="referralTab" class="tab-section">
+        <h2>Referral System</h2>
+        <p>Invite friends & earn 10% tapping bonus + 1000 UAS!</p>
+        <p>Your Referral Link:</p>
+        <input type="text" id="referralLink" value="" readonly style="width:90%;padding:10px;border-radius:5px;">
+        <p style="font-size:14px">Share with friends to grow your team!</p>
+      </div>
+      <div id="coffeeTab" class="tab-section">
+        <h2>Support Development</h2>
+        <p>Donate USDT to support future updates!</p>
+        <p><strong>Wallet Address:</strong></p>
+        <code>0x86d69358e89e1ec95b9a35828363f41d7e55d880</code>
+        <p style="margin-top:10px">Note: Whatever amount you donate for development, you'll receive 20x its value upon official launch. Guaranteed, as your data is securely saved with us.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <button onclick="showTab('homeTab')">Home</button>
+    <button onclick="showTab('earnTab')">Earn</button>
+    <button onclick="showTab('skinsTab')">Skins</button>
+    <button onclick="showTab('upgradesTab')">Upgrades</button>
+    <button onclick="showTab('referralTab')">Referral</button>
+  </div>
+
+  <div id="paymentModal" class="modal">
+    <h3>Purchase Item</h3>
+    <p>Send 5 USDT to this wallet:</p>
+    <code>0x86d69358e89e1ec95b9a35828363f41d7e55d880</code>
+    <p>After payment, enter your transaction hash:</p>
+    <input type="text" placeholder="Transaction Hash" style="width:100%;padding:10px;margin-top:10px;">
+    <button style="margin-top:10px;padding:10px 20px;" onclick="closeModal()">Submit</button>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBbfR-0LMAPCEIxnpXpp6oWcfqKT0Z3Ai8",
+      authDomain: "uascoin-game.firebaseapp.com",
+      databaseURL: "https://uascoin-game-default-rtdb.firebaseio.com",
+      projectId: "uascoin-game",
+      storageBucket: "uascoin-game.appspot.com",
+      messagingSenderId: "517394758183",
+      appId: "1:517394758183:web:85a1c0164ce16a22f3e23a"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    let userId = 'user_' + Math.floor(Math.random() * 1000000);
+    db.ref('users/' + userId).set({ taps: 0 });
+
+    let taps = 0;
+    function tapCoin() {
+      taps++;
+      document.getElementById("tapCount").innerText = `Taps: ${taps}`;
+      db.ref('users/' + userId + '/taps').set(taps);
     }
-  </script>  <!-- Your main game content would continue here --></body>
+
+    function showTab(id) {
+      document.querySelectorAll(".tab-section").forEach((el) => el.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+    }
+
+    function openModal(item) {
+      document.getElementById("paymentModal").classList.add("active");
+    }
+
+    function closeModal() {
+      document.getElementById("paymentModal").classList.remove("active");
+    }
+
+    function refillEnergy() {
+      const energy = document.getElementById("energyFill");
+      let width = 100;
+      setInterval(() => {
+        if (width < 100) {
+          width += 1;
+          energy.style.width = width + "%";
+        }
+      }, 3000);
+    }
+    refillEnergy();
+
+    const referralCode = userId;
+    document.getElementById("referralLink").value = `https://t.me/UASReferralBot?start=${referralCode}`;
+
+    const skins = ["pakistan", "india", "iran", "turkey", "china", "usa", "uk", "germany", "france", "italy", "africa", "brazil", "suadiaarab"];
+    const skinsList = document.getElementById("skinsList");
+    skins.forEach(skin => {
+      const div = document.createElement("div");
+      div.className = "skin-item";
+      div.innerHTML = `<img src="${skin}.png" class="preview-img">${skin.charAt(0).toUpperCase() + skin.slice(1)} Skin <button class="buy-btn" onclick="openModal('${skin}')">Buy</button>`;
+      skinsList.appendChild(div);
+    });
+  </script>
+</body>
 </html>
