@@ -59,9 +59,11 @@
       border: none;
       color: white;
       font-size: 22px;
+      padding: 10px;
     }
     .tab-section {
       display: none;
+      min-height: calc(100vh - 200px);
     }
     .tab-section.active {
       display: block;
@@ -105,32 +107,42 @@
     .modal.active {
       display: block;
     }
+    #referralLink {
+      color: white;
+      word-break: break-all;
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="energy-bar">
-      <div class="energy-fill" id="energyFill"></div>
-      <div class="buy-coffee">
-        <button class="buy-btn" onclick="showTab('coffeeTab')">Buy Me a Coffee</button>
-      </div>
-    </div>
-    
-    <h1>REVOLUTIONARY COIN</h1>
-    <img src="bronze_coin.png" id="coinImage" class="coin-img" onclick="tapCoin()" alt="Tap Coin" />
-    <h2 id="tapCount">UAS: 0</h2>
-
     <div id="tabContent">
+      <!-- Home Tab -->
       <div id="homeTab" class="tab-section active">
+        <div class="energy-bar">
+          <div class="energy-fill" id="energyFill"></div>
+          <div class="buy-coffee">
+            <button class="buy-btn" onclick="showTab('coffeeTab')">Buy Me a Coffee</button>
+          </div>
+        </div>
+        <h1>REVOLUTIONARY COIN</h1>
+        <img src="bronze_coin.png" id="coinImage" class="coin-img" onclick="tapCoin()" alt="Tap Coin" />
+        <h2 id="tapCount">UAS: 0</h2>
         <p>Keep tapping the coin to earn UAS!</p>
       </div>
+
+      <!-- Earn Tab -->
       <div id="earnTab" class="tab-section">
         <p>Watch monetization videos to earn rewards. (Coming Soon)</p>
       </div>
+
+      <!-- Skins Tab -->
       <div id="skinsTab" class="tab-section">
         <h2>Country Themed Skins (5 USDT each)</h2>
         <div id="skinsList"></div>
       </div>
+
+      <!-- Upgrades Tab -->
       <div id="upgradesTab" class="tab-section">
         <h2>Upgrade Packages</h2>
         <div class="upgrade-item">x2 Speed Boost (5 USDT) <button class="buy-btn" onclick="openModal('speedBoost2')">Buy</button></div>
@@ -140,13 +152,17 @@
         <div class="upgrade-item">Energy Refill x10 (10 USDT) <button class="buy-btn" onclick="openModal('energyRefill10')">Buy</button></div>
         <div class="upgrade-item">AutoBot Mode (10 USDT) <button class="buy-btn" onclick="openModal('autoBot')">Buy</button></div>
       </div>
+
+      <!-- Referral Tab -->
       <div id="referralTab" class="tab-section">
         <h2>Referral System</h2>
         <p id="refStatus">Invite friends & earn 10% of their UAS + 1000 UAS bonus!</p>
         <p>Your Referral Link:</p>
-        <input type="text" id="referralLink" value="" readonly style="width:90%;padding:10px;border-radius:5px;">
+        <a id="referralLink" target="_blank" style="cursor: pointer">Click to share</a>
         <p style="font-size:14px">Share with friends to grow your team!</p>
       </div>
+
+      <!-- Coffee Tab -->
       <div id="coffeeTab" class="tab-section">
         <h2>Support Development</h2>
         <p>Donate USDT to support future updates!</p>
@@ -208,7 +224,6 @@
       bonuses: 0
     };
 
-    // Initialize Firebase Data
     function loadUserData() {
       db.ref("users/" + userId).on("value", (snapshot) => {
         const data = snapshot.val();
@@ -226,7 +241,6 @@
         .catch(err => console.error("Save error:", err));
     }
 
-    // Referral System
     function handleReferral() {
       const urlParams = new URLSearchParams(window.location.search);
       const refCode = urlParams.get('start');
@@ -234,7 +248,6 @@
       if (refCode && refCode !== userId && !userData.referredBy) {
         userData.referredBy = refCode;
         
-        // Update referrer's data
         db.ref(`users/${refCode}/referralTeam`).once("value", (snapshot) => {
           const team = snapshot.val() || [];
           if (!team.includes(userId)) {
@@ -250,7 +263,6 @@
       }
     }
 
-    // Game Mechanics
     function tapCoin() {
       if (userData.energy <= 0) return;
 
@@ -258,7 +270,6 @@
       userData.coins += earned;
       userData.energy -= 2;
 
-      // Handle referral bonus
       if (userData.referredBy) {
         db.ref(`users/${userData.referredBy}/bonuses`).transaction(current => {
           return (current || 0) + Math.round(earned * 0.1);
@@ -269,14 +280,12 @@
       saveUserData();
     }
 
-    // Auto Tap System
     setInterval(() => {
       if (userData.autoBot && userData.energy > 0) {
         tapCoin();
       }
     }, 2000);
 
-    // Energy Recharge
     setInterval(() => {
       if (userData.energy < 100) {
         userData.energy = Math.min(userData.energy + 1, 100);
@@ -285,7 +294,6 @@
       }
     }, 3000);
 
-    // Shop System
     const skinPrices = {
       pakistan: 5, india: 5, iran: 5, turkey: 5,
       china: 5, usa: 5, uk: 5, germany: 5,
@@ -309,12 +317,11 @@
       }
     }
 
-    // Payment Verification
     let pendingPurchase = null;
 
     function verifyPayment() {
       const txHash = document.getElementById("txHash").value;
-      if (txHash.length > 10) { // Simplified validation
+      if (txHash.length > 10) {
         handlePurchaseSuccess(pendingPurchase);
         closeModal();
       }
@@ -340,11 +347,10 @@
       updateUI();
     }
 
-    // UI Functions
     function updateUI() {
       document.getElementById("tapCount").textContent = `UAS: ${userData.coins}`;
       document.getElementById("energyFill").style.width = `${userData.energy}%`;
-      document.getElementById("referralLink").value = 
+      document.getElementById("referralLink").href = 
         `https://t.me/UASReferralBot?start=${userData.referralCode}`;
     }
 
@@ -362,12 +368,10 @@
       document.getElementById("paymentModal").classList.remove("active");
     }
 
-    // Initialization
     document.addEventListener("DOMContentLoaded", () => {
       loadUserData();
       handleReferral();
 
-      // Initialize Skins List
       const skins = Object.keys(skinPrices);
       const skinsList = document.getElementById("skinsList");
       skins.forEach(skin => {
