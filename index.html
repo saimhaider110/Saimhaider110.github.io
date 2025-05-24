@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>REVOLUTIONARY COIN </title>
+  <title>REVOLUTIONARY COIN</title>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
   <style>
@@ -115,19 +115,13 @@
         <button class="buy-btn" onclick="showTab('coffeeTab')">Buy Me a Coffee</button>
       </div>
     </div>
-    <div id="coffeeTab" class="tab-section">
-  <h2>Buy Me a Coffee ☕</h2>
-  <p>Donate USDT to support future updates!</p>
-  <p><strong>Wallet Address:</strong></p>
-  <code>0x86d69358e89e1ec95b9a35828363f41d7e55d880</code>
-  <p style="margin-top:10px">Note: Whatever amount you donate for development, you'll receive 20x its value upon official launch. Guaranteed, as your data is securely saved with us.</p>
-    </div>
+    
     <h1>REVOLUTIONARY COIN</h1>
     <img src="bronze_coin.png" id="coinImage" class="coin-img" onclick="tapCoin()" alt="Tap Coin" />
     <h2 id="tapCount">Taps: 0</h2>
 
     <div id="tabContent">
-      <div id="homeTab" class="tab-section">
+      <div id="homeTab" class="tab-section active">
         <p>Keep tapping the coin to earn UAS!</p>
       </div>
       <div id="earnTab" class="tab-section">
@@ -148,7 +142,7 @@
       </div>
       <div id="referralTab" class="tab-section">
         <h2>Referral System</h2>
-        <p>Invite friends & earn 10% tapping bonus + 1000 UAS!</p>
+        <p id="refStatus">Invite friends & earn 10% of their taps + 1000 UAS bonus!</p>
         <p>Your Referral Link:</p>
         <input type="text" id="referralLink" value="" readonly style="width:90%;padding:10px;border-radius:5px;">
         <p style="font-size:14px">Share with friends to grow your team!</p>
@@ -173,7 +167,7 @@
 
   <div id="paymentModal" class="modal">
     <h3>Purchase Item</h3>
-    <p>Send 5 USDT to this wallet:</p>
+    <p>Send USDT to this wallet:</p>
     <code>0x86d69358e89e1ec95b9a35828363f41d7e55d880</code>
     <p>After payment, enter your transaction hash:</p>
     <input type="text" placeholder="Transaction Hash" style="width:100%;padding:10px;margin-top:10px;">
@@ -193,16 +187,75 @@
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
+    
+    // User Management
     let userId = 'user_' + Math.floor(Math.random() * 1000000);
-    db.ref('users/' + userId).set({ taps: 0 });
-
     let taps = 0;
-    function tapCoin() {
-      taps++;
-      document.getElementById("tapCount").innerText = `Taps: ${taps}`;
-      db.ref('users/' + userId + '/taps').set(taps);
+    let energy = 100;
+    let refBonusMultiplier = 1;
+    let activeReferrer = null;
+
+    // Initialize user data
+    db.ref('users/' + userId).set({
+      taps: 0,
+      energy: 100,
+      referrals: {},
+      bonuses: 0
+    });
+
+    // Referral System
+    const urlParams = new URLSearchParams(window.location.search);
+    const refCode = urlParams.get('start');
+
+    if (refCode && refCode !== userId) {
+      activeReferrer = refCode;
+      document.getElementById('refStatus').textContent = `Referred by: ${refCode}`;
+      
+      // Add to referrer's referrals
+      db.ref(`users/${refCode}/referrals/${userId}`).set(true);
+      
+      // Give 1000 taps to referrer
+      db.ref(`users/${refCode}/taps`).transaction(currentTaps => {
+        return (currentTaps || 0) + 1000;
+      });
     }
 
+    // Game Mechanics
+    function tapCoin() {
+      if (energy > 0) {
+        taps++;
+        energy -= 2;
+        
+        // Update local display
+        document.getElementById("tapCount").innerText = `Taps: ${taps}`;
+        document.getElementById("energyFill").style.width = `${energy}%`;
+        
+        // Update Firebase
+        db.ref('users/' + userId).update({
+          taps: taps,
+          energy: energy
+        });
+
+        // If has active referrer, give 10% bonus
+        if (activeReferrer) {
+          const bonus = Math.floor(taps * 0.1);
+          db.ref(`users/${activeReferrer}/bonuses`).transaction(current => {
+            return (current || 0) + bonus;
+          });
+        }
+      }
+    }
+
+    // Energy Refill System
+    setInterval(() => {
+      if (energy < 100) {
+        energy = Math.min(energy + 1, 100);
+        document.getElementById("energyFill").style.width = `${energy}%`;
+        db.ref('users/' + userId).update({ energy: energy });
+      }
+    }, 3000);
+
+    // UI Functions
     function showTab(id) {
       document.querySelectorAll(".tab-section").forEach((el) => el.classList.remove("active"));
       document.getElementById(id).classList.add("active");
@@ -216,28 +269,29 @@
       document.getElementById("paymentModal").classList.remove("active");
     }
 
-    function refillEnergy() {
-      const energy = document.getElementById("energyFill");
-      let width = 100;
-      setInterval(() => {
-        if (width < 100) {
-          width += 1;
-          energy.style.width = width + "%";
-        }
-      }, 3000);
-    }
-    refillEnergy();
-
-    const referralCode = userId;
-    document.getElementById("referralLink").value = `https://t.me/UASReferralBot?start=${referralCode}`;
-
-    const skins = ["pakistan", "india", "iran", "turkey", "china", "usa", "uk", "germany", "france", "italy", "africa", "brazil", "suadiaarab"];
+    // Skins System
+    const skins = ["pakistan", "india", "iran", "turkey", "china", "usa", "uk", 
+                 "germany", "france", "italy", "africa", "brazil", "suadiaarab"];
     const skinsList = document.getElementById("skinsList");
     skins.forEach(skin => {
       const div = document.createElement("div");
       div.className = "skin-item";
-      div.innerHTML = `<img src="${skin}.png" class="preview-img">${skin.charAt(0).toUpperCase() + skin.slice(1)} Skin <button class="buy-btn" onclick="openModal('${skin}')">Buy</button>`;
+      div.innerHTML = `<img src="${skin}.png" class="preview-img">${skin.charAt(0).toUpperCase() + skin.slice(1)} Skin 
+                      <button class="buy-btn" onclick="openModal('${skin}')">Buy</button>`;
       skinsList.appendChild(div);
+    });
+
+    // Referral Link Generation
+    const referralCode = userId;
+    document.getElementById("referralLink").value = `https://t.me/UASReferralBot?start=${referralCode}`;
+
+    // Load initial data
+    db.ref('users/' + userId).on('value', (snapshot) => {
+      const data = snapshot.val();
+      taps = data.taps || 0;
+      energy = data.energy || 100;
+      document.getElementById("tapCount").innerText = `Taps: ${taps}`;
+      document.getElementById("energyFill").style.width = `${energy}%`;
     });
   </script>
 </body>
