@@ -1,0 +1,105 @@
+body {
+  margin: 0;
+  font-family: sans-serif;
+  background: url('background.png') no-repeat center center fixed;
+  background-size: cover;
+  color: white;
+}
+.container {
+  padding: 20px;
+  text-align: center;
+}
+.coin-img {
+  width: 200px;
+  height: 200px;
+  margin: 20px auto;
+  display: block;
+}
+.energy-bar {
+  background: #555;
+  height: 20px;
+  margin: 10px auto;
+  border-radius: 10px;
+  width: 90%;
+  overflow: hidden;
+  position: relative;
+}
+.energy-fill {
+  background: limegreen;
+  height: 100%;
+  width: 100%;
+  transition: width 0.5s;
+}
+.buy-coffee {
+  position: absolute;
+  left: 10px;
+  top: 30px;
+}
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+  z-index: 999;
+}
+.bottom-nav button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 22px;
+  padding: 10px;
+}
+.tab-section {
+  display: none;
+  min-height: calc(100vh - 200px);
+}
+.tab-section.active {
+  display: block;
+}
+.skin-item, .upgrade-item {
+  margin: 10px auto;
+  padding: 10px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 10px;
+  max-width: 90%;
+}
+.preview-img {
+  width: 60px;
+  height: 60px;
+  vertical-align: middle;
+  margin-right: 10px;
+}
+.buy-btn {
+  padding: 6px 12px;
+  margin-left: 10px;
+  background: gold;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+}
+.modal {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #222;
+  padding: 20px;
+  border-radius: 10px;
+  color: white;
+  z-index: 1000;
+  max-width: 90%;
+  width: 400px;
+  text-align: center;
+}
+.modal.active {
+  display: block;
+}
+#referralLink {
+  color: white;
+  word-break: break-all;
+  text-decoration: underline;
+}
