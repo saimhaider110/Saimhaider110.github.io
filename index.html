@@ -18,7 +18,7 @@
     body {
       margin: 0;
       font-family: sans-serif;
-      background: url('background.png') no-repeat center center fixed;
+      background: url('./background.png') no-repeat center center fixed;
       background-size: cover;
       color: var(--primary-color);
     }
@@ -178,11 +178,11 @@
       <div class="energy-fill" id="energyFill"></div>
       <div class="buy-coffee">
         <button class="buy-btn" data-tab="coffeeTab">Buy Me a Coffee</button>
-        </div>
+      </div>
     </div>
     
     <h1>Revolutionary Coin</h1>
-    <img src="bronze_coin.png" id="coinImage" class="coin-img" alt="Tap Coin" />
+    <img src="./bronze_coin.png" id="coinImage" class="coin-img" alt="Tap Coin" />
     <h2 id="tapCount">UAS: 0</h2>
 
     <div id="tabContent">
@@ -491,7 +491,7 @@
       updateCoinImage(skinName) {
         const coinImage = document.getElementById("coinImage");
         if (coinImage) {
-          coinImage.src = `${skinName}_coin.png`;
+          coinImage.src = `./${skinName}_coin.png`;
         } else {
           console.error("Coin image element not found!");
         }
@@ -527,7 +527,7 @@
           const div = document.createElement("div");
           div.className = "skin-item";
           div.innerHTML = `
-            <img src="${skin}.png" class="preview-img" alt="${skin}">
+            <img src="./${skin}.png" class="preview-img" alt="${skin}">
             ${skin.charAt(0).toUpperCase() + skin.slice(1)}
             <button class="buy-btn" data-skin="${skin}">
               ${userData.skinInventory.includes(skin) ? 'Equip' : '5 USDT'}
@@ -663,4 +663,4 @@
     document.addEventListener("DOMContentLoaded", init);
   </script>
 </body>
-</html>
+  </html>
