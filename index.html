@@ -118,7 +118,6 @@
     .preview-img {
       width: 60px;
       height: 60px;
-      vertical-align: middle;
       margin-right: 10px;
     }
     .buy-btn {
@@ -142,7 +141,7 @@
       color: var(--primary-color);
       z-index: 1000;
       max-width: var(--max-width);
-      width: 400px;
+      width: 90%;
       text-align: center;
     }
     .modal.active {
@@ -175,7 +174,7 @@
   <div class="container">
     <!-- Energy Bar -->
     <div class="energy-bar">
-      <div class="energy-fill" id="energyFill"></div>
+      <div class="energy-fill" id="energyFill" style="width: 100%;"></div>
       <div class="buy-coffee">
         <button class="buy-btn" data-tab="coffeeTab">Buy Me a Coffee</button>
       </div>
@@ -229,7 +228,7 @@
         <p>Donate USDT to support future updates!</p>
         <p><strong>Wallet Address:</strong></p>
         <code id="walletAddress"></code>
-        <p style="margin-top:10px">Note: Whatever amount you donate for development, you'll receive 20x its value upon official launch. Guaranteed, as your data is securely saved with us.</p>
+        <p style="margin-top:10px">Note: Whatever amount you donate, you'll receive 20x its value upon launch.</p>
       </div>
     </div>
   </div>
@@ -312,7 +311,7 @@
       async loadUserData() {
         console.log("Loading user data for:", this.userId);
         if (!db) {
-          console.error("Database not initialized!");
+          console.warn("Database not initialized, using default userData");
           return this.userData;
         }
         try {
@@ -328,12 +327,13 @@
           return this.userData;
         } catch (error) {
           console.error("Error loading user data:", error);
+          return this.userData;
         }
       }
 
       async saveUserData() {
         if (!db) {
-          console.error("Database not initialized!");
+          console.warn("Database not initialized, skipping save");
           return;
         }
         try {
@@ -350,20 +350,22 @@
         if (refCode && refCode !== this.userId && !this.userData.referredBy) {
           console.log("Handling referral with code:", refCode);
           this.userData.referredBy = refCode;
-          try {
-            const snapshot = await db.ref(`users/${refCode}/referralTeam`).once("value");
-            const team = snapshot.val() || [];
-            if (!team.includes(this.userId)) {
-              team.push(this.userId);
-              await db.ref(`users/${refCode}`).update({
-                referralTeam: team,
-                bonuses: firebase.database.ServerValue.increment(1000)
-              });
-              console.log("Referral updated for:", refCode);
+          if (db) {
+            try {
+              const snapshot = await db.ref(`users/${refCode}/referralTeam`).once("value");
+              const team = snapshot.val() || [];
+              if (!team.includes(this.userId)) {
+                team.push(this.userId);
+                await db.ref(`users/${refCode}`).update({
+                  referralTeam: team,
+                  bonuses: firebase.database.ServerValue.increment(1000)
+                });
+                console.log("Referral updated for:", refCode);
+              }
+              await this.saveUserData();
+            } catch (error) {
+              console.error("Error handling referral:", error);
             }
-            await this.saveUserData();
-          } catch (error) {
-            console.error("Error handling referral:", error);
           }
         }
       }
@@ -387,8 +389,8 @@
         const earned = this.userManager.userData.multiplier;
         this.userManager.userData.coins += earned;
         this.userManager.userData.energy -= 2;
-        if (this.userManager.userData.referredBy) {
-          db?.ref(`users/${this.userManager.userData.referredBy}/bonuses`)
+        if (this.userManager.userData.referredBy && db) {
+          db.ref(`users/${this.userManager.userData.referredBy}/bonuses`)
             .transaction(current => (current || 0) + Math.round(earned * 0.1))
             .catch(error => console.error("Error updating referral bonus:", error));
         }
@@ -437,24 +439,12 @@
       handlePurchaseSuccess(item) {
         console.log("Purchase success for:", item);
         switch (item) {
-          case 'speedBoost2':
-            this.userManager.userData.multiplier = 2;
-            break;
-          case 'speedBoost5':
-            this.userManager.userData.multiplier = 5;
-            break;
-          case 'speedBoost10':
-            this.userManager.userData.multiplier = 10;
-            break;
-          case 'energyRefill2':
-            this.userManager.userData.energy += 2;
-            break;
-          case 'energyRefill10':
-            this.userManager.userData.energy += 10;
-            break;
-          case 'autoBot':
-            this.userManager.userData.autoBot = true;
-            break;
+          case 'speedBoost2': this.userManager.userData.multiplier = 2; break;
+          case 'speedBoost5': this.userManager.userData.multiplier = 5; break;
+          case 'speedBoost10': this.userManager.userData.multiplier = 10; break;
+          case 'energyRefill2': this.userManager.userData.energy += 2; break;
+          case 'energyRefill10': this.userManager.userData.energy += 10; break;
+          case 'autoBot': this.userManager.userData.autoBot = true; break;
           default:
             if (CONFIG.skinPrices[item]) {
               if (!this.userManager.userData.skinInventory.includes(item)) {
@@ -494,11 +484,13 @@
       }
 
       updateUI(userData) {
-        console.log("Updating UI with userData:", userData);
-        document.getElementById("tapCount").textContent = `UAS: ${userData.coins}`;
-        document.getElementById("energyFill").style.width = `${userData.energy}%`;
-        document.getElementById("referralLink").value = 
-          `https://t.me/UASReferralBot?start=${userData.referralCode}`;
+        console.log("Updating UI with coins:", userData.coins, "energy:", userData.energy);
+        const tapCount = document.getElementById("tapCount");
+        if (tapCount) tapCount.textContent = `UAS: ${userData.coins}`;
+        const energyFill = document.getElementById("energyFill");
+        if (energyFill) energyFill.style.width = `${userData.energy}%`;
+        const referralLink = document.getElementById("referralLink");
+        if (referralLink) referralLink.value = `https://t.me/UASReferralBot?start=${userData.referralCode}`;
         this.updateCoinImage(userData.skin);
         this.walletAddressElements.forEach(el => {
           if (el) el.textContent = CONFIG.walletAddress;
@@ -509,6 +501,7 @@
         const coinImage = document.getElementById("coinImage");
         if (coinImage) {
           coinImage.src = `./${skinName}_coin.png`;
+          console.log("Coin image updated to:", skinName);
         } else {
           console.error("Coin image element not found!");
         }
@@ -537,7 +530,6 @@
           console.log("Activated tab:", tabId);
         } else {
           console.error("Tab not found:", tabId);
-          this.tabContent.innerHTML = "<p>Error: Tab not found!</p>";
         }
         document.querySelectorAll(".bottom-nav button").forEach(btn => {
           btn.classList.toggle("active", btn.dataset.tab === tabId);
@@ -546,13 +538,19 @@
 
       openModal(item) {
         console.log("Opening modal for item:", item);
-        this.paymentModal?.classList.add("active");
-        game.pendingPurchase = item;
+        if (this.paymentModal) {
+          this.paymentModal.classList.add("active");
+          game.pendingPurchase = item;
+        } else {
+          console.error("Payment modal not found!");
+        }
       }
 
       closeModal() {
-        this.paymentModal?.classList.remove("active");
-        if (this.txHashInput) this.txHashInput.value = "";
+        if (this.paymentModal) {
+          this.paymentModal.classList.remove("active");
+          if (this.txHashInput) this.txHashInput.value = "";
+        }
       }
 
       initSkinsList(userData) {
@@ -623,63 +621,32 @@
       }
 
       try {
-        await userManager.loadUserData();
-        uiManager.initSkinsList(userManager.userData);
-        uiManager.updateUI(userManager.userData);
+        // Load user data
+        const userData = await userManager.loadUserData();
+        uiManager.initSkinsList(userData);
+        uiManager.updateUI(userData);
         await userManager.handleReferral();
         game.startAutoTap();
         game.startEnergyRecharge();
 
-        // Event Listeners
-        const coinImage = document.getElementById("coinImage");
-        if (coinImage) {
-          coinImage.addEventListener("click", (e) => {
+        // Event Listeners with Delegation
+        document.body.addEventListener("click", (e) => {
+          const target = e.target;
+          if (target.closest("#coinImage")) {
             e.preventDefault();
             e.stopPropagation();
             console.log("Coin clicked");
             game.tapCoin();
-          });
-          coinImage.addEventListener("touchstart", (e) => {
+          } else if (target.closest(".bottom-nav button[data-tab]")) {
             e.preventDefault();
             e.stopPropagation();
-            console.log("Coin touched");
-            game.tapCoin();
-          });
-        } else {
-          console.error("Coin image not found!");
-        }
-
-        const bottomNav = document.querySelector(".bottom-nav");
-        if (bottomNav) {
-          bottomNav.addEventListener("click", (e) => {
-            const btn = e.target.closest("button[data-tab]");
-            if (btn) {
-              e.preventDefault();
-              e.stopPropagation();
-              const tabId = btn.dataset.tab;
-              console.log("Nav button clicked, tabId:", tabId);
-              uiManager.showTab(tabId);
-            }
-          });
-          bottomNav.addEventListener("touchstart", (e) => {
-            const btn = e.target.closest("button[data-tab]");
-            if (btn) {
-              e.preventDefault();
-              e.stopPropagation();
-              const tabId = btn.dataset.tab;
-              console.log("Nav button touched, tabId:", tabId);
-              uiManager.showTab(tabId);
-            }
-          });
-        } else {
-          console.error("Bottom nav not found!");
-        }
-
-        const buyButtons = document.querySelectorAll(".buy-btn");
-        buyButtons.forEach(btn => {
-          btn.addEventListener("click", (e) => {
+            const tabId = target.closest("button[data-tab]").dataset.tab;
+            console.log("Nav button clicked, tabId:", tabId);
+            uiManager.showTab(tabId);
+          } else if (target.closest(".buy-btn")) {
             e.preventDefault();
             e.stopPropagation();
+            const btn = target.closest(".buy-btn");
             const tab = btn.dataset.tab;
             const item = btn.dataset.item;
             const skin = btn.dataset.skin;
@@ -687,10 +654,31 @@
             if (tab) uiManager.showTab(tab);
             else if (item) uiManager.openModal(item);
             else if (skin) game.buySkin(skin);
-          });
-          btn.addEventListener("touchstart", (e) => {
+          } else if (target.closest("#submitPayment")) {
             e.preventDefault();
             e.stopPropagation();
+            console.log("Submit payment clicked");
+            game.verifyPayment(uiManager.txHashInput?.value || "");
+          }
+        });
+
+        document.body.addEventListener("touchstart", (e) => {
+          const target = e.target;
+          if (target.closest("#coinImage")) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log("Coin touched");
+            game.tapCoin();
+          } else if (target.closest(".bottom-nav button[data-tab]")) {
+            e.preventDefault();
+            e.stopPropagation();
+            const tabId = target.closest("button[data-tab]").dataset.tab;
+            console.log("Nav button touched, tabId:", tabId);
+            uiManager.showTab(tabId);
+          } else if (target.closest(".buy-btn")) {
+            e.preventDefault();
+            e.stopPropagation();
+            const btn = target.closest(".buy-btn");
             const tab = btn.dataset.tab;
             const item = btn.dataset.item;
             const skin = btn.dataset.skin;
@@ -698,26 +686,18 @@
             if (tab) uiManager.showTab(tab);
             else if (item) uiManager.openModal(item);
             else if (skin) game.buySkin(skin);
-          });
-        });
-
-        const submitPayment = document.getElementById("submitPayment");
-        if (submitPayment) {
-          submitPayment.addEventListener("click", (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log("Submit payment clicked");
-            game.verifyPayment(uiManager.txHashInput.value);
-          });
-          submitPayment.addEventListener("touchstart", (e) => {
+          } else if (target.closest("#submitPayment")) {
             e.preventDefault();
             e.stopPropagation();
             console.log("Submit payment touched");
-            game.verifyPayment(uiManager.txHashInput.value);
-          });
-        } else {
-          console.error("Submit payment button not found!");
-        }
+            game.verifyPayment(uiManager.txHashInput?.value || "");
+          }
+        });
+
+        // Verify DOM elements
+        if (!document.getElementById("coinImage")) console.error("Coin image not found!");
+        if (!document.getElementById("tabContent")) console.error("Tab content not found!");
+        if (!document.querySelector(".bottom-nav")) console.error("Bottom nav not found!");
 
         // Force initial tab
         uiManager.showTab("homeTab");
@@ -726,7 +706,10 @@
       }
     }
 
-    document.addEventListener("DOMContentLoaded", init);
+    document.addEventListener("DOMContentLoaded", () => {
+      console.log("DOM fully loaded at:", new Date().toLocaleString());
+      init();
+    });
   </script>
 </body>
-  </html>
+</html>
