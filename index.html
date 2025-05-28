@@ -3,153 +3,56 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Revolutionary Coin</title>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <title>Revolutionary Coin Test</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    :root {
-      --primary-color: white;
-      --bg-opacity: 0.8;
-      --border-radius: 10px;
-      --max-width: 90%;
-    }
-
     body {
       margin: 0;
       font-family: sans-serif;
       background: url('./background.png') no-repeat center center fixed;
       background-size: cover;
-      color: var(--primary-color);
+      color: white;
+      text-align: center;
     }
-
     .container {
       padding: 20px;
-      text-align: center;
       position: relative;
     }
-
     .coin-img {
       width: 200px;
       height: 200px;
-      margin: 20px auto;
-      display: block;
       cursor: pointer;
       touch-action: manipulation;
       position: relative;
       z-index: 1;
     }
-
     .coin-img:active {
       transform: scale(0.95);
       transition: transform 0.1s;
     }
-
-    .energy-bar {
-      background: #555;
-      height: 20px;
-      margin: 10px auto;
-      border-radius: var(--border-radius);
-      width: var(--max-width);
-      overflow: hidden;
-      position: relative;
-    }
-
-    .energy-fill {
-      background: limegreen;
-      height: 100%;
-      width: 100%;
-      transition: width 0.5s;
-    }
-
-    .buy-coffee {
-      position: absolute;
-      left: 10px;
-      top: 30px;
-    }
-
     .bottom-nav {
       position: fixed;
       bottom: 0;
       width: 100%;
-      background: rgba(0, 0, 0, var(--bg-opacity));
+      background: rgba(0,0,0,0.5);
       display: flex;
       justify-content: space-around;
       padding: 10px 0;
-      z-index: 999;
     }
-
     .bottom-nav button {
       background: none;
       border: none;
-      color: var(--primary-color);
-      font-size: 22px;
+      color: white;
+      font-size: 20px;
       cursor: pointer;
       touch-action: manipulation;
     }
-
     .tab-section {
       display: none;
     }
-
     .tab-section.active {
       display: block;
     }
-
-    .skin-item, .upgrade-item {
-      margin: 10px auto;
-      padding: 10px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: var(--border-radius);
-      max-width: var(--max-width);
-    }
-
-    .preview-img {
-      width: 60px;
-      height: 60px;
-      vertical-align: middle;
-      margin-right: 10px;
-    }
-
-    .buy-btn {
-      padding: 6px 12px;
-      margin-left: 10px;
-      background: gold;
-      border: none;
-      border-radius: 8px;
-      font-weight: bold;
-      cursor: pointer;
-      touch-action: manipulation;
-    }
-
-    .modal {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: #222;
-      padding: 20px;
-      border-radius: var(--border-radius);
-      color: var(--primary-color);
-      z-index: 1000;
-      max-width: var(--max-width);
-      width: 400px;
-      text-align: center;
-    }
-
-    .modal.active {
-      display: block;
-    }
-
-    input, code {
-      width: var(--max-width);
-      padding: 10px;
-      border-radius: 5px;
-      margin-top: 10px;
-    }
-
-    /* Firework Animation */
     .firework-particle {
       position: absolute;
       width: 6px;
@@ -159,505 +62,92 @@
       z-index: 2;
       pointer-events: none;
     }
-
     @keyframes firework {
-      0% {
-        transform: translate(0, 0);
-        opacity: 1;
-      }
-      100% {
-        transform: translate(var(--x), var(--y));
-        opacity: 0;
-      }
+      0% { transform: translate(0,0); opacity: 1; }
+      100% { transform: translate(var(--x),var(--y)); opacity: 0; }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="energy-bar">
-      <div class="energy-fill" id="energyFill"></div>
-      <div class="buy-coffee">
-        <button class="buy-btn" data-tab="coffeeTab">Buy Me a Coffee</button>
-      </div>
-    </div>
-    
-    <h1>Revolutionary Coin</h1>
-    <img src="./bronze_coin.png" id="coinImage" class="coin-img" alt="Tap Coin" />
-    <h2 id="tapCount">UAS: 0</h2>
-
+    <h1>Revolutionary Coin Test</h1>
+    <img src="./bronze_coin.png" id="coinImage" class="coin-img" alt="Coin" />
+    <h2 id="coinCount">Coins: 0</h2>
     <div id="tabContent">
-      <div id="homeTab" class="tab-section active">
-        <p>Keep tapping the coin to earn UAS!</p>
-      </div>
-      <div id="earnTab" class="tab-section">
-        <p>Watch monetization videos to earn rewards. (Coming Soon)</p>
-      </div>
-      <div id="skinsTab" class="tab-section">
-        <h2>Country Themed Skins (5 USDT each)</h2>
-        <div id="skinsList"></div>
-      </div>
-      <div id="upgradesTab" class="tab-section">
-        <h2>Upgrade Packages</h2>
-        <div class="upgrade-item">x2 Speed Boost (5 USDT) <button class="buy-btn" data-item="speedBoost2">Buy</button></div>
-        <div class="upgrade-item">x5 Speed Boost (10 USDT) <button class="buy-btn" data-item="speedBoost5">Buy</button></div>
-        <div class="upgrade-item">x10 Speed Boost (15 USDT) <button class="buy-btn" data-item="speedBoost10">Buy</button></div>
-        <div class="upgrade-item">Energy Refill x2 (5 USDT) <button class="buy-btn" data-item="energyRefill2">Buy</button></div>
-        <div class="upgrade-item">Energy Refill x10 (10 USDT) <button class="buy-btn" data-item="energyRefill10">Buy</button></div>
-        <div class="upgrade-item">AutoBot Mode (10 USDT) <button class="buy-btn" data-item="autoBot">Buy</button></div>
-      </div>
-      <div id="referralTab" class="tab-section">
-        <h2>Referral System</h2>
-        <p id="refStatus">Invite friends & earn 10% of their UAS + 1000 UAS bonus!</p>
-        <p>Your Referral Link:</p>
-        <input type="text" id="referralLink" value="" readonly>
-        <p style="font-size:14px">Share with friends to grow your team!</p>
-      </div>
-      <div id="coffeeTab" class="tab-section">
-        <h2>Support Development</h2>
-        <p>Donate USDT to support future updates!</p>
-        <p><strong>Wallet Address:</strong></p>
-        <code id="walletAddress"></code>
-        <p style="margin-top:10px">Note: Whatever amount you donate for development, you'll receive 20x its value upon official launch. Guaranteed, as your data is securely saved with us.</p>
-      </div>
+      <div id="homeTab" class="tab-section active"><p>Tap the coin!</p></div>
+      <div id="skillsTab" class="tab-section"><p>Skills Menu</p></div>
     </div>
   </div>
-
   <div class="bottom-nav">
     <button data-tab="homeTab">Home</button>
-    <button data-tab="earnTab">Earn</button>
-    <button data-tab="skinsTab">Skins</button>
-    <button data-tab="upgradesTab">Upgrades</button>
-    <button data-tab="referralTab">Referral</button>
+    <button data-tab="skillsTab">Skills</button>
   </div>
-
-  <div id="paymentModal" class="modal">
-    <h3>Purchase Item</h3>
-    <p>Send USDT to this wallet:</p>
-    <code id="modalWalletAddress"></code>
-    <p>After payment, enter your transaction hash:</p>
-    <input type="text" id="txHash" placeholder="Transaction Hash">
-    <button style="margin-top:10px;padding:10px 20px;" id="submitPayment">Submit</button>
-  </div>
-
   <script>
-    // Config
-    const CONFIG = {
-      firebase: {
-        apiKey: "AIzaSyBbfR-0LMAPCEIxnpXpp6oWcfqKT0Z3Ai8",
-        authDomain: "uascoin-game.firebaseapp.com",
-        databaseURL: "https://uascoin-game-default-rtdb.firebaseio.com",
-        projectId: "uascoin-game",
-        storageBucket: "uascoin-game.appspot.com",
-        messagingSenderId: "517394758183",
-        appId: "1:517394758183:web:85a1c0164ce16a22f3e23a"
-      },
-      walletAddress: "0x86d69358e89e1ec95b9a35828363f41d7e55d880",
-      skinPrices: {
-        pakistan: 5, india: 5, iran: 5, turkey: 5,
-        china: 5, usa: 5, uk: 5, germany: 5,
-        france: 5, italy: 5, africa: 5, brazil: 5,
-        suadiaarab: 5
-      }
-    };
-
-    // Firebase Initialization
-    try {
-      firebase.initializeApp(CONFIG.firebase);
-      console.log("Firebase initialized");
-    } catch (error) {
-      console.error("Firebase initialization failed:", error);
-      alert("Failed to connect to the server. Please check your connection.");
-    }
-    const db = firebase.database();
-
-    // User Manager
-    class UserManager {
-      constructor() {
-        const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-        this.userId = telegramUser?.id
-          ? `telegram_${telegramUser.id}`
-          : localStorage.getItem("userId") || `user_${Date.now()}`;
-        if (!localStorage.getItem("userId")) {
-          localStorage.setItem("userId", this.userId);
-        }
-        this.userData = {
-          coins: 0,
-          energy: 100,
-          skin: "bronze",
-          skinInventory: ["bronze"],
-          referralCode: this.userId,
-          referredBy: null,
-          referralTeam: [],
-          autoBot: false,
-          multiplier: 1,
-          bonuses: 0
-        };
-        console.log("UserManager initialized with userId:", this.userId);
-      }
-
-      async loadUserData() {
-        console.log("Loading user data for:", this.userId);
-        try {
-          const snapshot = await db.ref(`users/${this.userId}`).once("value");
-          const data = snapshot.val();
-          if (data) {
-            this.userData = { ...this.userData, ...data };
-            console.log("User data loaded:", this.userData);
-          } else {
-            await this.saveUserData();
-            console.log("New user data saved:", this.userData);
-          }
-          return this.userData;
-        } catch (error) {
-          console.error("Error loading user data:", error);
-          alert("Failed to load game data. Please try again.");
-        }
-      }
-
-      async saveUserData() {
-        try {
-          await db.ref(`users/${this.userId}`).set(this.userData);
-          console.log("User data saved:", this.userData);
-        } catch (error) {
-          console.error("Error saving user data:", error);
-          alert("Failed to save game data.");
-        }
-      }
-
-      async handleReferral() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const refCode = urlParams.get('start');
-        if (refCode && refCode !== this.userId && !this.userData.referredBy) {
-          console.log("Handling referral with code:", refCode);
-          this.userData.referredBy = refCode;
-          try {
-            const snapshot = await db.ref(`users/${refCode}/referralTeam`).once("value");
-            const team = snapshot.val() || [];
-            if (!team.includes(this.userId)) {
-              team.push(this.userId);
-              await db.ref(`users/${refCode}`).update({
-                referralTeam: team,
-                bonuses: firebase.database.ServerValue.increment(1000)
-              });
-              console.log("Referral updated for:", refCode);
-            }
-            await this.saveUserData();
-          } catch (error) {
-            console.error("Error handling referral:", error);
-          }
-        }
+    let coins = 0;
+    function triggerFirework() {
+      console.log("Triggering firework");
+      const coin = document.getElementById("coinImage");
+      const rect = coin.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      for (let i = 0; i < 12; i++) {
+        const particle = document.createElement("div");
+        particle.className = "firework-particle";
+        const angle = (i / 12) * 2 * Math.PI;
+        const distance = 50 + Math.random() * 50;
+        const x = Math.cos(angle) * distance;
+        const y = Math.sin(angle) * distance;
+        particle.style.left = `${centerX}px`;
+        particle.style.top = `${centerY}px`;
+        particle.style.setProperty("--x", `${x}px`);
+        particle.style.setProperty("--y", `${y}px`);
+        particle.style.animation = `firework 0.5s ease-out forwards`;
+        document.querySelector(".container").appendChild(particle);
+        setTimeout(() => particle.remove(), 500);
       }
     }
 
-    // Game Logic
-    class Game {
-      constructor(userManager, uiManager) {
-        this.userManager = userManager;
-        this.uiManager = uiManager;
-        this.pendingPurchase = null;
-      }
-
-      tapCoin() {
-        console.log("Tap coin called. Energy:", this.userManager.userData.energy);
-        if (this.userManager.userData.energy <= 0) {
-          console.log("No energy to tap!");
-          alert("Out of energy! Wait for it to recharge.");
-          return;
-        }
-
-        // Trigger firework animation
-        this.uiManager.triggerFirework();
-
-        const earned = this.userManager.userData.multiplier;
-        this.userManager.userData.coins += earned;
-        this.userManager.userData.energy -= 2;
-
-        if (this.userManager.userData.referredBy) {
-          db.ref(`users/${this.userManager.userData.referredBy}/bonuses`)
-            .transaction(current => (current || 0) + Math.round(earned * 0.1))
-            .catch(error => console.error("Error updating referral bonus:", error));
-        }
-
-        this.uiManager.updateUI(this.userManager.userData);
-        this.userManager.saveUserData();
-      }
-
-      startAutoTap() {
-        setInterval(() => {
-          if (this.userManager.userData.autoBot && this.userManager.userData.energy > 0) {
-            console.log("Auto-tap triggered");
-            this.tapCoin();
-          }
-        }, 2000);
-      }
-
-      startEnergyRecharge() {
-        setInterval(() => {
-          if (this.userManager.userData.energy < 100) {
-            this.userManager.userData.energy = Math.min(this.userManager.userData.energy + 1, 100);
-            this.uiManager.updateUI(this.userManager.userData);
-            this.userManager.saveUserData();
-            console.log("Energy recharged:", this.userManager.userData.energy);
-          }
-        }, 3000);
-      }
-
-      buySkin(skinName) {
-        console.log("Buying skin:", skinName);
-        if (!this.userManager.userData.skinInventory.includes(skinName)) {
-          this.uiManager.openModal(skinName);
-        } else {
-          this.equipSkin(skinName);
-        }
-      }
-
-      equipSkin(skinName) {
-        if (this.userManager.userData.skinInventory.includes(skinName)) {
-          this.userManager.userData.skin = skinName;
-          this.uiManager.updateCoinImage(skinName);
-          this.userManager.saveUserData();
-          console.log("Equipped skin:", skinName);
-        }
-      }
-
-      handlePurchaseSuccess(item) {
-        console.log("Purchase success for:", item);
-        switch (item) {
-          case 'speedBoost2':
-            this.userManager.userData.multiplier = 2;
-            break;
-          case 'speedBoost5':
-            this.userManager.userData.multiplier = 5;
-            break;
-          case 'speedBoost10':
-            this.userManager.userData.multiplier = 10;
-            break;
-          case 'energyRefill2':
-            this.userManager.userData.energy += 2;
-            break;
-          case 'energyRefill10':
-            this.userManager.userData.energy += 10;
-            break;
-          case 'autoBot':
-            this.userManager.userData.autoBot = true;
-            break;
-          default:
-            if (CONFIG.skinPrices[item]) {
-              if (!this.userManager.userData.skinInventory.includes(item)) {
-                this.userManager.userData.skinInventory.push(item);
-              }
-              this.equipSkin(item);
-            }
-        }
-        this.userManager.saveUserData();
-        this.uiManager.updateUI(this.userManager.userData);
-      }
-
-      verifyPayment(txHash) {
-        console.log("Verifying payment with txHash:", txHash);
-        if (txHash.length > 10) {
-          this.handlePurchaseSuccess(this.pendingPurchase);
-          this.uiManager.closeModal();
-        } else {
-          alert("Invalid transaction hash. Please try again.");
-        }
-      }
+    function tapCoin() {
+      console.log("Coin tapped");
+      coins++;
+      document.getElementById("coinCount").textContent = `Coins: ${coins}`;
+      triggerFirework();
     }
 
-    // UI Manager
-    class UIManager {
-      constructor() {
-        this.tabContent = document.getElementById("tabContent");
-        this.skinsList = document.getElementById("skinsList");
-        this.paymentModal = document.getElementById("paymentModal");
-        this.txHashInput = document.getElementById("txHash");
-        this.walletAddressElements = [
-          document.getElementById("walletAddress"),
-          document.getElementById("modalWalletAddress")
-        ];
-        this.container = document.querySelector(".container");
-      }
-
-      updateUI(userData) {
-        console.log("Updating UI with userData:", userData);
-        document.getElementById("tapCount").textContent = `UAS: ${userData.coins}`;
-        document.getElementById("energyFill").style.width = `${userData.energy}%`;
-        document.getElementById("referralLink").value = 
-          `https://t.me/UASReferralBot?start=${userData.referralCode}`;
-        this.updateCoinImage(userData.skin);
-        this.walletAddressElements.forEach(el => el.textContent = CONFIG.walletAddress);
-      }
-
-      updateCoinImage(skinName) {
-        const coinImage = document.getElementById("coinImage");
-        if (coinImage) {
-          coinImage.src = `./${skinName}_coin.png`;
-        } else {
-          console.error("Coin image element not found!");
-        }
-      }
-
-      showTab(tabId) {
-        console.log("Showing tab:", tabId);
-        this.tabContent.querySelectorAll(".tab-section").forEach(el => el.classList.remove("active"));
-        const tab = document.getElementById(tabId);
-        if (tab) {
-          tab.classList.add("active");
-        } else {
-          console.error("Tab not found:", tabId);
-          alert("Tab not found. Please try again.");
-        }
-      }
-
-      openModal(item) {
-        console.log("Opening modal for item:", item);
-        game.pendingPurchase = item;
-        this.paymentModal.classList.add("active");
-      }
-
-      closeModal() {
-        this.paymentModal.classList.remove("active");
-        this.txHashInput.value = "";
-      }
-
-      initSkinsList(userData) {
-        console.log("Initializing skins list");
-        this.skinsList.innerHTML = "";
-        Object.keys(CONFIG.skinPrices).forEach(skin => {
-          const div = document.createElement("div");
-          div.className = "skin-item";
-          div.innerHTML = `
-            <img src="./${skin}.png" class="preview-img" alt="${skin}">
-            ${skin.charAt(0).toUpperCase() + skin.slice(1)}
-            <button class="buy-btn" data-skin="${skin}">
-              ${userData.skinInventory.includes(skin) ? 'Equip' : '5 USDT'}
-            </button>
-          `;
-          this.skinsList.appendChild(div);
-        });
-      }
-
-      triggerFirework() {
-        console.log("Triggering firework animation");
-        const coin = document.getElementById("coinImage");
-        const rect = coin.getBoundingClientRect();
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
-
-        // Create 12 particles for the firework effect
-        for (let i = 0; i < 12; i++) {
-          const particle = document.createElement("div");
-          particle.className = "firework-particle";
-          const angle = (i / 12) * 2 * Math.PI;
-          const distance = 50 + Math.random() * 50; // Random distance between 50-100px
-          const x = Math.cos(angle) * distance;
-          const y = Math.sin(angle) * distance;
-          particle.style.left = `${centerX}px`;
-          particle.style.top = `${centerY}px`;
-          particle.style.setProperty("--x", `${x}px`);
-          particle.style.setProperty("--y", `${y}px`);
-          particle.style.animation = `firework 0.5s ease-out forwards`;
-          this.container.appendChild(particle);
-
-          // Remove particle after animation
-          setTimeout(() => particle.remove(), 500);
-        }
-      }
+    function showTab(tabId) {
+      console.log("Showing tab:", tabId);
+      document.querySelectorAll(".tab-section").forEach(el => el.classList.remove("active"));
+      const tab = document.getElementById(tabId);
+      if (tab) tab.classList.add("active");
+      else console.error("Tab not found:", tabId);
     }
 
-    // Main Initialization
-    const userManager = new UserManager();
-    const uiManager = new UIManager();
-    const game = new Game(userManager, uiManager);
-
-    async function init() {
-      console.log("Initializing game...");
+    function init() {
+      console.log("Initializing...");
       if (window.Telegram?.WebApp) {
         window.Telegram.WebApp.ready();
-        console.log("Telegram WebApp initialized:", window.Telegram.WebApp.initDataUnsafe);
+        console.log("Telegram WebApp:", window.Telegram.WebApp.initDataUnsafe);
+      }
+
+      const coinImage = document.getElementById("coinImage");
+      if (coinImage) {
+        coinImage.addEventListener("click", tapCoin);
+        coinImage.addEventListener("touchstart", (e) => {
+          e.preventDefault();
+          tapCoin();
+        });
       } else {
-        console.warn("Telegram WebApp not detected. Running in browser mode.");
+        console.error("Coin image not found!");
+        alert("Coin image missing!");
       }
 
-      try {
-        await userManager.loadUserData();
-        uiManager.initSkinsList(userManager.userData);
-        uiManager.updateUI(userManager.userData);
-        await userManager.handleReferral();
-        game.startAutoTap();
-        game.startEnergyRecharge();
-
-        // Event Listeners
-        const coinImage = document.getElementById("coinImage");
-        if (coinImage) {
-          coinImage.addEventListener("click", () => {
-            console.log("Coin clicked");
-            game.tapCoin();
-          });
-          coinImage.addEventListener("touchstart", (e) => {
-            e.preventDefault();
-            console.log("Coin touched");
-            game.tapCoin();
-          });
-        } else {
-          console.error("Coin image element not found!");
-          alert("Game initialization failed: Coin image not found.");
-        }
-
-        document.querySelectorAll(".bottom-nav button").forEach(btn => {
-          btn.addEventListener("click", () => {
-            const tabId = btn.dataset.tab;
-            console.log("Nav button clicked, tabId:", tabId);
-            uiManager.showTab(tabId);
-          });
-          btn.addEventListener("touchstart", (e) => {
-            e.preventDefault();
-            const tabId = btn.dataset.tab;
-            console.log("Nav button touched, tabId:", tabId);
-            uiManager.showTab(tabId);
-          });
+      document.querySelectorAll(".bottom-nav button").forEach(btn => {
+        btn.addEventListener("click", () => showTab(btn.dataset.tab));
+        btn.addEventListener("touchstart", (e) => {
+          e.preventDefault();
+          showTab(btn.dataset.tab);
         });
-
-        document.querySelectorAll(".buy-btn").forEach(btn => {
-          btn.addEventListener("click", () => {
-            const tab = btn.dataset.tab;
-            const item = btn.dataset.item;
-            const skin = btn.dataset.skin;
-            console.log("Buy button clicked:", { tab, item, skin });
-            if (tab) uiManager.showTab(tab);
-            else if (item) uiManager.openModal(item);
-            else if (skin) game.buySkin(skin);
-          });
-          btn.addEventListener("touchstart", (e) => {
-            e.preventDefault();
-            const tab = btn.dataset.tab;
-            const item = btn.dataset.item;
-            const skin = btn.dataset.skin;
-            console.log("Buy button touched:", { tab, item, skin });
-            if (tab) uiManager.showTab(tab);
-            else if (item) uiManager.openModal(item);
-            else if (skin) game.buySkin(skin);
-          });
-        });
-
-        const submitPayment = document.getElementById("submitPayment");
-        if (submitPayment) {
-          submitPayment.addEventListener("click", () => {
-            console.log("Submit payment clicked");
-            game.verifyPayment(uiManager.txHashInput.value);
-          });
-          submitPayment.addEventListener("touchstart", (e) => {
-            e.preventDefault();
-            console.log("Submit payment touched");
-            game.verifyPayment(uiManager.txHashInput.value);
-          });
-        } else {
-          console.error("Submit payment button not found!");
-        }
-      } catch (error) {
-        console.error("Initialization error:", error);
-        alert("Failed to initialize game. Please check your connection and try again.");
-      }
+      });
     }
 
     document.addEventListener("DOMContentLoaded", init);
