@@ -2,18 +2,27 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Revolutionary Coin Test</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Revolutionary Coin</title>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
+    :root {
+      --primary-color: white;
+      --bg-opacity: 0.8;
+      --border-radius: 10px;
+      --max-width: 90%;
+    }
     body {
       margin: 0;
-      font-family: sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
       background: url('./background.png') no-repeat center center fixed;
       background-size: cover;
-      color: white;
+      color: var(--primary-color);
       text-align: center;
-      overscroll-behavior: none; /* Prevent scroll bounce in Telegram */
+      overscroll-behavior: none;
+      -webkit-tap-highlight-color: transparent;
     }
     .container {
       padding: 20px;
@@ -23,12 +32,12 @@
     .coin-img {
       width: 200px;
       height: 200px;
+      margin: 20px auto;
+      display: block;
       cursor: pointer;
       touch-action: manipulation;
       position: relative;
       z-index: 1;
-      margin: 20px auto;
-      display: block;
     }
     .coin-img:active {
       transform: scale(0.95);
@@ -38,13 +47,34 @@
       margin: 10px 0;
       font-size: 24px;
     }
+    .energy-bar {
+      background: #555;
+      height: 20px;
+      margin: 10px auto;
+      border-radius: var(--border-radius);
+      width: var(--max-width);
+      overflow: hidden;
+      position: relative;
+    }
+    .energy-fill {
+      background: limegreen;
+      height: 100%;
+      width: 100%;
+      transition: width 0.5s;
+    }
+    .buy-coffee {
+      position: absolute;
+      left: 10px;
+      top: 30px;
+    }
     .tab-content {
-      margin: 20px auto;
-      max-width: 90%;
-      min-height: 100px;
-      background: rgba(0, 0, 0, 0.7); /* Distinct background */
-      border-radius: 10px;
-      padding: 10px;
+      margin: 30px auto;
+      max-width: var(--max-width);
+      min-height: 150px;
+      background: rgba(0, 0, 0, 0.7);
+      border-radius: var(--border-radius);
+      padding: 15px;
+      z-index: 0;
     }
     .tab-section {
       display: none;
@@ -56,7 +86,7 @@
       position: fixed;
       bottom: 0;
       width: 100%;
-      background: rgba(0, 0, 0, 0.8);
+      background: rgba(0, 0, 0, var(--bg-opacity));
       display: flex;
       justify-content: space-around;
       padding: 10px 0;
@@ -65,11 +95,65 @@
     .bottom-nav button {
       background: none;
       border: none;
-      color: white;
-      font-size: 20px;
+      color: var(--primary-color);
+      font-size: 18px;
       cursor: pointer;
       touch-action: manipulation;
+      padding: 10px 15px;
+      transition: background 0.2s;
+    }
+    .bottom-nav button.active {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    .skin-item, .upgrade-item {
+      margin: 10px auto;
       padding: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: var(--border-radius);
+      max-width: var(--max-width);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .preview-img {
+      width: 60px;
+      height: 60px;
+      vertical-align: middle;
+      margin-right: 10px;
+    }
+    .buy-btn {
+      padding: 6px 12px;
+      background: gold;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #222;
+      padding: 20px;
+      border-radius: var(--border-radius);
+      color: var(--primary-color);
+      z-index: 1000;
+      max-width: var(--max-width);
+      width: 400px;
+      text-align: center;
+    }
+    .modal.active {
+      display: block;
+    }
+    input, code {
+      width: calc(100% - 20px);
+      padding: 10px;
+      border-radius: 5px;
+      margin: 10px 0;
+      box-sizing: border-box;
     }
     .firework-particle {
       position: absolute;
@@ -87,141 +171,562 @@
   </style>
 </head>
 <body>
+  <!-- Main Container -->
   <div class="container">
-    <h1>Revolutionary Coin Test</h1>
-    <img src="./bronze_coin.png" id="coinImage" class="coin-img" alt="Coin" />
-    <h2 id="coinCount" class="coin-count">Coins: 0</h2>
-    <div id="tabContent" class="tab-content">
-      <div id="homeTab" class="tab-section active">
-        <p>Tap the coin to earn coins!</p>
+    <!-- Energy Bar -->
+    <div class="energy-bar">
+      <div class="energy-fill" id="energyFill"></div>
+      <div class="buy-coffee">
+        <button class="buy-btn" data-tab="coffeeTab">Buy Me a Coffee</button>
       </div>
-      <div id="skillsTab" class="tab-section">
-        <p>Skills Menu: Upgrade your tapping abilities!</p>
+    </div>
+    
+    <!-- Game Title -->
+    <h1>Revolutionary Coin</h1>
+    
+    <!-- Coin Image -->
+    <img src="./bronze_coin.png" id="coinImage" class="coin-img" alt="Tap Coin" />
+    
+    <!-- Coin Count -->
+    <h2 id="tapCount" class="coin-count">UAS: 0</h2>
+
+    <!-- Tab Content Area -->
+    <div id="tabContent" class="tab-content">
+      <!-- Home Tab -->
+      <div id="homeTab" class="tab-section active">
+        <p>Keep tapping the coin to earn UAS!</p>
+      </div>
+      <!-- Earn Tab -->
+      <div id="earnTab" class="tab-section">
+        <p>Watch monetization videos to earn rewards. (Coming Soon)</p>
+      </div>
+      <!-- Skins Tab -->
+      <div id="skinsTab" class="tab-section">
+        <h2>Country Themed Skins (5 USDT each)</h2>
+        <div id="skinsList"></div>
+      </div>
+      <!-- Upgrades Tab -->
+      <div id="upgradesTab" class="tab-section">
+        <h2>Upgrade Packages</h2>
+        <div class="upgrade-item">x2 Speed Boost (5 USDT) <button class="buy-btn" data-item="speedBoost2">Buy</button></div>
+        <div class="upgrade-item">x5 Speed Boost (10 USDT) <button class="buy-btn" data-item="speedBoost5">Buy</button></div>
+        <div class="upgrade-item">x10 Speed Boost (15 USDT) <button class="buy-btn" data-item="speedBoost10">Buy</button></div>
+        <div class="upgrade-item">Energy Refill x2 (5 USDT) <button class="buy-btn" data-item="energyRefill2">Buy</button></div>
+        <div class="upgrade-item">Energy Refill x10 (10 USDT) <button class="buy-btn" data-item="energyRefill10">Buy</button></div>
+        <div class="upgrade-item">AutoBot Mode (10 USDT) <button class="buy-btn" data-item="autoBot">Buy</button></div>
+      </div>
+      <!-- Referral Tab -->
+      <div id="referralTab" class="tab-section">
+        <h2>Referral System</h2>
+        <p id="refStatus">Invite friends & earn 10% of their UAS + 1000 UAS bonus!</p>
+        <p>Your Referral Link:</p>
+        <input type="text" id="referralLink" value="" readonly>
+        <p style="font-size:14px">Share with friends to grow your team!</p>
+      </div>
+      <!-- Coffee Tab -->
+      <div id="coffeeTab" class="tab-section">
+        <h2>Support Development</h2>
+        <p>Donate USDT to support future updates!</p>
+        <p><strong>Wallet Address:</strong></p>
+        <code id="walletAddress"></code>
+        <p style="margin-top:10px">Note: Whatever amount you donate for development, you'll receive 20x its value upon official launch. Guaranteed, as your data is securely saved with us.</p>
       </div>
     </div>
   </div>
+
+  <!-- Bottom Navigation -->
   <div class="bottom-nav">
-    <button data-tab="homeTab">Home</button>
-    <button data-tab="skillsTab">Skills</button>
+    <button data-tab="homeTab" class="active">Home</button>
+    <button data-tab="earnTab">Earn</button>
+    <button data-tab="skinsTab">Skins</button>
+    <button data-tab="upgradesTab">Upgrades</button>
+    <button data-tab="referralTab">Referral</button>
   </div>
+
+  <!-- Payment Modal -->
+  <div id="paymentModal" class="modal">
+    <h3>Purchase Item</h3>
+    <p>Send USDT to this wallet:</p>
+    <code id="modalWalletAddress"></code>
+    <p>After payment, enter your transaction hash:</p>
+    <input type="text" id="txHash" placeholder="Transaction Hash">
+    <button style="margin-top:10px;padding:10px 20px;" id="submitPayment">Submit</button>
+  </div>
+
   <script>
-    let coins = 0;
-
-    function triggerFirework() {
-      console.log("Triggering firework");
-      const coin = document.getElementById("coinImage");
-      if (!coin) {
-        console.error("Coin image not found for firework!");
-        return;
+    // Configuration
+    const CONFIG = {
+      firebase: {
+        apiKey: "AIzaSyBbfR-0LMAPCEIxnpXpp6oWcfqKT0Z3Ai8",
+        authDomain: "uascoin-game.firebaseapp.com",
+        databaseURL: "https://uascoin-game-default-rtdb.firebaseio.com",
+        projectId: "uascoin-game",
+        storageBucket: "uascoin-game.appspot.com",
+        messagingSenderId: "517394758183",
+        appId: "1:517394758183:web:85a1c0164ce16a22f3e23a"
+      },
+      walletAddress: "0x86d69358e89e1ec95b9a35828363f41d7e55d880",
+      skinPrices: {
+        pakistan: 5, india: 5, iran: 5, turkey: 5,
+        china: 5, usa: 5, uk: 5, germany: 5,
+        france: 5, italy: 5, africa: 5, brazil: 5,
+        suadiaarab: 5
       }
-      const rect = coin.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      for (let i = 0; i < 12; i++) {
-        const particle = document.createElement("div");
-        particle.className = "firework-particle";
-        const angle = (i / 12) * 2 * Math.PI;
-        const distance = 50 + Math.random() * 50;
-        const x = Math.cos(angle) * distance;
-        const y = Math.sin(angle) * distance;
-        particle.style.left = `${centerX}px`;
-        particle.style.top = `${centerY}px`;
-        particle.style.setProperty("--x", `${x}px`);
-        particle.style.setProperty("--y", `${y}px`);
-        particle.style.animation = `firework 0.5s ease-out forwards`;
-        document.querySelector(".container").appendChild(particle);
-        setTimeout(() => particle.remove(), 500);
+    };
+
+    // Firebase Initialization
+    let db;
+    try {
+      firebase.initializeApp(CONFIG.firebase);
+      db = firebase.database();
+      console.log("Firebase initialized at:", new Date().toLocaleString());
+    } catch (error) {
+      console.error("Firebase initialization failed:", error);
+    }
+
+    // User Manager
+    class UserManager {
+      constructor() {
+        const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+        this.userId = telegramUser?.id
+          ? `telegram_${telegramUser.id}`
+          : localStorage.getItem("userId") || `user_${Date.now()}`;
+        if (!localStorage.getItem("userId")) {
+          localStorage.setItem("userId", this.userId);
+        }
+        this.userData = {
+          coins: 0,
+          energy: 100,
+          skin: "bronze",
+          skinInventory: ["bronze"],
+          referralCode: this.userId,
+          referredBy: null,
+          referralTeam: [],
+          autoBot: false,
+          multiplier: 1,
+          bonuses: 0
+        };
+        console.log("UserManager initialized with userId:", this.userId);
+      }
+
+      async loadUserData() {
+        console.log("Loading user data for:", this.userId);
+        if (!db) {
+          console.error("Database not initialized!");
+          return this.userData;
+        }
+        try {
+          const snapshot = await db.ref(`users/${this.userId}`).once("value");
+          const data = snapshot.val();
+          if (data) {
+            this.userData = { ...this.userData, ...data };
+            console.log("User data loaded:", this.userData);
+          } else {
+            await this.saveUserData();
+            console.log("New user data saved:", this.userData);
+          }
+          return this.userData;
+        } catch (error) {
+          console.error("Error loading user data:", error);
+        }
+      }
+
+      async saveUserData() {
+        if (!db) {
+          console.error("Database not initialized!");
+          return;
+        }
+        try {
+          await db.ref(`users/${this.userId}`).set(this.userData);
+          console.log("User data saved:", this.userData);
+        } catch (error) {
+          console.error("Error saving user data:", error);
+        }
+      }
+
+      async handleReferral() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const refCode = urlParams.get('start');
+        if (refCode && refCode !== this.userId && !this.userData.referredBy) {
+          console.log("Handling referral with code:", refCode);
+          this.userData.referredBy = refCode;
+          try {
+            const snapshot = await db.ref(`users/${refCode}/referralTeam`).once("value");
+            const team = snapshot.val() || [];
+            if (!team.includes(this.userId)) {
+              team.push(this.userId);
+              await db.ref(`users/${refCode}`).update({
+                referralTeam: team,
+                bonuses: firebase.database.ServerValue.increment(1000)
+              });
+              console.log("Referral updated for:", refCode);
+            }
+            await this.saveUserData();
+          } catch (error) {
+            console.error("Error handling referral:", error);
+          }
+        }
       }
     }
 
-    function tapCoin() {
-      console.log("Coin tapped");
-      coins++;
-      document.getElementById("coinCount").textContent = `Coins: ${coins}`;
-      triggerFirework();
+    // Game Logic
+    class Game {
+      constructor(userManager, uiManager) {
+        this.userManager = userManager;
+        this.uiManager = uiManager;
+        this.pendingPurchase = null;
+      }
+
+      tapCoin() {
+        console.log("Tap coin called. Energy:", this.userManager.userData.energy);
+        if (this.userManager.userData.energy <= 0) {
+          console.log("No energy to tap!");
+          return;
+        }
+        this.uiManager.triggerFirework();
+        const earned = this.userManager.userData.multiplier;
+        this.userManager.userData.coins += earned;
+        this.userManager.userData.energy -= 2;
+        if (this.userManager.userData.referredBy) {
+          db?.ref(`users/${this.userManager.userData.referredBy}/bonuses`)
+            .transaction(current => (current || 0) + Math.round(earned * 0.1))
+            .catch(error => console.error("Error updating referral bonus:", error));
+        }
+        this.uiManager.updateUI(this.userManager.userData);
+        this.userManager.saveUserData();
+      }
+
+      startAutoTap() {
+        setInterval(() => {
+          if (this.userManager.userData.autoBot && this.userManager.userData.energy > 0) {
+            console.log("Auto-tap triggered");
+            this.tapCoin();
+          }
+        }, 2000);
+      }
+
+      startEnergyRecharge() {
+        setInterval(() => {
+          if (this.userManager.userData.energy < 100) {
+            this.userManager.userData.energy = Math.min(this.userManager.userData.energy + 1, 100);
+            this.uiManager.updateUI(this.userManager.userData);
+            this.userManager.saveUserData();
+            console.log("Energy recharged:", this.userManager.userData.energy);
+          }
+        }, 3000);
+      }
+
+      buySkin(skinName) {
+        console.log("Buying skin:", skinName);
+        if (!this.userManager.userData.skinInventory.includes(skinName)) {
+          this.uiManager.openModal(skinName);
+        } else {
+          this.equipSkin(skinName);
+        }
+      }
+
+      equipSkin(skinName) {
+        if (this.userManager.userData.skinInventory.includes(skinName)) {
+          this.userManager.userData.skin = skinName;
+          this.uiManager.updateCoinImage(skinName);
+          this.userManager.saveUserData();
+          console.log("Equipped skin:", skinName);
+        }
+      }
+
+      handlePurchaseSuccess(item) {
+        console.log("Purchase success for:", item);
+        switch (item) {
+          case 'speedBoost2':
+            this.userManager.userData.multiplier = 2;
+            break;
+          case 'speedBoost5':
+            this.userManager.userData.multiplier = 5;
+            break;
+          case 'speedBoost10':
+            this.userManager.userData.multiplier = 10;
+            break;
+          case 'energyRefill2':
+            this.userManager.userData.energy += 2;
+            break;
+          case 'energyRefill10':
+            this.userManager.userData.energy += 10;
+            break;
+          case 'autoBot':
+            this.userManager.userData.autoBot = true;
+            break;
+          default:
+            if (CONFIG.skinPrices[item]) {
+              if (!this.userManager.userData.skinInventory.includes(item)) {
+                this.userManager.userData.skinInventory.push(item);
+              }
+              this.equipSkin(item);
+            }
+        }
+        this.userManager.saveUserData();
+        this.uiManager.updateUI(this.userManager.userData);
+      }
+
+      verifyPayment(txHash) {
+        console.log("Verifying payment with txHash:", txHash);
+        if (txHash.length > 10) {
+          this.handlePurchaseSuccess(this.pendingPurchase);
+          this.uiManager.closeModal();
+        } else {
+          console.error("Invalid transaction hash");
+        }
+      }
     }
 
-    function showTab(tabId) {
-      console.log("Attempting to show tab:", tabId);
-      const tabContent = document.getElementById("tabContent");
-      if (!tabContent) {
-        console.error("Tab content container not found!");
-        return;
+    // UI Manager
+    class UIManager {
+      constructor() {
+        this.tabContent = document.getElementById("tabContent");
+        this.skinsList = document.getElementById("skinsList");
+        this.paymentModal = document.getElementById("paymentModal");
+        this.txHashInput = document.getElementById("txHash");
+        this.walletAddressElements = [
+          document.getElementById("walletAddress"),
+          document.getElementById("modalWalletAddress")
+        ];
+        this.container = document.querySelector(".container");
+        this.currentTab = "homeTab";
       }
-      const sections = tabContent.querySelectorAll(".tab-section");
-      if (sections.length === 0) {
-        console.error("No tab sections found!");
-        return;
+
+      updateUI(userData) {
+        console.log("Updating UI with userData:", userData);
+        document.getElementById("tapCount").textContent = `UAS: ${userData.coins}`;
+        document.getElementById("energyFill").style.width = `${userData.energy}%`;
+        document.getElementById("referralLink").value = 
+          `https://t.me/UASReferralBot?start=${userData.referralCode}`;
+        this.updateCoinImage(userData.skin);
+        this.walletAddressElements.forEach(el => {
+          if (el) el.textContent = CONFIG.walletAddress;
+        });
       }
-      sections.forEach(el => {
-        el.classList.remove("active");
-        console.log("Removed active from:", el.id);
-      });
-      const tab = document.getElementById(tabId);
-      if (tab) {
-        tab.classList.add("active");
-        console.log("Activated tab:", tabId);
-      } else {
-        console.error("Tab not found:", tabId);
+
+      updateCoinImage(skinName) {
+        const coinImage = document.getElementById("coinImage");
+        if (coinImage) {
+          coinImage.src = `./${skinName}_coin.png`;
+        } else {
+          console.error("Coin image element not found!");
+        }
+      }
+
+      showTab(tabId) {
+        console.log("Attempting to show tab:", tabId);
+        if (!this.tabContent) {
+          console.error("Tab content container not found!");
+          return;
+        }
+        const sections = this.tabContent.querySelectorAll(".tab-section");
+        if (sections.length === 0) {
+          console.error("No tab sections found!");
+          this.tabContent.innerHTML = "<p>Error: No tabs available!</p>";
+          return;
+        }
+        sections.forEach(el => {
+          el.classList.remove("active");
+          console.log("Removed active from:", el.id);
+        });
+        const tab = document.getElementById(tabId);
+        if (tab) {
+          tab.classList.add("active");
+          this.currentTab = tabId;
+          console.log("Activated tab:", tabId);
+        } else {
+          console.error("Tab not found:", tabId);
+          this.tabContent.innerHTML = "<p>Error: Tab not found!</p>";
+        }
+        document.querySelectorAll(".bottom-nav button").forEach(btn => {
+          btn.classList.toggle("active", btn.dataset.tab === tabId);
+        });
+      }
+
+      openModal(item) {
+        console.log("Opening modal for item:", item);
+        this.paymentModal?.classList.add("active");
+        game.pendingPurchase = item;
+      }
+
+      closeModal() {
+        this.paymentModal?.classList.remove("active");
+        if (this.txHashInput) this.txHashInput.value = "";
+      }
+
+      initSkinsList(userData) {
+        console.log("Initializing skins list");
+        if (!this.skinsList) {
+          console.error("Skins list element not found!");
+          return;
+        }
+        this.skinsList.innerHTML = "";
+        Object.keys(CONFIG.skinPrices).forEach(skin => {
+          const div = document.createElement("div");
+          div.className = "skin-item";
+          div.innerHTML = `
+            <span>
+              <img src="./${skin}.png" class="preview-img" alt="${skin}">
+              ${skin.charAt(0).toUpperCase() + skin.slice(1)}
+            </span>
+            <button class="buy-btn" data-skin="${skin}">
+              ${userData.skinInventory.includes(skin) ? 'Equip' : '5 USDT'}
+            </button>
+          `;
+          this.skinsList.appendChild(div);
+        });
+      }
+
+      triggerFirework() {
+        console.log("Triggering firework");
+        const coin = document.getElementById("coinImage");
+        if (!coin) {
+          console.error("Coin image not found for firework!");
+          return;
+        }
+        const rect = coin.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        for (let i = 0; i < 12; i++) {
+          const particle = document.createElement("div");
+          particle.className = "firework-particle";
+          const angle = (i / 12) * 2 * Math.PI;
+          const distance = 50 + Math.random() * 50;
+          const x = Math.cos(angle) * distance;
+          const y = Math.sin(angle) * distance;
+          particle.style.left = `${centerX}px`;
+          particle.style.top = `${centerY}px`;
+          particle.style.setProperty("--x", `${x}px`);
+          particle.style.setProperty("--y", `${y}px`);
+          particle.style.animation = `firework 0.5s ease-out forwards`;
+          this.container.appendChild(particle);
+          setTimeout(() => particle.remove(), 500);
+        }
       }
     }
 
-    function init() {
-      console.log("Initializing game...");
+    // Main Initialization
+    const userManager = new UserManager();
+    const uiManager = new UIManager();
+    const game = new Game(userManager, uiManager);
+
+    async function init() {
+      console.log("Initializing game at:", new Date().toLocaleString());
       if (window.Telegram?.WebApp) {
         window.Telegram.WebApp.ready();
-        console.log("Telegram WebApp initialized:", window.Telegram.WebApp.initDataUnsafe);
-        // Disable external navigation
         window.Telegram.WebApp.expand();
         window.Telegram.WebApp.disableVerticalSwipes();
+        console.log("Telegram WebApp initialized:", window.Telegram.WebApp.initDataUnsafe);
       } else {
         console.warn("Running outside Telegram WebApp");
       }
 
-      const coinImage = document.getElementById("coinImage");
-      if (coinImage) {
-        coinImage.addEventListener("click", (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          console.log("Coin clicked");
-          tapCoin();
-        });
-        coinImage.addEventListener("touchstart", (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          console.log("Coin touched");
-          tapCoin();
-        });
-      } else {
-        console.error("Coin image not found!");
-      }
+      try {
+        await userManager.loadUserData();
+        uiManager.initSkinsList(userManager.userData);
+        uiManager.updateUI(userManager.userData);
+        await userManager.handleReferral();
+        game.startAutoTap();
+        game.startEnergyRecharge();
 
-      const navButtons = document.querySelectorAll(".bottom-nav button");
-      if (navButtons.length === 0) {
-        console.error("No navigation buttons found!");
-      }
-      navButtons.forEach(btn => {
-        btn.addEventListener("click", (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          const tabId = btn.dataset.tab;
-          console.log("Nav button clicked, tabId:", tabId);
-          showTab(tabId);
-        });
-        btn.addEventListener("touchstart", (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          const tabId = btn.dataset.tab;
-          console.log("Nav button touched, tabId:", tabId);
-          showTab(tabId);
-        });
-      });
+        // Event Listeners
+        const coinImage = document.getElementById("coinImage");
+        if (coinImage) {
+          coinImage.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log("Coin clicked");
+            game.tapCoin();
+          });
+          coinImage.addEventListener("touchstart", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log("Coin touched");
+            game.tapCoin();
+          });
+        } else {
+          console.error("Coin image not found!");
+        }
 
-      // Ensure initial tab is visible
-      showTab("homeTab");
+        const bottomNav = document.querySelector(".bottom-nav");
+        if (bottomNav) {
+          bottomNav.addEventListener("click", (e) => {
+            const btn = e.target.closest("button[data-tab]");
+            if (btn) {
+              e.preventDefault();
+              e.stopPropagation();
+              const tabId = btn.dataset.tab;
+              console.log("Nav button clicked, tabId:", tabId);
+              uiManager.showTab(tabId);
+            }
+          });
+          bottomNav.addEventListener("touchstart", (e) => {
+            const btn = e.target.closest("button[data-tab]");
+            if (btn) {
+              e.preventDefault();
+              e.stopPropagation();
+              const tabId = btn.dataset.tab;
+              console.log("Nav button touched, tabId:", tabId);
+              uiManager.showTab(tabId);
+            }
+          });
+        } else {
+          console.error("Bottom nav not found!");
+        }
+
+        const buyButtons = document.querySelectorAll(".buy-btn");
+        buyButtons.forEach(btn => {
+          btn.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const tab = btn.dataset.tab;
+            const item = btn.dataset.item;
+            const skin = btn.dataset.skin;
+            console.log("Buy button clicked:", { tab, item, skin });
+            if (tab) uiManager.showTab(tab);
+            else if (item) uiManager.openModal(item);
+            else if (skin) game.buySkin(skin);
+          });
+          btn.addEventListener("touchstart", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const tab = btn.dataset.tab;
+            const item = btn.dataset.item;
+            const skin = btn.dataset.skin;
+            console.log("Buy button touched:", { tab, item, skin });
+            if (tab) uiManager.showTab(tab);
+            else if (item) uiManager.openModal(item);
+            else if (skin) game.buySkin(skin);
+          });
+        });
+
+        const submitPayment = document.getElementById("submitPayment");
+        if (submitPayment) {
+          submitPayment.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log("Submit payment clicked");
+            game.verifyPayment(uiManager.txHashInput.value);
+          });
+          submitPayment.addEventListener("touchstart", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log("Submit payment touched");
+            game.verifyPayment(uiManager.txHashInput.value);
+          });
+        } else {
+          console.error("Submit payment button not found!");
+        }
+
+        // Force initial tab
+        uiManager.showTab("homeTab");
+      } catch (error) {
+        console.error("Initialization error:", error);
+      }
     }
 
     document.addEventListener("DOMContentLoaded", init);
   </script>
 </body>
-</html>
+  </html>
