@@ -13,11 +13,12 @@
       background-size: cover;
       color: white;
       text-align: center;
+      overscroll-behavior: none; /* Prevent scroll bounce in Telegram */
     }
     .container {
       padding: 20px;
       position: relative;
-      min-height: 100vh; /* Ensure container fills viewport */
+      min-height: 100vh;
     }
     .coin-img {
       width: 200px;
@@ -40,13 +41,13 @@
     .tab-content {
       margin: 20px auto;
       max-width: 90%;
-      min-height: 100px; /* Ensure content area is visible */
+      min-height: 100px;
+      background: rgba(0, 0, 0, 0.7); /* Distinct background */
+      border-radius: 10px;
+      padding: 10px;
     }
     .tab-section {
       display: none;
-      padding: 10px;
-      background: rgba(0, 0, 0, 0.5);
-      border-radius: 10px;
     }
     .tab-section.active {
       display: block;
@@ -145,18 +146,23 @@
       const tabContent = document.getElementById("tabContent");
       if (!tabContent) {
         console.error("Tab content container not found!");
-        alert("Tab content not found!");
         return;
       }
       const sections = tabContent.querySelectorAll(".tab-section");
-      sections.forEach(el => el.classList.remove("active"));
+      if (sections.length === 0) {
+        console.error("No tab sections found!");
+        return;
+      }
+      sections.forEach(el => {
+        el.classList.remove("active");
+        console.log("Removed active from:", el.id);
+      });
       const tab = document.getElementById(tabId);
       if (tab) {
         tab.classList.add("active");
-        console.log("Tab switched to:", tabId);
+        console.log("Activated tab:", tabId);
       } else {
         console.error("Tab not found:", tabId);
-        alert("Tab not found: " + tabId);
       }
     }
 
@@ -165,6 +171,9 @@
       if (window.Telegram?.WebApp) {
         window.Telegram.WebApp.ready();
         console.log("Telegram WebApp initialized:", window.Telegram.WebApp.initDataUnsafe);
+        // Disable external navigation
+        window.Telegram.WebApp.expand();
+        window.Telegram.WebApp.disableVerticalSwipes();
       } else {
         console.warn("Running outside Telegram WebApp");
       }
@@ -173,36 +182,42 @@
       if (coinImage) {
         coinImage.addEventListener("click", (e) => {
           e.preventDefault();
+          e.stopPropagation();
           console.log("Coin clicked");
           tapCoin();
         });
         coinImage.addEventListener("touchstart", (e) => {
           e.preventDefault();
+          e.stopPropagation();
           console.log("Coin touched");
           tapCoin();
         });
       } else {
         console.error("Coin image not found!");
-        alert("Coin image missing!");
       }
 
       const navButtons = document.querySelectorAll(".bottom-nav button");
+      if (navButtons.length === 0) {
+        console.error("No navigation buttons found!");
+      }
       navButtons.forEach(btn => {
         btn.addEventListener("click", (e) => {
           e.preventDefault();
+          e.stopPropagation();
           const tabId = btn.dataset.tab;
           console.log("Nav button clicked, tabId:", tabId);
           showTab(tabId);
         });
         btn.addEventListener("touchstart", (e) => {
           e.preventDefault();
+          e.stopPropagation();
           const tabId = btn.dataset.tab;
           console.log("Nav button touched, tabId:", tabId);
           showTab(tabId);
         });
       });
 
-      // Initial tab check
+      // Ensure initial tab is visible
       showTab("homeTab");
     }
 
