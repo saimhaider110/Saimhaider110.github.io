@@ -6,6 +6,7 @@
   <title>Revolutionary Coin</title>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
       --primary-color: white;
@@ -25,6 +26,7 @@
     .container {
       padding: 20px;
       text-align: center;
+      position: relative;
     }
 
     .coin-img {
@@ -33,6 +35,14 @@
       margin: 20px auto;
       display: block;
       cursor: pointer;
+      touch-action: manipulation;
+      position: relative;
+      z-index: 1;
+    }
+
+    .coin-img:active {
+      transform: scale(0.95);
+      transition: transform 0.1s;
     }
 
     .energy-bar {
@@ -75,6 +85,7 @@
       color: var(--primary-color);
       font-size: 22px;
       cursor: pointer;
+      touch-action: manipulation;
     }
 
     .tab-section {
@@ -108,6 +119,7 @@
       border-radius: 8px;
       font-weight: bold;
       cursor: pointer;
+      touch-action: manipulation;
     }
 
     .modal {
@@ -136,6 +148,28 @@
       border-radius: 5px;
       margin-top: 10px;
     }
+
+    /* Firework Animation */
+    .firework-particle {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: gold;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    @keyframes firework {
+      0% {
+        transform: translate(0, 0);
+        opacity: 1;
+      }
+      100% {
+        transform: translate(var(--x), var(--y));
+        opacity: 0;
+      }
+    }
   </style>
 </head>
 <body>
@@ -144,7 +178,7 @@
       <div class="energy-fill" id="energyFill"></div>
       <div class="buy-coffee">
         <button class="buy-btn" data-tab="coffeeTab">Buy Me a Coffee</button>
-      </div>
+        </div>
     </div>
     
     <h1>Revolutionary Coin</h1>
@@ -205,8 +239,8 @@
     <button style="margin-top:10px;padding:10px 20px;" id="submitPayment">Submit</button>
   </div>
 
-  <script type="module">
-    // config.js
+  <script>
+    // Config
     const CONFIG = {
       firebase: {
         apiKey: "AIzaSyBbfR-0LMAPCEIxnpXpp6oWcfqKT0Z3Ai8",
@@ -226,17 +260,23 @@
       }
     };
 
-    // firebase.js
-    import firebase from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js';
-    import 'https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js';
-
-    firebase.initializeApp(CONFIG.firebase);
+    // Firebase Initialization
+    try {
+      firebase.initializeApp(CONFIG.firebase);
+      console.log("Firebase initialized");
+    } catch (error) {
+      console.error("Firebase initialization failed:", error);
+      alert("Failed to connect to the server. Please check your connection.");
+    }
     const db = firebase.database();
 
-    // user.js
+    // User Manager
     class UserManager {
       constructor() {
-        this.userId = localStorage.getItem("userId") || `user_${Date.now()}`;
+        const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+        this.userId = telegramUser?.id
+          ? `telegram_${telegramUser.id}`
+          : localStorage.getItem("userId") || `user_${Date.now()}`;
         if (!localStorage.getItem("userId")) {
           localStorage.setItem("userId", this.userId);
         }
@@ -252,30 +292,35 @@
           multiplier: 1,
           bonuses: 0
         };
+        console.log("UserManager initialized with userId:", this.userId);
       }
 
       async loadUserData() {
+        console.log("Loading user data for:", this.userId);
         try {
           const snapshot = await db.ref(`users/${this.userId}`).once("value");
           const data = snapshot.val();
           if (data) {
             this.userData = { ...this.userData, ...data };
+            console.log("User data loaded:", this.userData);
           } else {
             await this.saveUserData();
+            console.log("New user data saved:", this.userData);
           }
           return this.userData;
         } catch (error) {
           console.error("Error loading user data:", error);
-          alert("Failed to load user data. Please try again.");
+          alert("Failed to load game data. Please try again.");
         }
       }
 
       async saveUserData() {
         try {
           await db.ref(`users/${this.userId}`).set(this.userData);
+          console.log("User data saved:", this.userData);
         } catch (error) {
           console.error("Error saving user data:", error);
-          alert("Failed to save user data.");
+          alert("Failed to save game data.");
         }
       }
 
@@ -283,6 +328,7 @@
         const urlParams = new URLSearchParams(window.location.search);
         const refCode = urlParams.get('start');
         if (refCode && refCode !== this.userId && !this.userData.referredBy) {
+          console.log("Handling referral with code:", refCode);
           this.userData.referredBy = refCode;
           try {
             const snapshot = await db.ref(`users/${refCode}/referralTeam`).once("value");
@@ -293,6 +339,7 @@
                 referralTeam: team,
                 bonuses: firebase.database.ServerValue.increment(1000)
               });
+              console.log("Referral updated for:", refCode);
             }
             await this.saveUserData();
           } catch (error) {
@@ -302,7 +349,7 @@
       }
     }
 
-    // game.js
+    // Game Logic
     class Game {
       constructor(userManager, uiManager) {
         this.userManager = userManager;
@@ -311,7 +358,15 @@
       }
 
       tapCoin() {
-        if (this.userManager.userData.energy <= 0) return;
+        console.log("Tap coin called. Energy:", this.userManager.userData.energy);
+        if (this.userManager.userData.energy <= 0) {
+          console.log("No energy to tap!");
+          alert("Out of energy! Wait for it to recharge.");
+          return;
+        }
+
+        // Trigger firework animation
+        this.uiManager.triggerFirework();
 
         const earned = this.userManager.userData.multiplier;
         this.userManager.userData.coins += earned;
@@ -330,6 +385,7 @@
       startAutoTap() {
         setInterval(() => {
           if (this.userManager.userData.autoBot && this.userManager.userData.energy > 0) {
+            console.log("Auto-tap triggered");
             this.tapCoin();
           }
         }, 2000);
@@ -341,11 +397,13 @@
             this.userManager.userData.energy = Math.min(this.userManager.userData.energy + 1, 100);
             this.uiManager.updateUI(this.userManager.userData);
             this.userManager.saveUserData();
+            console.log("Energy recharged:", this.userManager.userData.energy);
           }
         }, 3000);
       }
 
       buySkin(skinName) {
+        console.log("Buying skin:", skinName);
         if (!this.userManager.userData.skinInventory.includes(skinName)) {
           this.uiManager.openModal(skinName);
         } else {
@@ -358,10 +416,12 @@
           this.userManager.userData.skin = skinName;
           this.uiManager.updateCoinImage(skinName);
           this.userManager.saveUserData();
+          console.log("Equipped skin:", skinName);
         }
       }
 
       handlePurchaseSuccess(item) {
+        console.log("Purchase success for:", item);
         switch (item) {
           case 'speedBoost2':
             this.userManager.userData.multiplier = 2;
@@ -394,7 +454,7 @@
       }
 
       verifyPayment(txHash) {
-        // Placeholder: In production, integrate with a blockchain API to verify transaction
+        console.log("Verifying payment with txHash:", txHash);
         if (txHash.length > 10) {
           this.handlePurchaseSuccess(this.pendingPurchase);
           this.uiManager.closeModal();
@@ -404,7 +464,7 @@
       }
     }
 
-    // ui.js
+    // UI Manager
     class UIManager {
       constructor() {
         this.tabContent = document.getElementById("tabContent");
@@ -415,9 +475,11 @@
           document.getElementById("walletAddress"),
           document.getElementById("modalWalletAddress")
         ];
+        this.container = document.querySelector(".container");
       }
 
       updateUI(userData) {
+        console.log("Updating UI with userData:", userData);
         document.getElementById("tapCount").textContent = `UAS: ${userData.coins}`;
         document.getElementById("energyFill").style.width = `${userData.energy}%`;
         document.getElementById("referralLink").value = 
@@ -427,15 +489,28 @@
       }
 
       updateCoinImage(skinName) {
-        document.getElementById("coinImage").src = `${skinName}_coin.png`;
+        const coinImage = document.getElementById("coinImage");
+        if (coinImage) {
+          coinImage.src = `${skinName}_coin.png`;
+        } else {
+          console.error("Coin image element not found!");
+        }
       }
 
       showTab(tabId) {
+        console.log("Showing tab:", tabId);
         this.tabContent.querySelectorAll(".tab-section").forEach(el => el.classList.remove("active"));
-        document.getElementById(tabId).classList.add("active");
+        const tab = document.getElementById(tabId);
+        if (tab) {
+          tab.classList.add("active");
+        } else {
+          console.error("Tab not found:", tabId);
+          alert("Tab not found. Please try again.");
+        }
       }
 
       openModal(item) {
+        console.log("Opening modal for item:", item);
         game.pendingPurchase = item;
         this.paymentModal.classList.add("active");
       }
@@ -446,6 +521,7 @@
       }
 
       initSkinsList(userData) {
+        console.log("Initializing skins list");
         this.skinsList.innerHTML = "";
         Object.keys(CONFIG.skinPrices).forEach(skin => {
           const div = document.createElement("div");
@@ -460,39 +536,128 @@
           this.skinsList.appendChild(div);
         });
       }
+
+      triggerFirework() {
+        console.log("Triggering firework animation");
+        const coin = document.getElementById("coinImage");
+        const rect = coin.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+
+        // Create 12 particles for the firework effect
+        for (let i = 0; i < 12; i++) {
+          const particle = document.createElement("div");
+          particle.className = "firework-particle";
+          const angle = (i / 12) * 2 * Math.PI;
+          const distance = 50 + Math.random() * 50; // Random distance between 50-100px
+          const x = Math.cos(angle) * distance;
+          const y = Math.sin(angle) * distance;
+          particle.style.left = `${centerX}px`;
+          particle.style.top = `${centerY}px`;
+          particle.style.setProperty("--x", `${x}px`);
+          particle.style.setProperty("--y", `${y}px`);
+          particle.style.animation = `firework 0.5s ease-out forwards`;
+          this.container.appendChild(particle);
+
+          // Remove particle after animation
+          setTimeout(() => particle.remove(), 500);
+        }
+      }
     }
 
-    // main.js
+    // Main Initialization
     const userManager = new UserManager();
     const uiManager = new UIManager();
     const game = new Game(userManager, uiManager);
 
     async function init() {
-      await userManager.loadUserData();
-      uiManager.initSkinsList(userManager.userData);
-      uiManager.updateUI(userManager.userData);
-      await userManager.handleReferral();
-      game.startAutoTap();
-      game.startEnergyRecharge();
+      console.log("Initializing game...");
+      if (window.Telegram?.WebApp) {
+        window.Telegram.WebApp.ready();
+        console.log("Telegram WebApp initialized:", window.Telegram.WebApp.initDataUnsafe);
+      } else {
+        console.warn("Telegram WebApp not detected. Running in browser mode.");
+      }
 
-      // Event Listeners
-      document.getElementById("coinImage").addEventListener("click", () => game.tapCoin());
-      document.querySelectorAll(".bottom-nav button").forEach(btn => {
-        btn.addEventListener("click", () => uiManager.showTab(btn.dataset.tab));
-      });
-      document.querySelectorAll(".buy-btn").forEach(btn => {
-        btn.addEventListener("click", () => {
-          const tab = btn.dataset.tab;
-          const item = btn.dataset.item;
-          const skin = btn.dataset.skin;
-          if (tab) uiManager.showTab(tab);
-          else if (item) uiManager.openModal(item);
-          else if (skin) game.buySkin(skin);
+      try {
+        await userManager.loadUserData();
+        uiManager.initSkinsList(userManager.userData);
+        uiManager.updateUI(userManager.userData);
+        await userManager.handleReferral();
+        game.startAutoTap();
+        game.startEnergyRecharge();
+
+        // Event Listeners
+        const coinImage = document.getElementById("coinImage");
+        if (coinImage) {
+          coinImage.addEventListener("click", () => {
+            console.log("Coin clicked");
+            game.tapCoin();
+          });
+          coinImage.addEventListener("touchstart", (e) => {
+            e.preventDefault();
+            console.log("Coin touched");
+            game.tapCoin();
+          });
+        } else {
+          console.error("Coin image element not found!");
+          alert("Game initialization failed: Coin image not found.");
+        }
+
+        document.querySelectorAll(".bottom-nav button").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const tabId = btn.dataset.tab;
+            console.log("Nav button clicked, tabId:", tabId);
+            uiManager.showTab(tabId);
+          });
+          btn.addEventListener("touchstart", (e) => {
+            e.preventDefault();
+            const tabId = btn.dataset.tab;
+            console.log("Nav button touched, tabId:", tabId);
+            uiManager.showTab(tabId);
+          });
         });
-      });
-      document.getElementById("submitPayment").addEventListener("click", () => {
-        game.verifyPayment(uiManager.txHashInput.value);
-      });
+
+        document.querySelectorAll(".buy-btn").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const tab = btn.dataset.tab;
+            const item = btn.dataset.item;
+            const skin = btn.dataset.skin;
+            console.log("Buy button clicked:", { tab, item, skin });
+            if (tab) uiManager.showTab(tab);
+            else if (item) uiManager.openModal(item);
+            else if (skin) game.buySkin(skin);
+          });
+          btn.addEventListener("touchstart", (e) => {
+            e.preventDefault();
+            const tab = btn.dataset.tab;
+            const item = btn.dataset.item;
+            const skin = btn.dataset.skin;
+            console.log("Buy button touched:", { tab, item, skin });
+            if (tab) uiManager.showTab(tab);
+            else if (item) uiManager.openModal(item);
+            else if (skin) game.buySkin(skin);
+          });
+        });
+
+        const submitPayment = document.getElementById("submitPayment");
+        if (submitPayment) {
+          submitPayment.addEventListener("click", () => {
+            console.log("Submit payment clicked");
+            game.verifyPayment(uiManager.txHashInput.value);
+          });
+          submitPayment.addEventListener("touchstart", (e) => {
+            e.preventDefault();
+            console.log("Submit payment touched");
+            game.verifyPayment(uiManager.txHashInput.value);
+          });
+        } else {
+          console.error("Submit payment button not found!");
+        }
+      } catch (error) {
+        console.error("Initialization error:", error);
+        alert("Failed to initialize game. Please check your connection and try again.");
+      }
     }
 
     document.addEventListener("DOMContentLoaded", init);
