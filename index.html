@@ -17,6 +17,7 @@
     .container {
       padding: 20px;
       position: relative;
+      min-height: 100vh; /* Ensure container fills viewport */
     }
     .coin-img {
       width: 200px;
@@ -25,19 +26,40 @@
       touch-action: manipulation;
       position: relative;
       z-index: 1;
+      margin: 20px auto;
+      display: block;
     }
     .coin-img:active {
       transform: scale(0.95);
       transition: transform 0.1s;
     }
+    .coin-count {
+      margin: 10px 0;
+      font-size: 24px;
+    }
+    .tab-content {
+      margin: 20px auto;
+      max-width: 90%;
+      min-height: 100px; /* Ensure content area is visible */
+    }
+    .tab-section {
+      display: none;
+      padding: 10px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 10px;
+    }
+    .tab-section.active {
+      display: block;
+    }
     .bottom-nav {
       position: fixed;
       bottom: 0;
       width: 100%;
-      background: rgba(0,0,0,0.5);
+      background: rgba(0, 0, 0, 0.8);
       display: flex;
       justify-content: space-around;
       padding: 10px 0;
+      z-index: 999;
     }
     .bottom-nav button {
       background: none;
@@ -46,12 +68,7 @@
       font-size: 20px;
       cursor: pointer;
       touch-action: manipulation;
-    }
-    .tab-section {
-      display: none;
-    }
-    .tab-section.active {
-      display: block;
+      padding: 10px;
     }
     .firework-particle {
       position: absolute;
@@ -63,8 +80,8 @@
       pointer-events: none;
     }
     @keyframes firework {
-      0% { transform: translate(0,0); opacity: 1; }
-      100% { transform: translate(var(--x),var(--y)); opacity: 0; }
+      0% { transform: translate(0, 0); opacity: 1; }
+      100% { transform: translate(var(--x), var(--y)); opacity: 0; }
     }
   </style>
 </head>
@@ -72,10 +89,14 @@
   <div class="container">
     <h1>Revolutionary Coin Test</h1>
     <img src="./bronze_coin.png" id="coinImage" class="coin-img" alt="Coin" />
-    <h2 id="coinCount">Coins: 0</h2>
-    <div id="tabContent">
-      <div id="homeTab" class="tab-section active"><p>Tap the coin!</p></div>
-      <div id="skillsTab" class="tab-section"><p>Skills Menu</p></div>
+    <h2 id="coinCount" class="coin-count">Coins: 0</h2>
+    <div id="tabContent" class="tab-content">
+      <div id="homeTab" class="tab-section active">
+        <p>Tap the coin to earn coins!</p>
+      </div>
+      <div id="skillsTab" class="tab-section">
+        <p>Skills Menu: Upgrade your tapping abilities!</p>
+      </div>
     </div>
   </div>
   <div class="bottom-nav">
@@ -84,9 +105,14 @@
   </div>
   <script>
     let coins = 0;
+
     function triggerFirework() {
       console.log("Triggering firework");
       const coin = document.getElementById("coinImage");
+      if (!coin) {
+        console.error("Coin image not found for firework!");
+        return;
+      }
       const rect = coin.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
@@ -115,25 +141,44 @@
     }
 
     function showTab(tabId) {
-      console.log("Showing tab:", tabId);
-      document.querySelectorAll(".tab-section").forEach(el => el.classList.remove("active"));
+      console.log("Attempting to show tab:", tabId);
+      const tabContent = document.getElementById("tabContent");
+      if (!tabContent) {
+        console.error("Tab content container not found!");
+        alert("Tab content not found!");
+        return;
+      }
+      const sections = tabContent.querySelectorAll(".tab-section");
+      sections.forEach(el => el.classList.remove("active"));
       const tab = document.getElementById(tabId);
-      if (tab) tab.classList.add("active");
-      else console.error("Tab not found:", tabId);
+      if (tab) {
+        tab.classList.add("active");
+        console.log("Tab switched to:", tabId);
+      } else {
+        console.error("Tab not found:", tabId);
+        alert("Tab not found: " + tabId);
+      }
     }
 
     function init() {
-      console.log("Initializing...");
+      console.log("Initializing game...");
       if (window.Telegram?.WebApp) {
         window.Telegram.WebApp.ready();
-        console.log("Telegram WebApp:", window.Telegram.WebApp.initDataUnsafe);
+        console.log("Telegram WebApp initialized:", window.Telegram.WebApp.initDataUnsafe);
+      } else {
+        console.warn("Running outside Telegram WebApp");
       }
 
       const coinImage = document.getElementById("coinImage");
       if (coinImage) {
-        coinImage.addEventListener("click", tapCoin);
+        coinImage.addEventListener("click", (e) => {
+          e.preventDefault();
+          console.log("Coin clicked");
+          tapCoin();
+        });
         coinImage.addEventListener("touchstart", (e) => {
           e.preventDefault();
+          console.log("Coin touched");
           tapCoin();
         });
       } else {
@@ -141,13 +186,24 @@
         alert("Coin image missing!");
       }
 
-      document.querySelectorAll(".bottom-nav button").forEach(btn => {
-        btn.addEventListener("click", () => showTab(btn.dataset.tab));
+      const navButtons = document.querySelectorAll(".bottom-nav button");
+      navButtons.forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          e.preventDefault();
+          const tabId = btn.dataset.tab;
+          console.log("Nav button clicked, tabId:", tabId);
+          showTab(tabId);
+        });
         btn.addEventListener("touchstart", (e) => {
           e.preventDefault();
-          showTab(btn.dataset.tab);
+          const tabId = btn.dataset.tab;
+          console.log("Nav button touched, tabId:", tabId);
+          showTab(tabId);
         });
       });
+
+      // Initial tab check
+      showTab("homeTab");
     }
 
     document.addEventListener("DOMContentLoaded", init);
