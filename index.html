@@ -499,111 +499,23 @@
       100% { transform: rotate(360deg); }
     }
     
-    /* New Earn Tab Styles */
-    .task-card {
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 15px;
-      padding: 15px;
-      margin-bottom: 15px;
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      transition: all 0.3s;
-    }
-    
-    .task-card:hover {
-      background: rgba(255, 255, 255, 0.15);
-      transform: translateX(5px);
-    }
-    
-    .task-icon {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      background: rgba(255, 215, 0, 0.2);
-      border: 2px solid #ffd700;
-    }
-    
-    .task-content {
-      flex: 1;
-    }
-    
-    .task-name {
-      font-weight: bold;
-      margin-bottom: 5px;
-    }
-    
-    .task-reward {
-      color: #ffd700;
+    /* Energy Info */
+    .energy-info {
+      background: rgba(0, 0, 0, 0.4);
+      padding: 10px;
+      border-radius: 10px;
+      text-align: center;
+      margin: 10px 0;
       font-size: 0.9rem;
     }
     
-    .task-btn {
-      background: linear-gradient(to right, #4a148c, #7b1fa2);
-      border: none;
-      border-radius: 8px;
-      color: white;
-      padding: 8px 15px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: all 0.3s;
-      min-width: 100px;
-    }
-    
-    .task-btn:hover {
-      background: linear-gradient(to right, #7b1fa2, #9c27b0);
-      transform: scale(1.05);
-    }
-    
-    .task-btn.completed {
-      background: linear-gradient(to right, #00c853, #64dd17);
-    }
-    
-    .task-btn.completed:hover {
-      background: linear-gradient(to right, #64dd17, #aeea00);
-    }
-    
-    .earn-banner {
-      background: linear-gradient(to right, #ffd700, #ffa500);
+    .recharge-indicator {
+      display: inline-block;
+      padding: 5px 10px;
+      background: rgba(0, 200, 83, 0.2);
       border-radius: 15px;
-      padding: 15px;
-      text-align: center;
-      margin-bottom: 20px;
-      color: #8b4513;
-      font-weight: bold;
-      border: 2px solid #b8860b;
-    }
-    
-    .earn-section {
-      margin-bottom: 20px;
-      padding: 15px;
-      background: rgba(0, 0, 0, 0.3);
-      border-radius: 15px;
-    }
-    
-    .section-title {
-      font-size: 1.2rem;
-      margin-bottom: 15px;
-      color: #ffd700;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    
-    .external-link {
-      color: #4fc3f7;
-      text-decoration: none;
-      border-bottom: 1px dashed #4fc3f7;
-    }
-    
-    .external-link:hover {
-      color: #81d4fa;
-      border-bottom: 1px solid #81d4fa;
+      margin-top: 5px;
+      border: 1px solid rgba(0, 200, 83, 0.5);
     }
   </style>
 </head>
@@ -647,7 +559,7 @@
           <i class="fas fa-coins"></i> UAS: <span id="coinCount">0</span>
         </div>
         <div class="stat-item">
-          <i class="fas fa-bolt"></i> Energy: <span id="energyValue">1000</span>
+          <i class="fas fa-bolt"></i> Energy: <span id="energyValue">1000</span>/1000
         </div>
       </div>
       <div class="stats-display">
@@ -677,6 +589,13 @@
       </div>
     </div>
     
+    <!-- Energy Info -->
+    <div class="energy-info">
+      <p><i class="fas fa-info-circle"></i> Energy System</p>
+      <p>Each tap: <span class="recharge-indicator">-1 Energy</span></p>
+      <p>Recharge: <span class="recharge-indicator">+1 Energy every 3s</span></p>
+    </div>
+    
     <!-- Energy Bar -->
     <div class="energy-bar-container">
       <div class="energy-bar" id="energyBar"></div>
@@ -694,6 +613,7 @@
           <p><i class="fas fa-trophy"></i> Total Taps: <span id="totalTaps">0</span></p>
           <p><i class="fas fa-robot"></i> Auto Tapper: <span id="autoTapStatus">Inactive</span></p>
           <p><i class="fas fa-users"></i> Referrals: <span id="referralCount">0</span></p>
+          <p><i class="fas fa-bolt"></i> Energy Recharge: 1 every 3s</p>
         </div>
       </div>
     </div>
@@ -757,92 +677,6 @@
       </div>
     </div>
     
-    <!-- New Earn Tab -->
-    <div class="tab-content" id="earnTab">
-      <h2 class="tab-title"><i class="fas fa-coins"></i> Earn UAS</h2>
-      
-      <div class="earn-banner">
-        <i class="fas fa-lightbulb"></i> Complete tasks to earn free UAS coins!
-      </div>
-      
-      <div class="earn-section">
-        <h3 class="section-title"><i class="fas fa-tasks"></i> Daily Tasks</h3>
-        
-        <div class="task-card">
-          <div class="task-icon">
-            <i class="fas fa-play"></i>
-          </div>
-          <div class="task-content">
-            <div class="task-name">Watch a Short Video</div>
-            <div class="task-reward">+50 UAS</div>
-          </div>
-          <button class="task-btn" id="watchVideoBtn">Start</button>
-        </div>
-        
-        <div class="task-card">
-          <div class="task-icon">
-            <i class="fas fa-share-alt"></i>
-          </div>
-          <div class="task-content">
-            <div class="task-name">Share on Social Media</div>
-            <div class="task-reward">+100 UAS</div>
-          </div>
-          <button class="task-btn" id="shareSocialBtn">Share</button>
-        </div>
-        
-        <div class="task-card">
-          <div class="task-icon">
-            <i class="fas fa-download"></i>
-          </div>
-          <div class="task-content">
-            <div class="task-name">Install Recommended App</div>
-            <div class="task-reward">+500 UAS</div>
-          </div>
-          <button class="task-btn" id="installAppBtn">Install</button>
-        </div>
-      </div>
-      
-      <div class="earn-section">
-        <h3 class="section-title"><i class="fas fa-gift"></i> Special Offers</h3>
-        
-        <div class="task-card">
-          <div class="task-icon">
-            <i class="fas fa-user-plus"></i>
-          </div>
-          <div class="task-content">
-            <div class="task-name">Invite Friends</div>
-            <div class="task-reward">+1000 UAS per friend</div>
-          </div>
-          <button class="task-btn" id="inviteFriendsBtn">Invite</button>
-        </div>
-        
-        <div class="task-card">
-          <div class="task-icon">
-            <i class="fas fa-question-circle"></i>
-          </div>
-          <div class="task-content">
-            <div class="task-name">Complete Survey</div>
-            <div class="task-reward">+200 UAS</div>
-          </div>
-          <button class="task-btn" id="completeSurveyBtn">Start Survey</button>
-        </div>
-      </div>
-      
-      <div class="earn-section">
-        <h3 class="section-title"><i class="fas fa-globe"></i> Partner Offers</h3>
-        
-        <div style="margin-top: 15px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px;">
-          <p>Earn more UAS by visiting our partner sites:</p>
-          <ul style="margin: 10px 0 15px 20px;">
-            <li><a href="https://partner1.com" class="external-link" target="_blank">Partner Site 1</a> - Earn 300 UAS</li>
-            <li><a href="https://partner2.com" class="external-link" target="_blank">Partner Site 2</a> - Earn 400 UAS</li>
-            <li><a href="https://partner3.com" class="external-link" target="_blank">Partner Site 3</a> - Earn 500 UAS</li>
-          </ul>
-          <p>Visit any partner site and complete their offer to earn UAS coins.</p>
-        </div>
-      </div>
-    </div>
-    
     <div class="powered-by">
       Powered by Revolutionary Blockchain Technology
     </div>
@@ -860,10 +694,6 @@
     <button class="tab-btn" data-tab="skinsTab">
       <i class="fas fa-palette"></i>
       <span>Skins</span>
-    </button>
-    <button class="tab-btn" data-tab="earnTab">
-      <i class="fas fa-coins"></i>
-      <span>Earn</span>
     </button>
     <button class="tab-btn" data-tab="referralTab">
       <i class="fas fa-user-friends"></i>
@@ -888,10 +718,10 @@
     const database = firebase.database();
     const auth = firebase.auth();
     
-    // Game state with enhanced energy system
+    // Game state with updated energy system
     let gameState = {
       coins: 0,
-      energy: 1000, // Increased from 100 to 1000
+      energy: 1000,
       maxEnergy: 1000,
       multiplier: 1,
       autoTap: false,
@@ -902,8 +732,7 @@
       referrals: 0,
       currentSkin: 'bronze',
       skins: ['bronze'],
-      userId: null,
-      completedTasks: []
+      userId: null
     };
     
     // USDT wallet address
@@ -922,15 +751,6 @@
       { id: 'suadiaarab.png', name: 'Saudi Arabia Flag', price: 5 },
       { id: 'india.png', name: 'India Flag', price: 5 },
       { id: 'brazil.png', name: 'Brazil Flag', price: 5 }
-    ];
-    
-    // Earn tasks data
-    const earnTasks = [
-      { id: 'watchVideo', name: 'Watch a Short Video', reward: 50, icon: 'play' },
-      { id: 'shareSocial', name: 'Share on Social Media', reward: 100, icon: 'share-alt' },
-      { id: 'installApp', name: 'Install Recommended App', reward: 500, icon: 'download' },
-      { id: 'inviteFriends', name: 'Invite Friends', reward: 1000, icon: 'user-plus' },
-      { id: 'completeSurvey', name: 'Complete Survey', reward: 200, icon: 'question-circle' }
     ];
     
     // DOM elements
@@ -959,14 +779,9 @@
     const confirmPayment = document.getElementById('confirmPayment');
     const paymentSpinner = document.getElementById('paymentSpinner');
     
-    // Earn tab buttons
-    const watchVideoBtn = document.getElementById('watchVideoBtn');
-    const shareSocialBtn = document.getElementById('shareSocialBtn');
-    const installAppBtn = document.getElementById('installAppBtn');
-    const inviteFriendsBtn = document.getElementById('inviteFriendsBtn');
-    const completeSurveyBtn = document.getElementById('completeSurveyBtn');
-    
     let currentPurchaseItem = null;
+    let lastRechargeTime = Date.now();
+    let rechargeInterval;
     
     async function initGame() {
       walletAddressEl.textContent = walletAddress;
@@ -976,10 +791,9 @@
         showNotification('User authenticated successfully!');
         await loadGameState();
         initSkins();
-        updateEarnButtons();
         
-        // Start game loops with faster recharge
-        setInterval(rechargeEnergy, 500); // Recharge every 500ms (twice as fast)
+        // Start energy recharge
+        startEnergyRecharge();
         
         if (gameState.autoTap) {
           setInterval(autoTap, 1000);
@@ -988,8 +802,18 @@
         console.error('Authentication failed:', error);
         showNotification('Failed to authenticate. Using local storage.');
         loadLocalGameState();
-        updateEarnButtons();
       }
+    }
+    
+    function startEnergyRecharge() {
+      clearInterval(rechargeInterval);
+      rechargeInterval = setInterval(() => {
+        if (gameState.energy < gameState.maxEnergy) {
+          gameState.energy++;
+          updateUI();
+          saveGameState();
+        }
+      }, 3000); // Recharge every 3 seconds
     }
     
     async function loadGameState() {
@@ -1064,18 +888,6 @@
       });
     }
     
-    function updateEarnButtons() {
-      earnTasks.forEach(task => {
-        const isCompleted = gameState.completedTasks.includes(task.id);
-        const button = document.getElementById(`${task.id}Btn`);
-        if (button) {
-          button.textContent = isCompleted ? 'Completed' : task.id === 'inviteFriends' ? 'Invite' : 'Start';
-          button.classList.toggle('completed', isCompleted);
-          button.disabled = isCompleted;
-        }
-      });
-    }
-    
     function showNotification(message) {
       notification.textContent = message;
       notification.style.display = 'block';
@@ -1138,10 +950,10 @@
         return;
       }
       
-      // Calculate coins earned (using 20 energy per tap)
+      // Calculate coins earned (using 1 energy per tap)
       const earned = 1 * gameState.multiplier;
       gameState.coins += earned;
-      gameState.energy -= 20; // Using 20 energy per tap
+      gameState.energy -= 1; // Using 1 energy per tap
       gameState.totalTaps++;
       gameState.xp += earned;
       checkLevelUp();
@@ -1166,15 +978,6 @@
     function showLevelUp() {
       newLevelDisplay.textContent = gameState.level;
       levelUpPopup.style.display = 'flex';
-    }
-    
-    // Faster energy recharge (10 units every 500ms)
-    function rechargeEnergy() {
-      if (gameState.energy < gameState.maxEnergy) {
-        gameState.energy = Math.min(gameState.energy + 10, gameState.maxEnergy);
-        updateUI();
-        saveGameState();
-      }
     }
     
     function autoTap() {
@@ -1240,29 +1043,6 @@
       saveGameState();
     }
     
-    function completeTask(taskId) {
-      if (gameState.completedTasks.includes(taskId)) {
-        showNotification('You have already completed this task!');
-        return;
-      }
-      
-      const task = earnTasks.find(t => t.id === taskId);
-      if (!task) return;
-      
-      gameState.coins += task.reward;
-      gameState.completedTasks.push(taskId);
-      updateUI();
-      saveGameState();
-      updateEarnButtons();
-      
-      const rect = document.getElementById(`${taskId}Btn`).getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      createFirework(centerX, centerY);
-      
-      showNotification(`+${task.reward} UAS coins earned!`);
-    }
-    
     // Event listeners
     coin.addEventListener('click', tapCoin);
     coin.addEventListener('touchstart', (e) => {
@@ -1322,49 +1102,8 @@
       showNotification('Referral link copied to clipboard!');
     });
     
-    // Earn tab event listeners
-    watchVideoBtn.addEventListener('click', () => {
-      showNotification('Playing video... Earned 50 UAS!');
-      setTimeout(() => {
-        completeTask('watchVideo');
-      }, 2000);
-    });
-    
-    shareSocialBtn.addEventListener('click', () => {
-      window.open('https://twitter.com/intent/tweet?text=Check%20out%20Revolutionary%20Coin%20game!%20https%3A%2F%2Fuascoin.com', '_blank');
-      setTimeout(() => {
-        completeTask('shareSocial');
-      }, 1000);
-    });
-    
-    installAppBtn.addEventListener('click', () => {
-      window.open('https://play.google.com/store/apps', '_blank');
-      setTimeout(() => {
-        completeTask('installApp');
-      }, 1000);
-    });
-    
-    inviteFriendsBtn.addEventListener('click', () => {
-      document.getElementById('referralTab').classList.add('active');
-      document.getElementById('homeTab').classList.remove('active');
-      document.getElementById('upgradesTab').classList.remove('active');
-      document.getElementById('skinsTab').classList.remove('active');
-      document.getElementById('earnTab').classList.remove('active');
-      document.getElementById('referralTab').classList.add('active');
-      
-      tabBtns.forEach(btn => btn.classList.remove('active'));
-      document.querySelector('[data-tab="referralTab"]').classList.add('active');
-    });
-    
-    completeSurveyBtn.addEventListener('click', () => {
-      window.open('https://example.com/survey', '_blank');
-      setTimeout(() => {
-        completeTask('completeSurvey');
-      }, 1000);
-    });
-    
     // Initialize the game
     initGame();
   </script>
 </body>
-            </html>
+</html>
