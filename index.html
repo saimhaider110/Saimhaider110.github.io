@@ -1,30 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Revolutionary Coin</title>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    :root {
-      --primary-color: white;
-      --bg-opacity: 0.8;
-      --border-radius: 10px;
-      --max-width: 90%;
-    }
-    body {
+    * {
       margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
       background-size: 400% 400%;
       animation: gradientBG 15s ease infinite;
-      color: var(--primary-color);
+      color: white;
       text-align: center;
-      overscroll-behavior: none;
-      -webkit-tap-highlight-color: transparent;
       min-height: 100vh;
+      overflow: hidden;
+      touch-action: manipulation;
     }
     
     @keyframes gradientBG {
@@ -34,79 +32,135 @@
     }
     
     .container {
+      max-width: 500px;
+      margin: 0 auto;
       padding: 20px;
       position: relative;
       min-height: 100vh;
     }
     
-    .coin-img {
-      width: 200px;
-      height: 200px;
-      margin: 20px auto;
-      display: block;
-      cursor: pointer;
-      touch-action: manipulation;
-      position: relative;
-      z-index: 1;
-      transition: all 0.1s;
-      filter: drop-shadow(0 0 10px gold);
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 15px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     }
     
-    .coin-img:active {
+    .coin-display {
+      background: rgba(0, 0, 0, 0.5);
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 1.2rem;
+    }
+    
+    .energy-display {
+      background: rgba(0, 0, 0, 0.5);
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 1.2rem;
+    }
+    
+    .coin-container {
+      position: relative;
+      margin: 30px 0;
+    }
+    
+    .coin {
+      width: 220px;
+      height: 220px;
+      margin: 0 auto;
+      background: radial-gradient(circle at 30% 30%, #ffd700, #daa520);
+      border-radius: 50%;
+      box-shadow: 
+        0 0 30px rgba(255, 215, 0, 0.8),
+        inset 0 -8px 15px rgba(139, 69, 19, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.1s;
+      border: 8px solid #b8860b;
+      animation: pulse 2s infinite;
+    }
+    
+    .coin:active {
       transform: scale(0.95);
+      animation: none;
+    }
+    
+    @keyframes pulse {
+      0% { box-shadow: 0 0 30px rgba(255, 215, 0, 0.8); }
+      50% { box-shadow: 0 0 50px rgba(255, 215, 0, 1); }
+      100% { box-shadow: 0 0 30px rgba(255, 215, 0, 0.8); }
+    }
+    
+    .coin-inner {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #ffd700, #daa520);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 4px solid #b8860b;
+      box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.4);
+    }
+    
+    .coin-text {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: #8b4513;
+      text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
+      letter-spacing: 1px;
     }
     
     .coin-count {
-      margin: 10px 0;
-      font-size: 24px;
+      font-size: 2.2rem;
       font-weight: bold;
-      text-shadow: 0 0 5px rgba(0,0,0,0.5);
-      background: rgba(0,0,0,0.3);
+      margin: 20px 0;
+      text-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+      background: rgba(0, 0, 0, 0.3);
       padding: 10px 20px;
-      border-radius: 20px;
+      border-radius: 15px;
       display: inline-block;
     }
     
-    .energy-bar {
-      background: #555;
-      height: 20px;
+    .energy-bar-container {
+      width: 90%;
+      max-width: 400px;
+      height: 25px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 15px;
       margin: 20px auto;
-      border-radius: var(--border-radius);
-      width: var(--max-width);
       overflow: hidden;
-      position: relative;
-      border: 2px solid #333;
-      box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
+      box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.6);
+      border: 2px solid rgba(255, 255, 255, 0.1);
     }
     
-    .energy-fill {
-      background: linear-gradient(to right, #00c853, #b2ff59);
+    .energy-bar {
       height: 100%;
+      background: linear-gradient(to right, #00c853, #64dd17);
       width: 100%;
-      transition: width 0.5s;
-      box-shadow: 0 0 5px rgba(0,200,83,0.5);
+      border-radius: 15px;
+      transition: width 0.5s ease;
     }
     
-    .buy-coffee {
-      position: absolute;
-      right: 10px;
-      top: 30px;
-      z-index: 10;
+    .tab-container {
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 20px;
+      padding: 20px;
+      margin: 20px 0;
+      min-height: 200px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
     
     .tab-content {
-      margin: 30px auto;
-      max-width: var(--max-width);
-      min-height: 150px;
-      background: rgba(0, 0, 0, 0.7);
-      border-radius: var(--border-radius);
-      padding: 15px;
-      z-index: 0;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-      border: 1px solid rgba(255,255,255,0.1);
-    }
-    
-    .tab-section {
       display: none;
       animation: fadeIn 0.3s ease;
     }
@@ -116,175 +170,105 @@
       to { opacity: 1; transform: translateY(0); }
     }
     
-    .tab-section.active {
+    .tab-content.active {
       display: block;
     }
     
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      background: rgba(0, 0, 0, var(--bg-opacity));
+    .tabs {
       display: flex;
       justify-content: space-around;
-      padding: 10px 0;
-      z-index: 999;
-      border-top: 1px solid rgba(255,255,255,0.1);
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 15px 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      z-index: 100;
     }
     
-    .bottom-nav button {
-      background: none;
+    .tab-btn {
+      background: transparent;
       border: none;
-      color: var(--primary-color);
-      font-size: 16px;
+      color: #aaa;
+      font-size: 1.5rem;
       cursor: pointer;
-      touch-action: manipulation;
       padding: 10px 15px;
-      transition: all 0.2s;
-      border-radius: 8px;
-      flex: 1;
-      margin: 0 5px;
+      border-radius: 10px;
+      transition: all 0.3s;
     }
     
-    .bottom-nav button.active {
-      background: rgba(255, 215, 0, 0.3);
+    .tab-btn.active {
+      color: #ffd700;
+      background: rgba(255, 215, 0, 0.1);
       transform: translateY(-5px);
-      box-shadow: 0 5px 10px rgba(0,0,0,0.2);
     }
     
-    .skin-item, .upgrade-item {
-      margin: 10px auto;
-      padding: 10px;
+    .tab-btn i {
+      display: block;
+      margin-bottom: 5px;
+    }
+    
+    .tab-title {
+      font-size: 1.8rem;
+      margin-bottom: 15px;
+      color: #ffd700;
+      text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    }
+    
+    .item-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin-top: 15px;
+    }
+    
+    .item-card {
       background: rgba(255, 255, 255, 0.1);
-      border-radius: var(--border-radius);
-      max-width: var(--max-width);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      transition: all 0.2s;
-      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 15px;
+      padding: 15px;
+      text-align: center;
+      transition: transform 0.3s;
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
     
-    .skin-item:hover, .upgrade-item:hover {
+    .item-card:hover {
+      transform: translateY(-5px);
       background: rgba(255, 255, 255, 0.15);
-      transform: translateY(-2px);
     }
     
-    .preview-img {
-      width: 60px;
-      height: 60px;
-      margin-right: 10px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid gold;
+    .item-icon {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      color: #ffd700;
+    }
+    
+    .item-name {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    
+    .item-price {
+      color: #ffd700;
+      font-size: 0.9rem;
+      margin-bottom: 10px;
     }
     
     .buy-btn {
-      padding: 8px 15px;
       background: linear-gradient(to right, #ffd700, #ffa500);
       border: none;
       border-radius: 8px;
+      color: #8b4513;
+      padding: 8px 15px;
       font-weight: bold;
       cursor: pointer;
-      touch-action: manipulation;
-      color: #000;
-      min-width: 80px;
-      transition: all 0.2s;
-      box-shadow: 0 3px 5px rgba(0,0,0,0.2);
+      transition: all 0.3s;
+      width: 100%;
     }
     
     .buy-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 8px rgba(0,0,0,0.3);
-    }
-    
-    .buy-btn:active {
-      transform: translateY(1px);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-    }
-    
-    .modal {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: #222;
-      padding: 20px;
-      border-radius: var(--border-radius);
-      color: var(--primary-color);
-      z-index: 1000;
-      max-width: var(--max-width);
-      width: 90%;
-      text-align: center;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      border: 1px solid gold;
-    }
-    
-    .modal.active {
-      display: block;
-      animation: modalAppear 0.3s ease;
-    }
-    
-    @keyframes modalAppear {
-      from { opacity: 0; transform: translate(-50%, -40%); }
-      to { opacity: 1; transform: translate(-50%, -50%); }
-    }
-    
-    input, code {
-      width: calc(100% - 20px);
-      padding: 10px;
-      border-radius: 5px;
-      margin: 10px 0;
-      box-sizing: border-box;
-      background: #333;
-      border: 1px solid #555;
-      color: white;
-      font-family: monospace;
-    }
-    
-    .firework-particle {
-      position: absolute;
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: gold;
-      z-index: 2;
-      pointer-events: none;
-    }
-    
-    @keyframes firework {
-      0% { transform: translate(0, 0); opacity: 1; }
-      100% { transform: translate(var(--x), var(--y)); opacity: 0; }
-    }
-    
-    .game-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 20px;
-      background: rgba(0,0,0,0.4);
-      border-radius: var(--border-radius);
-      margin: 0 auto 20px;
-      max-width: var(--max-width);
-    }
-    
-    .status-box {
-      background: rgba(0,0,0,0.5);
-      padding: 5px 15px;
-      border-radius: 20px;
-      font-size: 14px;
-    }
-    
-    .debug-info {
-      position: fixed;
-      top: 10px;
-      left: 10px;
-      background: rgba(0,0,0,0.7);
-      padding: 5px 10px;
-      border-radius: 5px;
-      font-size: 12px;
-      z-index: 1000;
+      transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
     }
     
     .notification {
@@ -292,454 +276,420 @@
       top: 20px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(0,0,0,0.8);
-      color: gold;
-      padding: 10px 20px;
-      border-radius: 5px;
-      z-index: 1001;
-      animation: slideDown 0.5s ease;
+      background: rgba(0, 0, 0, 0.8);
+      color: #ffd700;
+      padding: 15px 30px;
+      border-radius: 10px;
+      z-index: 1000;
+      font-weight: bold;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
       display: none;
+      animation: slideDown 0.5s ease;
     }
     
     @keyframes slideDown {
-      from { top: -50px; opacity: 0; }
-      to { top: 20px; opacity: 1; }
+      from { top: -100px; }
+      to { top: 20px; }
+    }
+    
+    .firework {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: gold;
+      pointer-events: none;
+      z-index: 10;
+    }
+    
+    .loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+      transition: opacity 0.5s;
+    }
+    
+    .loading-spinner {
+      width: 60px;
+      height: 60px;
+      border: 5px solid rgba(255, 215, 0, 0.3);
+      border-top: 5px solid #ffd700;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .loading-text {
+      font-size: 1.5rem;
+      color: #ffd700;
+      text-align: center;
     }
     
     .powered-by {
       position: absolute;
-      bottom: 60px;
+      bottom: 80px;
       width: 100%;
       text-align: center;
-      font-size: 12px;
-      opacity: 0.7;
-    }
-    
-    h1 {
-      text-shadow: 0 0 10px rgba(255,215,0,0.5);
-      margin-bottom: 30px;
-      background: linear-gradient(to right, gold, #ffd700, gold);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      font-size: 2.5rem;
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.6);
     }
   </style>
 </head>
 <body>
-  <!-- Debug Information -->
-  <div class="debug-info">Status: <span id="debugStatus">Initializing...</span></div>
+  <!-- Loading Screen -->
+  <div class="loading-screen" id="loadingScreen">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Initializing Revolutionary Coin...</div>
+  </div>
   
   <!-- Notification -->
   <div class="notification" id="notification"></div>
   
-  <!-- Main Container -->
   <div class="container">
-    <!-- Game Header -->
-    <div class="game-header">
-      <div class="status-box">Energy: <span id="energyValue">100</span>%</div>
-      <div class="status-box">Multiplier: x<span id="multiplierValue">1</span></div>
+    <!-- Header -->
+    <div class="header">
+      <div class="coin-display">
+        <i class="fas fa-coins"></i> UAS: <span id="coinCount">0</span>
+      </div>
+      <div class="energy-display">
+        <i class="fas fa-bolt"></i> <span id="energyValue">100</span>%
+      </div>
     </div>
     
-    <!-- Coin Image -->
-    <img src="https://via.placeholder.com/200/ffd700/000000?text=UAS+Coin" id="coinImage" class="coin-img" alt="Tap Coin" />
+    <!-- Coin -->
+    <div class="coin-container">
+      <div class="coin" id="coin">
+        <div class="coin-inner">
+          <div class="coin-text">UAS</div>
+        </div>
+      </div>
+    </div>
     
-    <!-- Coin Count -->
-    <h2 id="tapCount" class="coin-count">UAS: <span id="coinValue">0</span></h2>
-
-    <!-- Tab Content Area -->
-    <div id="tabContent" class="tab-content">
+    <div class="coin-count">
+      <i class="fas fa-hands"></i> Tap the coin to earn!
+    </div>
+    
+    <!-- Energy Bar -->
+    <div class="energy-bar-container">
+      <div class="energy-bar" id="energyBar" style="width: 100%;"></div>
+    </div>
+    
+    <!-- Tab Content -->
+    <div class="tab-container">
       <!-- Home Tab -->
-      <div id="homeTab" class="tab-section active">
-        <p>Keep tapping the coin to earn UAS!</p>
-        <p>⚡️ Energy recharges automatically</p>
-        <p>✨ Unlock upgrades to earn faster</p>
+      <div class="tab-content active" id="homeTab">
+        <h2 class="tab-title"><i class="fas fa-home"></i> Welcome!</h2>
+        <p>Tap the golden coin to earn UAS coins.</p>
+        <p>Use your coins to buy upgrades and special items.</p>
+        <p>Invite friends to earn referral bonuses!</p>
       </div>
       
-      <!-- Earn Tab -->
-      <div id="earnTab" class="tab-section">
-        <h3>Earn Bonus UAS</h3>
-        <div class="upgrade-item">
-          Daily Bonus (100 UAS) 
-          <button class="buy-btn" id="dailyBonus">Claim</button>
-        </div>
-        <div class="upgrade-item">
-          Watch Video (250 UAS) 
-          <button class="buy-btn">Watch</button>
-        </div>
-        <div class="upgrade-item">
-          Complete Survey (500 UAS) 
-          <button class="buy-btn">Start</button>
+      <!-- Upgrades Tab -->
+      <div class="tab-content" id="upgradesTab">
+        <h2 class="tab-title"><i class="fas fa-rocket"></i> Upgrades</h2>
+        <div class="item-grid">
+          <div class="item-card">
+            <div class="item-icon"><i class="fas fa-running"></i></div>
+            <div class="item-name">2x Speed</div>
+            <div class="item-price">Cost: 500 UAS</div>
+            <button class="buy-btn">Buy</button>
+          </div>
+          <div class="item-card">
+            <div class="item-icon"><i class="fas fa-tachometer-alt"></i></div>
+            <div class="item-name">5x Speed</div>
+            <div class="item-price">Cost: 2000 UAS</div>
+            <button class="buy-btn">Buy</button>
+          </div>
+          <div class="item-card">
+            <div class="item-icon"><i class="fas fa-bolt"></i></div>
+            <div class="item-name">Energy Refill</div>
+            <div class="item-price">Cost: 300 UAS</div>
+            <button class="buy-btn">Buy</button>
+          </div>
+          <div class="item-card">
+            <div class="item-icon"><i class="fas fa-robot"></i></div>
+            <div class="item-name">Auto Tapper</div>
+            <div class="item-price">Cost: 5000 UAS</div>
+            <button class="buy-btn">Buy</button>
+          </div>
         </div>
       </div>
       
       <!-- Skins Tab -->
-      <div id="skinsTab" class="tab-section">
-        <h2>Country Themed Skins</h2>
-        <div id="skinsList">
-          <div class="skin-item">
-            <span>
-              <img src="https://via.placeholder.com/60/cc0000/ffffff?text=US" class="preview-img">
-              United States
-            </span>
-            <button class="buy-btn" data-skin="usa">5 USDT</button>
+      <div class="tab-content" id="skinsTab">
+        <h2 class="tab-title"><i class="fas fa-palette"></i> Skins</h2>
+        <div class="item-grid">
+          <div class="item-card">
+            <div class="item-icon"><i class="fas fa-globe-americas"></i></div>
+            <div class="item-name">USA Coin</div>
+            <div class="item-price">Cost: 1000 UAS</div>
+            <button class="buy-btn">Equip</button>
           </div>
-          <div class="skin-item">
-            <span>
-              <img src="https://via.placeholder.com/60/0066cc/ffffff?text=EU" class="preview-img">
-              European Union
-            </span>
-            <button class="buy-btn" data-skin="europe">5 USDT</button>
+          <div class="item-card">
+            <div class="item-icon"><i class="fas fa-globe-europe"></i></div>
+            <div class="item-name">Europe Coin</div>
+            <div class="item-price">Cost: 1000 UAS</div>
+            <button class="buy-btn">Equip</button>
           </div>
-          <div class="skin-item">
-            <span>
-              <img src="https://via.placeholder.com/60/ff9933/000000?text=IN" class="preview-img">
-              India
-            </span>
-            <button class="buy-btn" data-skin="india">5 USDT</button>
+          <div class="item-card">
+            <div class="item-icon"><i class="fas fa-globe-asia"></i></div>
+            <div class="item-name">Asia Coin</div>
+            <div class="item-price">Cost: 1000 UAS</div>
+            <button class="buy-btn">Equip</button>
+          </div>
+          <div class="item-card">
+            <div class="item-icon"><i class="fas fa-globe-africa"></i></div>
+            <div class="item-name">Africa Coin</div>
+            <div class="item-price">Cost: 1000 UAS</div>
+            <button class="buy-btn">Equip</button>
           </div>
         </div>
-      </div>
-      
-      <!-- Upgrades Tab -->
-      <div id="upgradesTab" class="tab-section">
-        <h2>Upgrade Packages</h2>
-        <div class="upgrade-item">x2 Speed Boost (5 USDT) <button class="buy-btn" data-item="speedBoost2">Buy</button></div>
-        <div class="upgrade-item">x5 Speed Boost (10 USDT) <button class="buy-btn" data-item="speedBoost5">Buy</button></div>
-        <div class="upgrade-item">x10 Speed Boost (15 USDT) <button class="buy-btn" data-item="speedBoost10">Buy</button></div>
-        <div class="upgrade-item">Energy Refill x2 (5 USDT) <button class="buy-btn" data-item="energyRefill2">Buy</button></div>
-        <div class="upgrade-item">Energy Refill x10 (10 USDT) <button class="buy-btn" data-item="energyRefill10">Buy</button></div>
-        <div class="upgrade-item">AutoBot Mode (10 USDT) <button class="buy-btn" data-item="autoBot">Buy</button></div>
       </div>
       
       <!-- Referral Tab -->
-      <div id="referralTab" class="tab-section">
-        <h2>Referral System</h2>
-        <p id="refStatus">Invite friends & earn 10% of their UAS + 1000 UAS bonus!</p>
-        <p>Your Referral Link:</p>
-        <input type="text" id="referralLink" value="https://t.me/UASReferralBot?start=user123" readonly>
-        <p style="font-size:14px">Share with friends to grow your team!</p>
-        <div class="upgrade-item">
-          Team Size: <strong>0</strong>
-          <button class="buy-btn">View Team</button>
+      <div class="tab-content" id="referralTab">
+        <h2 class="tab-title"><i class="fas fa-user-friends"></i> Referral</h2>
+        <p>Invite friends and earn 10% of their coins!</p>
+        <p>Share your referral link:</p>
+        <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin: 15px 0;">
+          <code>https://uascoin.com/ref/yourcode</code>
         </div>
-      </div>
-      
-      <!-- Coffee Tab -->
-      <div id="coffeeTab" class="tab-section">
-        <h2>Support Development</h2>
-        <p>Donate USDT to support future updates!</p>
-        <p><strong>Wallet Address:</strong></p>
-        <code id="walletAddress">0x86d69358e89e1ec95b9a35828363f41d7e55d880</code>
-        <p style="margin-top:10px">Note: Whatever amount you donate, you'll receive 20x its value upon launch.</p>
+        <button class="buy-btn" style="margin-top: 10px;">
+          <i class="fas fa-share-alt"></i> Share Link
+        </button>
       </div>
     </div>
     
-    <div class="powered-by">Powered by Revolutionary Blockchain Technology</div>
+    <div class="powered-by">
+      Powered by Revolutionary Blockchain Technology
+    </div>
   </div>
-
-  <!-- Bottom Navigation -->
-  <div class="bottom-nav">
-    <button data-tab="homeTab" class="active">🏠 Home</button>
-    <button data-tab="earnTab">💰 Earn</button>
-    <button data-tab="skinsTab">🎨 Skins</button>
-    <button data-tab="upgradesTab">⚡️ Upgrades</button>
-    <button data-tab="referralTab">👥 Referral</button>
-  </div>
-
-  <!-- Payment Modal -->
-  <div id="paymentModal" class="modal">
-    <h3>Purchase Item</h3>
-    <p>Send USDT to this wallet:</p>
-    <code id="modalWalletAddress">0x86d69358e89e1ec95b9a35828363f41d7e55d880</code>
-    <p>After payment, enter your transaction hash:</p>
-    <input type="text" id="txHash" placeholder="Transaction Hash">
-    <button style="margin-top:10px;padding:10px 20px;" class="buy-btn" id="submitPayment">Submit</button>
+  
+  <!-- Tabs Navigation -->
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="homeTab">
+      <i class="fas fa-home"></i>
+      <span>Home</span>
+    </button>
+    <button class="tab-btn" data-tab="upgradesTab">
+      <i class="fas fa-rocket"></i>
+      <span>Upgrades</span>
+    </button>
+    <button class="tab-btn" data-tab="skinsTab">
+      <i class="fas fa-palette"></i>
+      <span>Skins</span>
+    </button>
+    <button class="tab-btn" data-tab="referralTab">
+      <i class="fas fa-user-friends"></i>
+      <span>Referral</span>
+    </button>
   </div>
 
   <script>
-    // Configuration
-    const CONFIG = {
-      walletAddress: "0x86d69358e89e1ec95b9a35828363f41d7e55d880",
-      skinPrices: {
-        usa: 5, europe: 5, india: 5
-      }
-    };
-
-    // Game State
-    let gameState = {
+    // Game state
+    const gameState = {
       coins: 0,
       energy: 100,
-      skin: "default",
       multiplier: 1,
-      autoBot: false,
-      skinInventory: ["default"],
-      referralCode: "user_" + Math.floor(Math.random() * 10000),
-      referredBy: null,
-      lastTap: 0
+      autoTap: false
     };
-
-    // UI Manager
-    class UIManager {
-      constructor() {
-        this.debugStatus = document.getElementById("debugStatus");
-        this.notification = document.getElementById("notification");
-      }
+    
+    // DOM elements
+    const coin = document.getElementById('coin');
+    const coinCount = document.getElementById('coinCount');
+    const energyBar = document.getElementById('energyBar');
+    const energyValue = document.getElementById('energyValue');
+    const notification = document.getElementById('notification');
+    const loadingScreen = document.getElementById('loadingScreen');
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    // Show notification
+    function showNotification(message) {
+      notification.textContent = message;
+      notification.style.display = 'block';
       
-      updateUI() {
-        document.getElementById("coinValue").textContent = gameState.coins;
-        document.getElementById("energyValue").textContent = gameState.energy;
-        document.getElementById("multiplierValue").textContent = gameState.multiplier;
-        document.getElementById("energyFill").style.width = `${gameState.energy}%`;
-        document.getElementById("referralLink").value = 
-          `https://t.me/UASReferralBot?start=${gameState.referralCode}`;
-      }
-      
-      showNotification(message) {
-        this.notification.textContent = message;
-        this.notification.style.display = "block";
+      setTimeout(() => {
+        notification.style.display = 'none';
+      }, 3000);
+    }
+    
+    // Create firework effect
+    function createFirework(x, y) {
+      for (let i = 0; i < 15; i++) {
+        const firework = document.createElement('div');
+        firework.className = 'firework';
+        firework.style.left = `${x}px`;
+        firework.style.top = `${y}px`;
+        firework.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+        
+        // Random direction and distance
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 50 + Math.random() * 100;
+        const xOffset = Math.cos(angle) * distance;
+        const yOffset = Math.sin(angle) * distance;
+        
+        // Animation
+        firework.style.setProperty('--x-end', `${xOffset}px`);
+        firework.style.setProperty('--y-end', `${yOffset}px`);
+        firework.style.animation = `fireworkAnimation 0.8s forwards`;
+        
+        document.body.appendChild(firework);
+        
+        // Remove after animation
         setTimeout(() => {
-          this.notification.style.display = "none";
-        }, 3000);
-      }
-      
-      updateDebugStatus(message) {
-        if (this.debugStatus) {
-          this.debugStatus.textContent = message;
-        }
-      }
-      
-      showTab(tabId) {
-        const sections = document.querySelectorAll(".tab-section");
-        sections.forEach(el => el.classList.remove("active"));
-        
-        const tab = document.getElementById(tabId);
-        if (tab) {
-          tab.classList.add("active");
-        }
-        
-        document.querySelectorAll(".bottom-nav button").forEach(btn => {
-          btn.classList.toggle("active", btn.dataset.tab === tabId);
-        });
-      }
-      
-      openModal(item) {
-        const modal = document.getElementById("paymentModal");
-        if (modal) {
-          modal.classList.add("active");
-        }
-      }
-      
-      closeModal() {
-        const modal = document.getElementById("paymentModal");
-        if (modal) {
-          modal.classList.remove("active");
-        }
-        const txHash = document.getElementById("txHash");
-        if (txHash) txHash.value = "";
-      }
-      
-      triggerFirework() {
-        const coin = document.getElementById("coinImage");
-        if (!coin) return;
-        
-        const rect = coin.getBoundingClientRect();
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
-        
-        for (let i = 0; i < 12; i++) {
-          const particle = document.createElement("div");
-          particle.className = "firework-particle";
-          const angle = (i / 12) * 2 * Math.PI;
-          const distance = 50 + Math.random() * 50;
-          const x = Math.cos(angle) * distance;
-          const y = Math.sin(angle) * distance;
-          particle.style.left = `${centerX}px`;
-          particle.style.top = `${centerY}px`;
-          particle.style.setProperty("--x", `${x}px`);
-          particle.style.setProperty("--y", `${y}px`);
-          particle.style.animation = `firework 0.5s ease-out forwards`;
-          document.body.appendChild(particle);
-          setTimeout(() => particle.remove(), 500);
-        }
+          firework.remove();
+        }, 800);
       }
     }
-
-    // Game Logic
-    class Game {
-      constructor(uiManager) {
-        this.uiManager = uiManager;
-        this.energyRechargeInterval = null;
-        this.autoTapInterval = null;
-        this.isReady = false;
-      }
-      
-      init() {
-        this.uiManager.updateDebugStatus("Loading game...");
-        
-        // Load saved state
-        this.loadGameState();
-        
-        // Initialize UI
-        this.uiManager.updateUI();
-        this.uiManager.updateDebugStatus("Ready - Tap to play!");
-        
-        // Start background processes
-        this.startEnergyRecharge();
-        this.startAutoTap();
-        
-        this.isReady = true;
-      }
-      
-      loadGameState() {
-        const savedState = localStorage.getItem("revolutionaryCoinState");
-        if (savedState) {
-          try {
-            gameState = JSON.parse(savedState);
-            this.uiManager.showNotification("Game loaded successfully!");
-          } catch (e) {
-            console.error("Error loading game state:", e);
-          }
+    
+    // Add CSS for firework animation
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes fireworkAnimation {
+        0% {
+          transform: translate(0, 0);
+          opacity: 1;
+        }
+        100% {
+          transform: translate(var(--x-end), var(--y-end));
+          opacity: 0;
         }
       }
-      
-      saveGameState() {
-        localStorage.setItem("revolutionaryCoinState", JSON.stringify(gameState));
-      }
-      
-      tapCoin() {
-        if (!this.isReady) return;
-        
-        const now = Date.now();
-        if (now - gameState.lastTap < 100) return; // Simple tap cooldown
-        gameState.lastTap = now;
-        
-        if (gameState.energy <= 0) {
-          this.uiManager.showNotification("Out of energy! Waiting for recharge...");
-          return;
-        }
-        
-        // Trigger visual effect
-        this.uiManager.triggerFirework();
-        
-        // Calculate earnings
-        const earned = gameState.multiplier;
-        gameState.coins += earned;
-        gameState.energy -= 2;
-        
-        // Update UI
-        this.uiManager.updateUI();
-        this.uiManager.showNotification(`+${earned} UAS!`);
-        
-        // Save state
-        this.saveGameState();
-      }
-      
-      startEnergyRecharge() {
-        if (this.energyRechargeInterval) clearInterval(this.energyRechargeInterval);
-        
-        this.energyRechargeInterval = setInterval(() => {
-          if (gameState.energy < 100) {
-            gameState.energy = Math.min(gameState.energy + 1, 100);
-            this.uiManager.updateUI();
-            this.saveGameState();
-          }
-        }, 3000);
-      }
-      
-      startAutoTap() {
-        if (this.autoTapInterval) clearInterval(this.autoTapInterval);
-        
-        this.autoTapInterval = setInterval(() => {
-          if (gameState.autoBot && gameState.energy > 0) {
-            this.tapCoin();
-          }
-        }, 2000);
-      }
-      
-      buyItem(item) {
-        this.uiManager.openModal(item);
-      }
-      
-      claimDailyBonus() {
-        if (this.canClaimDailyBonus()) {
-          gameState.coins += 100;
-          this.uiManager.updateUI();
-          this.uiManager.showNotification("Daily bonus claimed! +100 UAS");
-          this.saveGameState();
-          
-          // Store last claim time
-          localStorage.setItem("lastDailyClaim", Date.now().toString());
-        } else {
-          this.uiManager.showNotification("Come back tomorrow for your next bonus!");
-        }
-      }
-      
-      canClaimDailyBonus() {
-        const lastClaim = localStorage.getItem("lastDailyClaim");
-        if (!lastClaim) return true;
-        
-        const lastClaimDate = new Date(parseInt(lastClaim));
-        const now = new Date();
-        
-        // Check if at least 24 hours have passed
-        return (now - lastClaimDate) >= (24 * 60 * 60 * 1000);
+    `;
+    document.head.appendChild(style);
+    
+    // Update UI
+    function updateUI() {
+      coinCount.textContent = gameState.coins.toLocaleString();
+      energyBar.style.width = `${gameState.energy}%`;
+      energyValue.textContent = gameState.energy;
+    }
+    
+    // Save game state to localStorage
+    function saveGame() {
+      localStorage.setItem('revolutionaryCoin', JSON.stringify(gameState));
+    }
+    
+    // Load game state from localStorage
+    function loadGame() {
+      const savedGame = localStorage.getItem('revolutionaryCoin');
+      if (savedGame) {
+        Object.assign(gameState, JSON.parse(savedGame));
+        updateUI();
       }
     }
-
-    // Main Initialization
-    const uiManager = new UIManager();
-    const game = new Game(uiManager);
-
-    document.addEventListener("DOMContentLoaded", () => {
-      // Initialize the game
-      game.init();
+    
+    // Tap the coin
+    function tapCoin() {
+      if (gameState.energy <= 0) {
+        showNotification('Not enough energy! Wait for recharge');
+        return;
+      }
       
-      // Set wallet addresses
-      document.querySelectorAll("#walletAddress, #modalWalletAddress").forEach(el => {
-        el.textContent = CONFIG.walletAddress;
-      });
+      // Calculate coins earned
+      const earned = 1 * gameState.multiplier;
+      gameState.coins += earned;
+      gameState.energy -= 2;
       
-      // Event Listeners
-      document.getElementById("coinImage").addEventListener("click", () => game.tapCoin());
+      // Update UI
+      updateUI();
       
-      document.querySelectorAll(".bottom-nav button[data-tab]").forEach(btn => {
-        btn.addEventListener("click", () => {
-          uiManager.showTab(btn.dataset.tab);
+      // Save game
+      saveGame();
+      
+      // Create firework at tap position
+      const rect = coin.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      createFirework(centerX, centerY);
+      
+      // Show notification
+      if (earned > 1) {
+        showNotification(`+${earned} UAS coins!`);
+      }
+    }
+    
+    // Auto recharge energy
+    function rechargeEnergy() {
+      if (gameState.energy < 100) {
+        gameState.energy += 1;
+        updateUI();
+        saveGame();
+      }
+    }
+    
+    // Auto tap coins if upgrade purchased
+    function autoTap() {
+      if (gameState.autoTap && gameState.energy > 0) {
+        tapCoin();
+      }
+    }
+    
+    // Initialize the game
+    function initGame() {
+      // Simulate loading
+      setTimeout(() => {
+        // Load saved game
+        loadGame();
+        
+        // Hide loading screen
+        loadingScreen.style.opacity = '0';
+        
+        setTimeout(() => {
+          loadingScreen.style.display = 'none';
+        }, 500);
+        
+        // Start game loops
+        setInterval(rechargeEnergy, 2000);
+        setInterval(autoTap, 1000);
+        
+        // Show welcome message
+        showNotification('Welcome to Revolutionary Coin!');
+      }, 2000);
+    }
+    
+    // Tab switching
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tabId = btn.dataset.tab;
+        
+        // Update active tab button
+        tabBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        // Show active tab content
+        tabContents.forEach(content => {
+          content.classList.remove('active');
         });
+        document.getElementById(tabId).classList.add('active');
       });
-      
-      document.querySelectorAll(".buy-btn").forEach(btn => {
-        btn.addEventListener("click", (e) => {
-          e.stopPropagation();
-          
-          if (btn.id === "dailyBonus") {
-            game.claimDailyBonus();
-          } else if (btn.dataset.item) {
-            game.buyItem(btn.dataset.item);
-          } else if (btn.dataset.skin) {
-            game.buyItem(btn.dataset.skin);
-          } else if (btn.dataset.tab) {
-            uiManager.showTab(btn.dataset.tab);
-          }
-        });
-      });
-      
-      document.getElementById("submitPayment").addEventListener("click", () => {
-        const txHash = document.getElementById("txHash").value;
-        if (txHash && txHash.length > 10) {
-          uiManager.showNotification("Payment received! Item unlocked.");
-          uiManager.closeModal();
-        } else {
-          uiManager.showNotification("Please enter a valid transaction hash");
-        }
-      });
-      
-      // Touch support for mobile
-      document.getElementById("coinImage").addEventListener("touchstart", (e) => {
-        e.preventDefault();
-        game.tapCoin();
-      }, { passive: false });
     });
+    
+    // Event listeners
+    coin.addEventListener('click', tapCoin);
+    
+    // Touch support for mobile
+    coin.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      tapCoin();
+    });
+    
+    // Initialize the game
+    initGame();
   </script>
 </body>
-  </html>
+</html>
