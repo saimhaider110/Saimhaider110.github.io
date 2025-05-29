@@ -15,12 +15,19 @@
     }
     
     body {
-      background: url('background.png') no-repeat center center fixed;
-      background-size: cover;
+      background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
       color: white;
       min-height: 100vh;
       overflow-x: hidden;
       position: relative;
+    }
+    
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
     
     .container {
@@ -29,8 +36,6 @@
       padding: 20px;
       position: relative;
       min-height: 100vh;
-      background-color: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(5px);
     }
     
     /* Header Section */
@@ -46,48 +51,18 @@
       border: 1px solid rgba(255, 255, 255, 0.1);
     }
     
-    .stats-display {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    }
-    
-    .stat-item {
+    .coin-display {
       background: rgba(0, 0, 0, 0.5);
-      padding: 5px 10px;
-      border-radius: 10px;
-      font-size: 0.9rem;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    
-    /* Level Progress */
-    .level-container {
-      margin: 15px 0;
-      text-align: center;
-    }
-    
-    .level-display {
+      padding: 10px 20px;
+      border-radius: 20px;
       font-size: 1.2rem;
-      margin-bottom: 5px;
     }
     
-    .level-bar {
-      height: 20px;
+    .energy-display {
       background: rgba(0, 0, 0, 0.5);
-      border-radius: 10px;
-      overflow: hidden;
-      position: relative;
-      margin: 0 auto;
-      max-width: 300px;
-    }
-    
-    .level-progress {
-      height: 100%;
-      background: linear-gradient(to right, #4a148c, #7b1fa2);
-      width: 0%;
-      transition: width 0.5s ease;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 1.2rem;
     }
     
     /* Coin Section */
@@ -101,8 +76,7 @@
       width: 220px;
       height: 220px;
       margin: 0 auto;
-      background: url('bronze.png') no-repeat center center;
-      background-size: cover;
+      background: radial-gradient(circle at 30% 30%, #ffd700, #daa520);
       border-radius: 50%;
       box-shadow: 
         0 0 30px rgba(255, 215, 0, 0.8),
@@ -128,12 +102,35 @@
       100% { box-shadow: 0 0 30px rgba(255, 215, 0, 0.8); }
     }
     
+    .coin-inner {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #ffd700, #daa520);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 4px solid #b8860b;
+      box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.4);
+    }
+    
     .coin-text {
       font-size: 2.5rem;
       font-weight: bold;
       color: #8b4513;
       text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
       letter-spacing: 1px;
+    }
+    
+    .coin-count {
+      font-size: 2.2rem;
+      font-weight: bold;
+      margin: 20px 0;
+      text-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+      background: rgba(0, 0, 0, 0.3);
+      padding: 10px 20px;
+      border-radius: 15px;
+      display: inline-block;
     }
     
     /* Energy Bar */
@@ -253,12 +250,9 @@
     }
     
     .item-icon {
-      width: 60px;
-      height: 60px;
-      margin: 0 auto 10px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid gold;
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      color: #ffd700;
     }
     
     .item-name {
@@ -331,103 +325,50 @@
       font-size: 0.9rem;
       color: rgba(255, 255, 255, 0.6);
     }
-    
-    /* Level Up Animation */
-    .level-up {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.8);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 1001;
-      animation: fadeIn 0.5s;
-    }
-    
-    .level-up h1 {
-      font-size: 3rem;
-      color: #ffd700;
-      margin-bottom: 20px;
-      text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
-    }
-    
-    .level-up p {
-      font-size: 1.5rem;
-      margin-bottom: 30px;
-    }
-    
-    .level-up-btn {
-      background: linear-gradient(to right, #ffd700, #ffa500);
-      border: none;
-      border-radius: 8px;
-      color: #8b4513;
-      padding: 12px 25px;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: 1.2rem;
-    }
   </style>
 </head>
 <body>
   <!-- Notification -->
-  <div class="notification" id="notification"></div>
+  <div class="notification" id="notification">Game loaded successfully!</div>
   
-  <!-- Level Up Popup -->
-  <div class="level-up" id="levelUpPopup" style="display: none;">
-    <h1>LEVEL UP!</h1>
-    <p>You reached level <span id="newLevelDisplay">1</span>!</p>
-    <button class="level-up-btn" id="closeLevelUp">Continue</button>
-  </div>
-
   <div class="container">
     <!-- Header -->
     <div class="header">
-      <div class="stats-display">
-        <div class="stat-item">
-          <i class="fas fa-coins"></i> UAS: <span id="coinCount">0</span>
-        </div>
-        <div class="stat-item">
-          <i class="fas fa-bolt"></i> Energy: <span id="energyValue">100</span>%
-        </div>
+      <div class="coin-display">
+        <i class="fas fa-coins"></i> UAS: <span id="coinCount">0</span>
       </div>
-      <div class="stats-display">
-        <div class="stat-item">
-          <i class="fas fa-level-up-alt"></i> Level: <span id="levelDisplay">1</span>
-        </div>
-        <div class="stat-item">
-          <i class="fas fa-tachometer-alt"></i> Multiplier: x<span id="multiplierValue">1</span>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Level Progress -->
-    <div class="level-container">
-      <div class="level-display">Progress to next level</div>
-      <div class="level-bar">
-        <div class="level-progress" id="levelProgress"></div>
+      <div class="energy-display">
+        <i class="fas fa-bolt"></i> <span id="energyValue">100</span>%
       </div>
     </div>
     
     <!-- Coin -->
     <div class="coin-container">
       <div class="coin" id="coin">
-        <div class="coin-text">UAS</div>
+        <div class="coin-inner">
+          <div class="coin-text">UAS</div>
+        </div>
       </div>
+    </div>
+    
+    <div class="coin-count">
+      <i class="fas fa-hands"></i> Tap the coin to earn!
+    </div>
+    
+    <!-- Energy Bar -->
+    <div class="energy-bar-container">
+      <div class="energy-bar" id="energyBar" style="width: 100%;"></div>
     </div>
     
     <!-- Tab Content -->
     <div class="tab-content active" id="homeTab">
       <h2 class="tab-title"><i class="fas fa-home"></i> Welcome!</h2>
-      <p style="text-align: center; margin: 20px 0;">Tap the coin to earn UAS and level up! Upgrade your coin to earn faster.</p>
+      <p style="text-align: center; margin: 20px 0;">Tap the golden coin to earn UAS coins. Use your coins to buy upgrades and special items. Invite friends to earn referral bonuses!</p>
       
       <div style="display: flex; justify-content: center; margin-top: 30px;">
         <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 15px; max-width: 400px; text-align: center;">
           <h3 style="color: #ffd700; margin-bottom: 10px;">Game Stats</h3>
-          <p><i class="fas fa-trophy"></i> Total Taps: <span id="totalTaps">0</span></p>
+          <p><i class="fas fa-tachometer-alt"></i> Tap Power: <span id="multiplierValue">1</span>x</p>
           <p><i class="fas fa-robot"></i> Auto Tapper: <span id="autoTapStatus">Inactive</span></p>
           <p><i class="fas fa-users"></i> Referrals: <span id="referralCount">0</span></p>
         </div>
@@ -438,25 +379,25 @@
       <h2 class="tab-title"><i class="fas fa-rocket"></i> Upgrades</h2>
       <div class="item-grid">
         <div class="item-card">
-          <img src="bronze.png" class="item-icon">
+          <div class="item-icon"><i class="fas fa-running"></i></div>
           <div class="item-name">2x Speed</div>
           <div class="item-price">Cost: 500 UAS</div>
           <button class="buy-btn" data-upgrade="multiplier" data-value="2">Buy</button>
         </div>
         <div class="item-card">
-          <img src="bronze.png" class="item-icon">
+          <div class="item-icon"><i class="fas fa-tachometer-alt"></i></div>
           <div class="item-name">5x Speed</div>
           <div class="item-price">Cost: 2000 UAS</div>
           <button class="buy-btn" data-upgrade="multiplier" data-value="5">Buy</button>
         </div>
         <div class="item-card">
-          <img src="bronze.png" class="item-icon">
+          <div class="item-icon"><i class="fas fa-bolt"></i></div>
           <div class="item-name">Energy Refill</div>
           <div class="item-price">Cost: 300 UAS</div>
           <button class="buy-btn" data-upgrade="energy">Buy</button>
         </div>
         <div class="item-card">
-          <img src="bronze.png" class="item-icon">
+          <div class="item-icon"><i class="fas fa-robot"></i></div>
           <div class="item-name">Auto Tapper</div>
           <div class="item-price">Cost: 5000 UAS</div>
           <button class="buy-btn" data-upgrade="autoTap">Buy</button>
@@ -465,9 +406,32 @@
     </div>
     
     <div class="tab-content" id="skinsTab">
-      <h2 class="tab-title"><i class="fas fa-palette"></i> Country Skins</h2>
-      <div class="item-grid" id="skinsGrid">
-        <!-- Skins will be added dynamically -->
+      <h2 class="tab-title"><i class="fas fa-palette"></i> Skins</h2>
+      <div class="item-grid">
+        <div class="item-card">
+          <div class="item-icon"><i class="fas fa-globe-americas"></i></div>
+          <div class="item-name">USA Coin</div>
+          <div class="item-price">Cost: 1000 UAS</div>
+          <button class="buy-btn" data-skin="usa">Equip</button>
+        </div>
+        <div class="item-card">
+          <div class="item-icon"><i class="fas fa-globe-europe"></i></div>
+          <div class="item-name">Europe Coin</div>
+          <div class="item-price">Cost: 1000 UAS</div>
+          <button class="buy-btn" data-skin="europe">Equip</button>
+        </div>
+        <div class="item-card">
+          <div class="item-icon"><i class="fas fa-globe-asia"></i></div>
+          <div class="item-name">Asia Coin</div>
+          <div class="item-price">Cost: 1000 UAS</div>
+          <button class="buy-btn" data-skin="asia">Equip</button>
+        </div>
+        <div class="item-card">
+          <div class="item-icon"><i class="fas fa-globe-africa"></i></div>
+          <div class="item-name">Africa Coin</div>
+          <div class="item-price">Cost: 1000 UAS</div>
+          <button class="buy-btn" data-skin="africa">Equip</button>
+        </div>
       </div>
     </div>
     
@@ -527,29 +491,8 @@
       energy: 100,
       multiplier: 1,
       autoTap: false,
-      level: 1,
-      xp: 0,
-      xpToNextLevel: 100,
-      totalTaps: 0,
-      referrals: 5,
-      currentSkin: 'bronze',
-      skins: ['bronze', 'usa', 'uk', 'germany', 'france', 'italy', 'spain', 'suadiaarab', 'china', 'japan', 'india', 'brazil']
+      referrals: 5
     };
-    
-    // Country skins data
-    const countrySkins = [
-      { id: 'usa', name: 'USA Flag', price: 5 usdt },
-      { id: 'uk', name: 'UK Flag', price: 5 usdt },
-      { id: 'germany', name: 'Germany Flag', price: 5 usdt },
-      { id: 'france', name: 'France Flag', price: 5 usdt  },
-      { id: 'italy', name: 'Italy Flag', price: 5 usdt },
-      { id: 'spain', name: 'Spain Flag', price: 5 usdt },
-      { id: 'suadiaarab', name: 'suadiaarab Flag', price: 5 usdt },
-      { id: 'china', name: 'China Flag', price: 5 usdt },
-      { id: 'japan', name: 'Japan Flag', price: 5 usdt },
-      { id: 'india', name: 'India Flag', price: 5 usdt },
-      { id: 'brazil', name: 'Brazil Flag', price: 5 usdt }
-    ];
     
     // DOM elements
     const coin = document.getElementById('coin');
@@ -559,27 +502,19 @@
     const notification = document.getElementById('notification');
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
-    const levelDisplay = document.getElementById('levelDisplay');
-    const levelProgress = document.getElementById('levelProgress');
-    const totalTaps = document.getElementById('totalTaps');
-    const skinsGrid = document.getElementById('skinsGrid');
-    const levelUpPopup = document.getElementById('levelUpPopup');
-    const newLevelDisplay = document.getElementById('newLevelDisplay');
-    const closeLevelUp = document.getElementById('closeLevelUp');
+    const referralLink = document.getElementById('referralLink');
+    const copyBtn = document.getElementById('copyBtn');
+    const multiplierValue = document.getElementById('multiplierValue');
+    const autoTapStatus = document.getElementById('autoTapStatus');
+    const referralCount = document.getElementById('referralCount');
     
     // Initialize the game
     function initGame() {
       // Load saved state
       const savedGame = localStorage.getItem('revolutionaryCoin');
       if (savedGame) {
-        const parsed = JSON.parse(savedGame);
-        Object.assign(gameState, parsed);
+        Object.assign(gameState, JSON.parse(savedGame));
         updateUI();
-        
-        // Set current skin
-        if (gameState.currentSkin) {
-          coin.style.backgroundImage = `url('${gameState.currentSkin}.png')`;
-        }
       }
       
       // Show notification
@@ -591,42 +526,6 @@
       if (gameState.autoTap) {
         setInterval(autoTap, 1000);
       }
-      
-      // Initialize skins
-      initSkins();
-    }
-    
-    // Initialize skins grid
-    function initSkins() {
-      // Add default bronze skin
-      skinsGrid.innerHTML = `
-        <div class="item-card">
-          <img src="bronze.png" class="item-icon">
-          <div class="item-name">Bronze Coin</div>
-          <div class="item-price">Default Skin</div>
-          <button class="buy-btn ${gameState.currentSkin === 'bronze' ? 'active' : ''}" 
-                  data-skin="bronze" data-price="0">
-            ${gameState.currentSkin === 'bronze' ? 'Equipped' : 'Equip'}
-          </button>
-        </div>
-      `;
-      
-      // Add country skins
-      countrySkins.forEach(skin => {
-        const owned = gameState.skins.includes(skin.id);
-        skinsGrid.innerHTML += `
-          <div class="item-card">
-            <img src="${skin.id}.png" class="item-icon">
-            <div class="item-name">${skin.name}</div>
-            <div class="item-price">${owned ? 'Owned' : `Cost: ${skin.price} UAS`}</div>
-            <button class="buy-btn ${gameState.currentSkin === skin.id ? 'active' : ''}" 
-                    data-skin="${skin.id}" data-price="${skin.price}"
-                    ${!owned && gameState.coins < skin.price ? 'disabled' : ''}>
-              ${owned ? (gameState.currentSkin === skin.id ? 'Equipped' : 'Equip') : 'Buy'}
-            </button>
-          </div>
-        `;
-      });
     }
     
     // Show notification
@@ -689,12 +588,10 @@
       coinCount.textContent = gameState.coins.toLocaleString();
       energyBar.style.width = `${gameState.energy}%`;
       energyValue.textContent = gameState.energy;
-      levelDisplay.textContent = gameState.level;
-      totalTaps.textContent = gameState.totalTaps;
-      
-      // Calculate level progress
-      const progressPercent = (gameState.xp / gameState.xpToNextLevel) * 100;
-      levelProgress.style.width = `${progressPercent}%`;
+      multiplierValue.textContent = gameState.multiplier;
+      autoTapStatus.textContent = gameState.autoTap ? 'Active' : 'Inactive';
+      autoTapStatus.style.color = gameState.autoTap ? '#64dd17' : '#f44336';
+      referralCount.textContent = gameState.referrals;
     }
     
     // Save game state to localStorage
@@ -713,13 +610,6 @@
       const earned = 1 * gameState.multiplier;
       gameState.coins += earned;
       gameState.energy -= 2;
-      gameState.totalTaps++;
-      
-      // Add XP
-      gameState.xp += earned;
-      
-      // Check for level up
-      checkLevelUp();
       
       // Update UI
       updateUI();
@@ -737,24 +627,6 @@
       if (earned > 1) {
         showNotification(`+${earned} UAS coins!`);
       }
-    }
-    
-    // Check for level up
-    function checkLevelUp() {
-      if (gameState.xp >= gameState.xpToNextLevel) {
-        gameState.level++;
-        gameState.xp -= gameState.xpToNextLevel;
-        gameState.xpToNextLevel = Math.floor(gameState.xpToNextLevel * 1.5);
-        
-        // Show level up popup
-        showLevelUp();
-      }
-    }
-    
-    // Show level up popup
-    function showLevelUp() {
-      newLevelDisplay.textContent = gameState.level;
-      levelUpPopup.style.display = 'flex';
     }
     
     // Auto recharge energy
@@ -820,67 +692,12 @@
       saveGame();
     }
     
-    // Buy or equip skin
-    function handleSkin(skinId, price) {
-      // Check if already owned
-      if (gameState.skins.includes(skinId)) {
-        // Equip the skin
-        gameState.currentSkin = skinId;
-        coin.style.backgroundImage = `url('${skinId}.png')`;
-        showNotification(`${skinId.toUpperCase()} skin equipped!`);
-      } else {
-        // Buy the skin
-        if (gameState.coins >= price) {
-          gameState.coins -= price;
-          gameState.skins.push(skinId);
-          gameState.currentSkin = skinId;
-          coin.style.backgroundImage = `url('${skinId}.png')`;
-          showNotification(`Purchased ${skinId.toUpperCase()} skin!`);
-        } else {
-          showNotification('Not enough coins!');
-          return;
-        }
-      }
-      
-      // Update skins grid
-      initSkins();
-      updateUI();
-      saveGame();
-    }
-    
     // Copy referral link
     function copyReferralLink() {
-      const link = document.getElementById('referralLink');
-      link.select();
+      referralLink.select();
       document.execCommand('copy');
       showNotification('Referral link copied to clipboard!');
     }
-    
-    // Event listeners
-    coin.addEventListener('click', tapCoin);
-    
-    // Touch support for mobile
-    coin.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      tapCoin();
-    });
-    
-    // Upgrade buttons
-    document.addEventListener('click', (e) => {
-      if (e.target.closest('[data-upgrade]')) {
-        const btn = e.target.closest('[data-upgrade]');
-        const type = btn.dataset.upgrade;
-        const value = btn.dataset.value ? parseInt(btn.dataset.value) : null;
-        buyUpgrade(type, value);
-      }
-      
-      if (e.target.closest('[data-skin]')) {
-        const btn = e.target.closest('[data-skin]');
-        const skinId = btn.dataset.skin;
-        const price = parseInt(btn.dataset.price);
-        handleSkin(skinId, price);
-      }
-    });
     
     // Tab switching
     tabBtns.forEach(btn => {
@@ -899,18 +716,37 @@
       });
     });
     
+    // Event listeners
+    coin.addEventListener('click', tapCoin);
+    
+    // Touch support for mobile
+    coin.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      tapCoin();
+    });
+    
+    // Upgrade buttons
+    document.querySelectorAll('[data-upgrade]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const type = btn.dataset.upgrade;
+        const value = btn.dataset.value;
+        buyUpgrade(type, value);
+      });
+    });
+    
+    // Skin buttons
+    document.querySelectorAll('[data-skin]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const skin = btn.dataset.skin;
+        showNotification(`Equipped ${skin} skin!`);
+      });
+    });
+    
     // Copy referral link
     copyBtn.addEventListener('click', copyReferralLink);
-    
-    // Close level up popup
-    closeLevelUp.addEventListener('click', () => {
-      levelUpPopup.style.display = 'none';
-      showNotification(`Welcome to level ${gameState.level}!`);
-      updateUI();
-    });
     
     // Initialize the game
     initGame();
   </script>
 </body>
-                              </html>
+            </html>
