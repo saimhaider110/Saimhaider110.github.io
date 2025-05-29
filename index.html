@@ -64,6 +64,13 @@
       font-size: 1.2rem;
     }
     
+    .level-display {
+      background: rgba(0, 0, 0, 0.5);
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 1.2rem;
+    }
+    
     .coin-container {
       position: relative;
       margin: 30px 0;
@@ -266,9 +273,15 @@
       width: 100%;
     }
     
-    .buy-btn:hover {
+    .buy-btn:hover:not(:disabled) {
       transform: scale(1.05);
       box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    }
+    
+    .buy-btn:disabled {
+      background: linear-gradient(to right, #666, #888);
+      cursor: not-allowed;
+      opacity: 0.6;
     }
     
     .notification {
@@ -349,27 +362,26 @@
   </style>
 </head>
 <body>
-  <!-- Loading Screen -->
   <div class="loading-screen" id="loadingScreen">
     <div class="loading-spinner"></div>
     <div class="loading-text">Initializing Revolutionary Coin...</div>
   </div>
   
-  <!-- Notification -->
   <div class="notification" id="notification"></div>
   
   <div class="container">
-    <!-- Header -->
     <div class="header">
       <div class="coin-display">
         <i class="fas fa-coins"></i> UAS: <span id="coinCount">0</span>
       </div>
       <div class="energy-display">
-        <i class="fas fa-bolt"></i> <span id="energyValue">100</span>%
+        <i class="fas fa-bolt"></i> <span id="energyValue">1000</span>/<span id="maxEnergy">1000</span>
+      </div>
+      <div class="level-display">
+        <i class="fas fa-star"></i> Level: <span id="levelCount">1</span>
       </div>
     </div>
     
-    <!-- Coin -->
     <div class="coin-container">
       <div class="coin" id="coin">
         <div class="coin-inner">
@@ -382,88 +394,85 @@
       <i class="fas fa-hands"></i> Tap the coin to earn!
     </div>
     
-    <!-- Energy Bar -->
     <div class="energy-bar-container">
       <div class="energy-bar" id="energyBar" style="width: 100%;"></div>
     </div>
     
-    <!-- Tab Content -->
     <div class="tab-container">
-      <!-- Home Tab -->
       <div class="tab-content active" id="homeTab">
         <h2 class="tab-title"><i class="fas fa-home"></i> Welcome!</h2>
-        <p>Tap the golden coin to earn UAS coins.</p>
-        <p>Use your coins to buy upgrades and special items.</p>
-        <p>Invite friends to earn referral bonuses!</p>
+        <p>Level: <span id="homeLevel">1</span> | Progress: <span id="progressToNextLevel">0/1000</span></p>
+        <p>Tap the golden coin to earn UAS coins and level up!</p>
+        <p>Higher levels unlock new upgrades and skins!</p>
       </div>
       
-      <!-- Upgrades Tab -->
       <div class="tab-content" id="upgradesTab">
         <h2 class="tab-title"><i class="fas fa-rocket"></i> Upgrades</h2>
+        <p>Level up to unlock more powerful upgrades!</p>
         <div class="item-grid">
-          <div class="item-card">
+          <div class="item-card" data-upgrade="speed2x" data-level="1">
             <div class="item-icon"><i class="fas fa-running"></i></div>
             <div class="item-name">2x Speed</div>
             <div class="item-price">Cost: 500 UAS</div>
             <button class="buy-btn">Buy</button>
           </div>
-          <div class="item-card">
+          <div class="item-card" data-upgrade="speed5x" data-level="5">
             <div class="item-icon"><i class="fas fa-tachometer-alt"></i></div>
             <div class="item-name">5x Speed</div>
-            <div class="item-price">Cost: 2000 UAS</div>
-            <button class="buy-btn">Buy</button>
+            <div class="item-price">Cost: 2000 UAS | Req: Level 5</div>
+            <button class="buy-btn" disabled>Buy</button>
           </div>
-          <div class="item-card">
+          <div class="item-card" data-upgrade="energy" data-level="1">
             <div class="item-icon"><i class="fas fa-bolt"></i></div>
             <div class="item-name">Energy Refill</div>
             <div class="item-price">Cost: 300 UAS</div>
             <button class="buy-btn">Buy</button>
           </div>
-          <div class="item-card">
+          <div class="item-card" data-upgrade="autotap" data-level="10">
             <div class="item-icon"><i class="fas fa-robot"></i></div>
             <div class="item-name">Auto Tapper</div>
-            <div class="item-price">Cost: 5000 UAS</div>
-            <button class="buy-btn">Buy</button>
+            <div class="item-price">Cost: 5000 UAS | Req: Level 10</div>
+            <button class="buy-btn" disabled>Buy</button>
           </div>
         </div>
       </div>
       
-      <!-- Skins Tab -->
       <div class="tab-content" id="skinsTab">
         <h2 class="tab-title"><i class="fas fa-palette"></i> Skins</h2>
+        <p>Unlock unique coin skins at higher levels!</p>
         <div class="item-grid">
-          <div class="item-card">
+          <div class="item-card" data-skin="usa" data-level="1">
             <div class="item-icon"><i class="fas fa-globe-americas"></i></div>
             <div class="item-name">USA Coin</div>
             <div class="item-price">Cost: 1000 UAS</div>
             <button class="buy-btn">Equip</button>
           </div>
-          <div class="item-card">
+          <div class="item-card" data-skin="europe" data-level="3">
             <div class="item-icon"><i class="fas fa-globe-europe"></i></div>
             <div class="item-name">Europe Coin</div>
-            <div class="item-price">Cost: 1000 UAS</div>
-            <button class="buy-btn">Equip</button>
+            <div class="item-price">Cost: 1000 UAS | Req: Level 3</div>
+            <button class="buy-btn" disabled>Equip</button>
           </div>
-          <div class="item-card">
+          <div class="item-card" data-skin="asia" data-level="6">
             <div class="item-icon"><i class="fas fa-globe-asia"></i></div>
             <div class="item-name">Asia Coin</div>
-            <div class="item-price">Cost: 1000 UAS</div>
-            <button class="buy-btn">Equip</button>
+            <div class="item-price">Cost: 1000 UAS | Req: Level 6</div>
+            <button class="buy-btn" disabled>Equip</button>
           </div>
-          <div class="item-card">
+          <div class="item-card" data-skin="africa" data-level="8">
             <div class="item-icon"><i class="fas fa-globe-africa"></i></div>
             <div class="item-name">Africa Coin</div>
-            <div class="item-price">Cost: 1000 UAS</div>
-            <button class="buy-btn">Equip</button>
+            <div class="item-price">Cost: 1000 UAS | Req: Level 8</div>
+            <button class="buy-btn" disabled>Equip</button>
           </div>
         </div>
       </div>
       
-      <!-- Referral Tab -->
       <div class="tab-content" id="referralTab">
         <h2 class="tab-title"><i class="fas fa-user-friends"></i> Referral</h2>
-        <p>Invite friends and earn 10% of their coins!</p>
-        <p>Share your referral link:</p>
+        <p>Invite friends to earn bonus coins!</p>
+        <p>Bonus increases with your level!</p>
+        <p>Current bonus: <span id="referralBonus">10%</span></p>
         <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin: 15px 0;">
           <code>https://uascoin.com/ref/yourcode</code>
         </div>
@@ -478,7 +487,6 @@
     </div>
   </div>
   
-  <!-- Tabs Navigation -->
   <div class="tabs">
     <button class="tab-btn active" data-tab="homeTab">
       <i class="fas fa-home"></i>
@@ -499,35 +507,79 @@
   </div>
 
   <script>
-    // Game state
     const gameState = {
       coins: 0,
-      energy: 100,
+      energy: 1000,
+      maxEnergy: 1000,
       multiplier: 1,
-      autoTap: false
+      autoTap: false,
+      level: 1,
+      experience: 0,
+      experienceToNextLevel: 1000,
+      currentSkin: 'default'
     };
     
-    // DOM elements
     const coin = document.getElementById('coin');
     const coinCount = document.getElementById('coinCount');
     const energyBar = document.getElementById('energyBar');
     const energyValue = document.getElementById('energyValue');
+    const maxEnergy = document.getElementById('maxEnergy');
     const notification = document.getElementById('notification');
     const loadingScreen = document.getElementById('loadingScreen');
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
+    const levelCount = document.getElementById('levelCount');
+    const homeLevel = document.getElementById('homeLevel');
+    const progressToNextLevel = document.getElementById('progressToNextLevel');
+    const referralBonus = document.getElementById('referralBonus');
     
-    // Show notification
     function showNotification(message) {
       notification.textContent = message;
       notification.style.display = 'block';
-      
       setTimeout(() => {
         notification.style.display = 'none';
       }, 3000);
     }
     
-    // Create firework effect
+    function checkLevelUp() {
+      while (gameState.experience >= gameState.experienceToNextLevel) {
+        gameState.level += 1;
+        gameState.experience -= gameState.experienceToNextLevel;
+        gameState.experienceToNextLevel = Math.floor(gameState.experienceToNextLevel * 1.5);
+        gameState.maxEnergy += 100;
+        gameState.energy = gameState.maxEnergy;
+        showNotification(`Level Up! Reached Level ${gameState.level}!`);
+        updateUpgradesAndSkins();
+      }
+    }
+    
+    function updateUpgradesAndSkins() {
+      const upgradeCards = document.querySelectorAll('.item-card[data-upgrade]');
+      const skinCards = document.querySelectorAll('.item-card[data-skin]');
+      
+      upgradeCards.forEach(card => {
+        const requiredLevel = parseInt(card.dataset.level);
+        const buyBtn = card.querySelector('.buy-btn');
+        if (gameState.level >= requiredLevel) {
+          buyBtn.disabled = false;
+        } else {
+          buyBtn.disabled = true;
+        }
+      });
+      
+      skinCards.forEach(card => {
+        const requiredLevel = parseInt(card.dataset.level);
+        const equipBtn = card.querySelector('.buy-btn');
+        if (gameState.level >= requiredLevel) {
+          equipBtn.disabled = false;
+        } else {
+          equipBtn.disabled = true;
+        }
+      });
+      
+      referralBonus.textContent = `${10 + gameState.level * 2}%`;
+    }
+    
     function createFirework(x, y) {
       for (let i = 0; i < 15; i++) {
         const firework = document.createElement('div');
@@ -536,27 +588,23 @@
         firework.style.top = `${y}px`;
         firework.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
         
-        // Random direction and distance
         const angle = Math.random() * Math.PI * 2;
         const distance = 50 + Math.random() * 100;
         const xOffset = Math.cos(angle) * distance;
         const yOffset = Math.sin(angle) * distance;
         
-        // Animation
         firework.style.setProperty('--x-end', `${xOffset}px`);
         firework.style.setProperty('--y-end', `${yOffset}px`);
         firework.style.animation = `fireworkAnimation 0.8s forwards`;
         
         document.body.appendChild(firework);
         
-        // Remove after animation
         setTimeout(() => {
           firework.remove();
         }, 800);
       }
     }
     
-    // Add CSS for firework animation
     const style = document.createElement('style');
     style.textContent = `
       @keyframes fireworkAnimation {
@@ -572,19 +620,21 @@
     `;
     document.head.appendChild(style);
     
-    // Update UI
     function updateUI() {
       coinCount.textContent = gameState.coins.toLocaleString();
-      energyBar.style.width = `${gameState.energy}%`;
+      energyBar.style.width = `${(gameState.energy / gameState.maxEnergy) * 100}%`;
       energyValue.textContent = gameState.energy;
+      maxEnergy.textContent = gameState.maxEnergy;
+      levelCount.textContent = gameState.level;
+      homeLevel.textContent = gameState.level;
+      progressToNextLevel.textContent = `${gameState.experience}/${gameState.experienceToNextLevel}`;
+      updateUpgradesAndSkins();
     }
     
-    // Save game state to localStorage
     function saveGame() {
       localStorage.setItem('revolutionaryCoin', JSON.stringify(gameState));
     }
     
-    // Load game state from localStorage
     function loadGame() {
       const savedGame = localStorage.getItem('revolutionaryCoin');
       if (savedGame) {
@@ -593,85 +643,113 @@
       }
     }
     
-    // Tap the coin
     function tapCoin() {
       if (gameState.energy <= 0) {
         showNotification('Not enough energy! Wait for recharge');
         return;
       }
       
-      // Calculate coins earned
       const earned = 1 * gameState.multiplier;
       gameState.coins += earned;
       gameState.energy -= 2;
+      gameState.experience += 5;
       
-      // Update UI
+      checkLevelUp();
       updateUI();
-      
-      // Save game
       saveGame();
       
-      // Create firework at tap position
       const rect = coin.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
       createFirework(centerX, centerY);
       
-      // Show notification
       if (earned > 1) {
         showNotification(`+${earned} UAS coins!`);
       }
     }
     
-    // Auto recharge energy
     function rechargeEnergy() {
-      if (gameState.energy < 100) {
-        gameState.energy += 1;
+      if (gameState.energy < gameState.maxEnergy) {
+        gameState.energy = Math.min(gameState.energy + 10, gameState.maxEnergy);
         updateUI();
         saveGame();
       }
     }
     
-    // Auto tap coins if upgrade purchased
     function autoTap() {
       if (gameState.autoTap && gameState.energy > 0) {
         tapCoin();
       }
     }
     
-    // Initialize the game
+    function handleUpgradePurchase(upgrade, cost) {
+      if (gameState.coins >= cost) {
+        gameState.coins -= cost;
+        if (upgrade === 'speed2x') {
+          gameState.multiplier = 2;
+        } else if (upgrade === 'speed5x') {
+          gameState.multiplier = 5;
+        } else if (upgrade === 'energy') {
+          gameState.energy = gameState.maxEnergy;
+        } else if (upgrade === 'autotap') {
+          gameState.autoTap = true;
+        }
+        showNotification(`Purchased ${upgrade}!`);
+        updateUI();
+        saveGame();
+      } else {
+        showNotification('Not enough UAS coins!');
+      }
+    }
+    
+    function handleSkinEquip(skin) {
+      if (gameState.coins >= 1000) {
+        gameState.coins -= 1000;
+        gameState.currentSkin = skin;
+        showNotification(`Equipped ${skin} skin!`);
+        updateUI();
+        saveGame();
+        // Add logic to change coin appearance based on skin
+      } else {
+        showNotification('Not enough UAS coins!');
+      }
+    }
+    
     function initGame() {
-      // Simulate loading
       setTimeout(() => {
-        // Load saved game
         loadGame();
-        
-        // Hide loading screen
         loadingScreen.style.opacity = '0';
-        
         setTimeout(() => {
           loadingScreen.style.display = 'none';
         }, 500);
-        
-        // Start game loops
         setInterval(rechargeEnergy, 2000);
         setInterval(autoTap, 1000);
-        
-        // Show welcome message
         showNotification('Welcome to Revolutionary Coin!');
+        
+        document.querySelectorAll('.item-card[data-upgrade] .buy-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const card = btn.closest('.item-card');
+            const upgrade = card.dataset.upgrade;
+            const cost = parseInt(card.querySelector('.item-price').textContent.match(/\d+/)[0]);
+            handleUpgradePurchase(upgrade, cost);
+          });
+        });
+        
+        document.querySelectorAll('.item-card[data-skin] .buy-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const card = btn.closest('.item-card');
+            const skin = card.dataset.skin;
+            handleSkinEquip(skin);
+          });
+        });
       }, 2000);
     }
     
-    // Tab switching
     tabBtns.forEach(btn => {
       btn.addEventListener('click', () => {
         const tabId = btn.dataset.tab;
-        
-        // Update active tab button
         tabBtns.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        
-        // Show active tab content
         tabContents.forEach(content => {
           content.classList.remove('active');
         });
@@ -679,17 +757,13 @@
       });
     });
     
-    // Event listeners
     coin.addEventListener('click', tapCoin);
-    
-    // Touch support for mobile
     coin.addEventListener('touchstart', (e) => {
       e.preventDefault();
       tapCoin();
     });
     
-    // Initialize the game
     initGame();
   </script>
-</body>
+</body>                                          
 </html>
