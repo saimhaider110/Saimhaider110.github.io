@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>revolutionary tapping game</title>
+    <title>TON Tapping Game</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -14,14 +14,21 @@
         }
         
         body {
-            background: url('background.png') no-repeat center center fixed;
-            background-size: cover;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
             color: #fff;
             min-height: 100vh;
             padding: 0;
             overflow-x: hidden;
             display: flex;
             flex-direction: column;
+        }
+        
+        @keyframes gradientBG {
+            0% { background-position: 0% 50% }
+            50% { background-position: 100% 50% }
+            100% { background-position: 0% 50% }
         }
         
         .container {
@@ -157,6 +164,9 @@
             color: #ffcc00;
             text-align: center;
             text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+            background: transparent;
+            border: none;
+            padding: 0;
         }
         
         .tap-area {
@@ -173,7 +183,7 @@
             transition: transform 0.1s ease;
             position: relative;
             overflow: hidden;
-            border: 5px solid rgba(255, 255, 255, 0.2);
+            border: none;
         }
         
         .tap-area:active {
@@ -314,7 +324,76 @@
             margin: 5px 0;
         }
         
+        .btn {
+            background: linear-gradient(135deg, #0088cc, #006699);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: scale(1.05);
+            background: linear-gradient(135deg, #00aaff, #0088cc);
+        }
+        
+        .btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
         /* Skins */
+        .skin-preview {
+            background: rgba(30, 30, 40, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .preview-image {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #1e3c72, #2a5298);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            margin: 0 auto;
+            border: 3px solid #0088cc;
+        }
+        
+        .preview-details {
+            text-align: center;
+        }
+        
+        .skin-name {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+        
+        .skin-description {
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-bottom: 10px;
+        }
+        
+        .skin-price {
+            font-size: 1.2rem;
+            color: #ffcc00;
+            font-weight: bold;
+        }
+        
         .skins-container {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
@@ -329,11 +408,17 @@
             text-align: center;
             transition: all 0.3s ease;
             border: 2px solid transparent;
+            cursor: pointer;
         }
         
         .skin-card:hover {
             border-color: #0088cc;
             transform: translateY(-5px);
+        }
+        
+        .skin-card.selected {
+            border-color: #ffcc00;
+            box-shadow: 0 0 15px rgba(255, 204, 0, 0.5);
         }
         
         .skin-image {
@@ -342,14 +427,15 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 2rem;
         }
         
-        .skin-name {
+        .skin-card .skin-name {
             padding: 10px;
             font-size: 0.9rem;
         }
         
-        .skin-price {
+        .skin-card .skin-price {
             background: rgba(38, 161, 123, 0.2);
             padding: 5px;
             font-size: 0.8rem;
@@ -445,6 +531,17 @@
                 grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
             }
         }
+        
+        /* Animation for tap */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .pulse {
+            animation: pulse 0.3s ease;
+        }
     </style>
 </head>
 <body>
@@ -502,90 +599,28 @@
             
             <div class="tab-content" id="upgrades-tab">
                 <h3 style="text-align: center; margin-bottom: 20px;"><i class="fas fa-arrow-up"></i> Power Upgrades</h3>
-                <div class="upgrades-container">
-                    <div class="upgrade-card">
-                        <div class="upgrade-icon"><i class="fas fa-bolt"></i></div>
-                        <div class="upgrade-title">2x Tap Power</div>
-                        <div class="upgrade-price ton-price"><i class="fab fa-bitcoin"></i> 1 TON</div>
-                        <div class="upgrade-price usdt-price"><i class="fas fa-dollar-sign"></i> 3 USDT</div>
-                        <button class="btn" style="margin-top: 10px;">Purchase</button>
-                    </div>
-                    
-                    <div class="upgrade-card">
-                        <div class="upgrade-icon"><i class="fas fa-bolt"></i><i class="fas fa-bolt"></i></div>
-                        <div class="upgrade-title">4x Tap Power</div>
-                        <div class="upgrade-price ton-price"><i class="fab fa-bitcoin"></i> 2 TON</div>
-                        <div class="upgrade-price usdt-price"><i class="fas fa-dollar-sign"></i> 6 USDT</div>
-                        <button class="btn" style="margin-top: 10px;">Purchase</button>
-                    </div>
-                    
-                    <div class="upgrade-card">
-                        <div class="upgrade-icon"><i class="fas fa-bolt"></i><i class="fas fa-bolt"></i><i class="fas fa-bolt"></i></div>
-                        <div class="upgrade-title">8x Tap Power</div>
-                        <div class="upgrade-price ton-price"><i class="fab fa-bitcoin"></i> 5 TON</div>
-                        <div class="upgrade-price usdt-price"><i class="fas fa-dollar-sign"></i> 17 USDT</div>
-                        <button class="btn" style="margin-top: 10px;">Purchase</button>
-                    </div>
-                    
-                    <div class="upgrade-card">
-                        <div class="upgrade-icon"><i class="fas fa-robot"></i></div>
-                        <div class="upgrade-title">Auto Tap Bot</div>
-                        <div class="upgrade-price usdt-price"><i class="fas fa-dollar-sign"></i> 20 USDT</div>
-                        <button class="btn" style="margin-top: 10px;">Purchase</button>
-                    </div>
+                <div class="upgrades-container" id="upgradesContainer">
+                    <!-- Upgrades will be populated by JavaScript -->
                 </div>
             </div>
             
             <div class="tab-content" id="skins-tab">
                 <h3 style="text-align: center; margin-bottom: 20px;"><i class="fas fa-flag"></i> Country Skins</h3>
-                <div class="skins-container">
-                    <div class="skin-card">
-                        <div class="skin-image">
-                            <span>PK</span>
-                        </div>
-                        <div class="skin-name">Pakistan</div>
-                        <div class="skin-price">5 USDT</div>
+                
+                <div class="skin-preview">
+                    <div class="preview-image" id="skinPreviewImage">
+                        PK
                     </div>
-                    
-                    <div class="skin-card">
-                        <div class="skin-image">
-                            <span>IN</span>
-                        </div>
-                        <div class="skin-name">India</div>
-                        <div class="skin-price">5 USDT</div>
+                    <div class="preview-details">
+                        <div class="skin-name" id="skinPreviewName">Pakistan</div>
+                        <div class="skin-description">National skin with special effects</div>
+                        <div class="skin-price" id="skinPreviewPrice">5 USDT</div>
                     </div>
-                    
-                    <div class="skin-card">
-                        <div class="skin-image">
-                            <span>US</span>
-                        </div>
-                        <div class="skin-name">USA</div>
-                        <div class="skin-price">5 USDT</div>
-                    </div>
-                    
-                    <div class="skin-card">
-                        <div class="skin-image">
-                            <span>UK</span>
-                        </div>
-                        <div class="skin-name">UK</div>
-                        <div class="skin-price">5 USDT</div>
-                    </div>
-                    
-                    <div class="skin-card">
-                        <div class="skin-image">
-                            <span>FR</span>
-                        </div>
-                        <div class="skin-name">France</div>
-                        <div class="skin-price">5 USDT</div>
-                    </div>
-                    
-                    <div class="skin-card">
-                        <div class="skin-image">
-                            <span>DE</span>
-                        </div>
-                        <div class="skin-name">Germany</div>
-                        <div class="skin-price">5 USDT</div>
-                    </div>
+                    <button class="btn" id="purchaseSkinBtn">Purchase Skin</button>
+                </div>
+                
+                <div class="skins-container" id="skinsContainer">
+                    <!-- Skins will be populated by JavaScript -->
                 </div>
             </div>
         </div>
@@ -659,7 +694,7 @@
         
         // Game state
         const gameState = {
-            coins: 0,
+            coins: 100,
             tapPower: 1,
             autoTap: false,
             level: 1,
@@ -677,6 +712,98 @@
         
         // Level requirements
         const levelRequirements = [0, 1000, 2500, 5000, 10000, 20000, 40000, 80000, 150000, 300000];
+        
+        // Upgrade data
+        const upgradesData = [
+            {
+                id: "x2",
+                icon: '<i class="fas fa-bolt"></i>',
+                title: "2x Tap Power",
+                description: "Double your tapping power",
+                tonPrice: 1,
+                usdtPrice: 3,
+                purchased: false
+            },
+            {
+                id: "x4",
+                icon: '<i class="fas fa-bolt"></i><i class="fas fa-bolt"></i>',
+                title: "4x Tap Power",
+                description: "Quadruple your tapping power",
+                tonPrice: 2,
+                usdtPrice: 6,
+                purchased: false
+            },
+            {
+                id: "x8",
+                icon: '<i class="fas fa-bolt"></i><i class="fas fa-bolt"></i><i class="fas fa-bolt"></i>',
+                title: "8x Tap Power",
+                description: "Octuple your tapping power",
+                tonPrice: 5,
+                usdtPrice: 17,
+                purchased: false
+            },
+            {
+                id: "autobot",
+                icon: '<i class="fas fa-robot"></i>',
+                title: "Auto Tap Bot",
+                description: "Automatically taps every 3 seconds",
+                tonPrice: 0,
+                usdtPrice: 20,
+                purchased: false
+            }
+        ];
+        
+        // Skin data
+        const skinsData = [
+            {
+                id: "pakistan",
+                code: "PK",
+                name: "Pakistan",
+                description: "Green and white theme with crescent effects",
+                price: 5,
+                selected: false
+            },
+            {
+                id: "india",
+                code: "IN",
+                name: "India",
+                description: "Saffron, white and green theme with Ashoka Chakra",
+                price: 5,
+                selected: false
+            },
+            {
+                id: "usa",
+                code: "US",
+                name: "USA",
+                description: "Red, white and blue theme with stars effects",
+                price: 5,
+                selected: false
+            },
+            {
+                id: "uk",
+                code: "UK",
+                name: "UK",
+                description: "Union Jack theme with royal effects",
+                price: 5,
+                selected: false
+            },
+            {
+                id: "france",
+                code: "FR",
+                name: "France",
+                description: "Blue, white and red theme with Eiffel Tower effects",
+                price: 5,
+                selected: false
+            },
+            {
+                id: "germany",
+                code: "DE",
+                name: "Germany",
+                description: "Black, red and gold theme with eagle effects",
+                price: 5,
+                selected: false
+            }
+        ];
         
         // DOM Elements
         const coinsEl = document.getElementById('coins');
@@ -696,11 +823,26 @@
         const closeLevelUp = document.getElementById('closeLevelUp');
         const navItems = document.querySelectorAll('.nav-item');
         const tabContents = document.querySelectorAll('.tab-content');
+        const upgradesContainer = document.getElementById('upgradesContainer');
+        const skinsContainer = document.getElementById('skinsContainer');
+        const skinPreviewImage = document.getElementById('skinPreviewImage');
+        const skinPreviewName = document.getElementById('skinPreviewName');
+        const skinPreviewPrice = document.getElementById('skinPreviewPrice');
+        const purchaseSkinBtn = document.getElementById('purchaseSkinBtn');
         
         // Initialize game
         function initGame() {
             // Setup event listeners
             setupEventListeners();
+            
+            // Render upgrades
+            renderUpgrades();
+            
+            // Render skins
+            renderSkins();
+            
+            // Select first skin by default
+            selectSkin(skinsData[0]);
             
             // Load game state
             loadGameState();
@@ -723,10 +865,10 @@
                     gameState.energy -= 1;
                     updateGameUI();
                     
-                    tapArea.classList.add('pulse-tap');
+                    tapArea.classList.add('pulse');
                     setTimeout(() => {
-                        tapArea.classList.remove('pulse-tap');
-                    }, 200);
+                        tapArea.classList.remove('pulse');
+                    }, 300);
                     
                     // Save state
                     saveGameState();
@@ -760,6 +902,146 @@
             closeLevelUp.addEventListener('click', () => {
                 levelUpPopup.classList.remove('show');
             });
+            
+            // Purchase skin button
+            purchaseSkinBtn.addEventListener('click', purchaseSkin);
+        }
+        
+        // Render upgrades
+        function renderUpgrades() {
+            upgradesContainer.innerHTML = '';
+            
+            upgradesData.forEach(upgrade => {
+                const upgradeCard = document.createElement('div');
+                upgradeCard.className = 'upgrade-card';
+                upgradeCard.innerHTML = `
+                    <div class="upgrade-icon">${upgrade.icon}</div>
+                    <div class="upgrade-title">${upgrade.title}</div>
+                    <div class="upgrade-description">${upgrade.description}</div>
+                    ${upgrade.tonPrice > 0 ? `<div class="upgrade-price ton-price"><i class="fab fa-bitcoin"></i> ${upgrade.tonPrice} TON</div>` : ''}
+                    <div class="upgrade-price usdt-price"><i class="fas fa-dollar-sign"></i> ${upgrade.usdtPrice} USDT</div>
+                    <button class="btn purchase-upgrade-btn" data-id="${upgrade.id}" ${gameState.upgrades[upgrade.id] ? 'disabled' : ''}>
+                        ${gameState.upgrades[upgrade.id] ? 'Purchased' : 'Purchase'}
+                    </button>
+                `;
+                
+                upgradesContainer.appendChild(upgradeCard);
+            });
+            
+            // Add event listeners to purchase buttons
+            document.querySelectorAll('.purchase-upgrade-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const upgradeId = btn.dataset.id;
+                    purchaseUpgrade(upgradeId);
+                });
+            });
+        }
+        
+        // Render skins
+        function renderSkins() {
+            skinsContainer.innerHTML = '';
+            
+            skinsData.forEach(skin => {
+                const skinCard = document.createElement('div');
+                skinCard.className = `skin-card ${skin.selected ? 'selected' : ''}`;
+                skinCard.dataset.id = skin.id;
+                skinCard.innerHTML = `
+                    <div class="skin-image">
+                        ${skin.code}
+                    </div>
+                    <div class="skin-name">${skin.name}</div>
+                    <div class="skin-price"><i class="fas fa-dollar-sign"></i> ${skin.price} USDT</div>
+                `;
+                
+                skinCard.addEventListener('click', () => {
+                    selectSkin(skin);
+                });
+                
+                skinsContainer.appendChild(skinCard);
+            });
+        }
+        
+        // Select a skin
+        function selectSkin(skin) {
+            // Deselect all skins
+            skinsData.forEach(s => s.selected = false);
+            document.querySelectorAll('.skin-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Select the new skin
+            skin.selected = true;
+            const skinCard = document.querySelector(`.skin-card[data-id="${skin.id}"]`);
+            if (skinCard) {
+                skinCard.classList.add('selected');
+            }
+            
+            // Update preview
+            skinPreviewImage.textContent = skin.code;
+            skinPreviewName.textContent = skin.name;
+            skinPreviewPrice.textContent = `${skin.price} USDT`;
+            
+            // Check if already purchased
+            const purchased = gameState.skins.includes(skin.id);
+            purchaseSkinBtn.disabled = purchased;
+            purchaseSkinBtn.textContent = purchased ? 'Already Purchased' : 'Purchase Skin';
+        }
+        
+        // Purchase an upgrade
+        function purchaseUpgrade(upgradeId) {
+            const upgrade = upgradesData.find(u => u.id === upgradeId);
+            if (!upgrade) return;
+            
+            const price = upgrade.usdtPrice;
+            
+            if (gameState.coins >= price) {
+                gameState.coins -= price;
+                gameState.upgrades[upgradeId] = true;
+                
+                // Apply upgrade effects
+                if (upgradeId === 'x2') {
+                    gameState.tapPower *= 2;
+                } else if (upgradeId === 'x4') {
+                    gameState.tapPower *= 4;
+                } else if (upgradeId === 'x8') {
+                    gameState.tapPower *= 8;
+                } else if (upgradeId === 'autobot') {
+                    gameState.autoTap = true;
+                    startAutoTap();
+                }
+                
+                showNotification(`Purchased: ${upgrade.title}`);
+                updateGameUI();
+                renderUpgrades();
+                saveGameState();
+            } else {
+                showNotification(`Not enough coins! Need ${price} USDT`, true);
+            }
+        }
+        
+        // Purchase a skin
+        function purchaseSkin() {
+            const skinId = skinsData.find(s => s.selected).id;
+            const skin = skinsData.find(s => s.id === skinId);
+            
+            if (gameState.skins.includes(skinId)) {
+                showNotification("You already own this skin!");
+                return;
+            }
+            
+            if (gameState.coins >= skin.price) {
+                gameState.coins -= skin.price;
+                gameState.skins.push(skinId);
+                
+                showNotification(`Purchased skin: ${skin.name}`);
+                updateGameUI();
+                renderSkins();
+                purchaseSkinBtn.disabled = true;
+                purchaseSkinBtn.textContent = 'Already Purchased';
+                saveGameState();
+            } else {
+                showNotification(`Not enough coins! Need ${skin.price} USDT`, true);
+            }
         }
         
         // Load game state
@@ -775,6 +1057,8 @@
                         if (data) {
                             Object.assign(gameState, data);
                             updateGameUI();
+                            renderUpgrades();
+                            renderSkins();
                             showNotification("Game data loaded from Firebase");
                         } else {
                             showNotification("New game started");
@@ -835,6 +1119,8 @@
             if (savedState) {
                 Object.assign(gameState, JSON.parse(savedState));
                 updateGameUI();
+                renderUpgrades();
+                renderSkins();
                 showNotification("Game data loaded from local storage");
             }
         }
@@ -918,6 +1204,12 @@
                     gameState.energy -= 1;
                     updateGameUI();
                     saveGameState();
+                    
+                    // Add pulse effect to tap area
+                    tapArea.classList.add('pulse');
+                    setTimeout(() => {
+                        tapArea.classList.remove('pulse');
+                    }, 300);
                 }
             }, 3000);
         }
