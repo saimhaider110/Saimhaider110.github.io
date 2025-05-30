@@ -3,11 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Revolutionary Coin</title>
+  <title>Revolutionary Coin - TON & USDT</title>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-  <script src="https://unpkg.com/tonweb@0.0.35/dist/tonweb.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     * {
@@ -320,6 +319,11 @@
       box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
     }
     
+    .buy-btn.pending {
+      background: linear-gradient(to right, #555, #777);
+      cursor: not-allowed;
+    }
+    
     /* Notification */
     .notification {
       position: fixed;
@@ -540,6 +544,66 @@
       margin: 10px 0;
       color: #00aaff;
     }
+    
+    /* Currency selector */
+    .currency-selector {
+      display: flex;
+      justify-content: center;
+      margin: 15px 0;
+    }
+    
+    .currency-option {
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      margin: 0 5px;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: 2px solid transparent;
+    }
+    
+    .currency-option.active {
+      background: rgba(0, 136, 204, 0.3);
+      border-color: #0088cc;
+    }
+    
+    .currency-option:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    
+    /* Pending Transactions */
+    .pending-transactions {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 15px;
+      border-radius: 15px;
+      margin-top: 20px;
+    }
+    
+    .pending-title {
+      color: #ffd700;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    
+    .transaction-item {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 10px;
+      border-radius: 10px;
+      margin: 10px 0;
+      border-left: 4px solid #ffd700;
+    }
+    
+    .transaction-details {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+    }
+    
+    .transaction-status {
+      color: #ffcc00;
+      font-size: 0.9rem;
+      text-align: right;
+    }
   </style>
 </head>
 <body>
@@ -579,7 +643,17 @@
         <i class="fab fa-bitcoin"></i>
       </div>
       <p>Confirm purchase of <span id="itemName"></span></p>
-      <p>Price: <span id="itemPrice"></span> TON</p>
+      
+      <div class="currency-selector">
+        <div class="currency-option active" data-currency="ton">
+          <i class="fab fa-bitcoin"></i> TON
+        </div>
+        <div class="currency-option" data-currency="usdt">
+          <i class="fas fa-dollar-sign"></i> USDT
+        </div>
+      </div>
+      
+      <p>Price: <span id="itemPrice"></span> <span id="currencySymbol">TON</span></p>
       
       <div class="wallet-address" id="walletAddress">EQDCH4wT2U3VlYpVx6C5K0bU0Zx1Y4y5X7e8f9g0h1i2j3k4l5m6n7o8p9q0r1s2t3u4v5w6x7y8z9</div>
       
@@ -638,7 +712,7 @@
     <div class="energy-info">
       <p><i class="fas fa-info-circle"></i> Energy System</p>
       <p>Each tap: <span class="recharge-indicator">-1 Energy</span></p>
-      <p>Recharge: <span class="recharge-indicator">+1 Energy every 3s</span></p>
+      <p>Recharge: <span class="recharge-indicator">+10 Energy every 1s</span></p>
     </div>
     
     <!-- Energy Bar -->
@@ -666,7 +740,15 @@
           <p><i class="fas fa-trophy"></i> Total Taps: <span id="totalTaps">0</span></p>
           <p><i class="fas fa-robot"></i> Auto Tapper: <span id="autoTapStatus">Inactive</span></p>
           <p><i class="fas fa-users"></i> Referrals: <span id="referralCount">0</span></p>
-          <p><i class="fas fa-bolt"></i> Energy Recharge: 1 every 3s</p>
+          <p><i class="fas fa-bolt"></i> Energy Recharge: 10 every 1s</p>
+        </div>
+      </div>
+      
+      <!-- Pending Transactions -->
+      <div class="pending-transactions" id="pendingTransactions">
+        <h3 class="pending-title">Pending Transactions</h3>
+        <div id="transactionsList">
+          <!-- Pending transactions will appear here -->
         </div>
       </div>
     </div>
@@ -677,25 +759,25 @@
         <div class="item-card">
           <img src="https://via.placeholder.com/60?text=Bronze" class="item-icon">
           <div class="item-name">2x Multiplier</div>
-          <div class="item-price">5 TON</div>
+          <div class="item-price">5 TON / 5 USDT</div>
           <button class="buy-btn" data-item="multiplier2x" data-price="5">Buy</button>
         </div>
         <div class="item-card">
           <img src="https://via.placeholder.com/60?text=Bronze" class="item-icon">
           <div class="item-name">5x Multiplier</div>
-          <div class="item-price">10 TON</div>
+          <div class="item-price">10 TON / 10 USDT</div>
           <button class="buy-btn" data-item="multiplier5x" data-price="10">Buy</button>
         </div>
         <div class="item-card">
           <img src="https://via.placeholder.com/60?text=Bronze" class="item-icon">
           <div class="item-name">Energy Refill</div>
-          <div class="item-price">3 TON</div>
+          <div class="item-price">3 TON / 3 USDT</div>
           <button class="buy-btn" data-item="energyRefill" data-price="3">Buy</button>
         </div>
         <div class="item-card">
           <img src="https://via.placeholder.com/60?text=Bronze" class="item-icon">
           <div class="item-name">Auto Tapper</div>
-          <div class="item-price">8 TON</div>
+          <div class="item-price">8 TON / 8 USDT</div>
           <button class="buy-btn" data-item="autoTapper" data-price="8">Buy</button>
         </div>
       </div>
@@ -771,10 +853,11 @@
     const database = firebase.database();
     const auth = firebase.auth();
     
-    // TON Configuration
-    const providerUrl = "https://testnet.toncenter.com/api/v2/jsonRPC";
-    const apiKey = "YOUR_API_KEY"; // Replace with your actual API key
-    const tonweb = new TonWeb(new TonWeb.HttpProvider(providerUrl, { apiKey }));
+    // TON Configuration (MAINNET)
+    const providerUrl = "https://toncenter.com/api/v2/jsonRPC"; // Mainnet endpoint
+    const apiKey = "YOUR_MAINNET_API_KEY"; // Replace with your mainnet API key
+    const tonMainnetAddress = "EQDCH4wT2U3VlYpVx6C5K0bU0Zx1Y4y5X7e8f9g0h1i2j3k4l5m6n7o8p9q0r1s2t3u4v5w6x7y8z9";
+    const usdtContractAddress = "EQD2NmD_lH5f5u1Kj3KfGyTvhZSX0Eg6qp2a5IQUKXxOG21n"; // USDT contract on TON
     
     // Game state with updated energy system
     let gameState = {
@@ -792,26 +875,9 @@
       skins: ['bronze'],
       userId: null,
       tonWalletConnected: false,
-      tonBalance: 0
+      tonBalance: 0,
+      pendingTransactions: []
     };
-    
-    // TON wallet address
-    const walletAddress = "EQDCH4wT2U3VlYpVx6C5K0bU0Zx1Y4y5X7e8f9g0h1i2j3k4l5m6n7o8p9q0r1s2t3u4v5w6x7y8z9";
-    
-    // Country skins data
-    const countrySkins = [
-      { id: 'usa.png', name: 'USA Flag', price: 5 },
-      { id: 'uk.png', name: 'UK Flag', price: 5 },
-      { id: 'germany.png', name: 'Germany Flag', price: 5 },
-      { id: 'france.png', name: 'France Flag', price: 5 },
-      { id: 'italy.png', name: 'Italy Flag', price: 5 },
-      { id: 'iran.png', name: 'Iran Flag', price: 5 },
-      { id: 'pakistan.png', name: 'Pakistan Flag', price: 5 },
-      { id: 'china.png', name: 'China Flag', price: 5 },
-      { id: 'suadiaarab.png', name: 'Saudi Arabia Flag', price: 5 },
-      { id: 'india.png', name: 'India Flag', price: 5 },
-      { id: 'brazil.png', name: 'Brazil Flag', price: 5 }
-    ];
     
     // DOM elements
     const coin = document.getElementById('coin');
@@ -845,13 +911,31 @@
     const tonBalance = document.getElementById('tonBalance');
     const itemName = document.getElementById('itemName');
     const itemPrice = document.getElementById('itemPrice');
+    const currencySymbol = document.getElementById('currencySymbol');
+    const transactionsList = document.getElementById('transactionsList');
     
     let currentPurchaseItem = null;
     let rechargeInterval;
     let walletSpinner = document.getElementById('walletSpinner');
+    let currentCurrency = 'ton';
+    
+    // Country skins data
+    const countrySkins = [
+      { id: 'usa.png', name: 'USA Flag', price: 5 },
+      { id: 'uk.png', name: 'UK Flag', price: 5 },
+      { id: 'germany.png', name: 'Germany Flag', price: 5 },
+      { id: 'france.png', name: 'France Flag', price: 5 },
+      { id: 'italy.png', name: 'Italy Flag', price: 5 },
+      { id: 'iran.png', name: 'Iran Flag', price: 5 },
+      { id: 'pakistan.png', name: 'Pakistan Flag', price: 5 },
+      { id: 'china.png', name: 'China Flag', price: 5 },
+      { id: 'suadiaarab.png', name: 'Saudi Arabia Flag', price: 5 },
+      { id: 'india.png', name: 'India Flag', price: 5 },
+      { id: 'brazil.png', name: 'Brazil Flag', price: 5 }
+    ];
     
     async function initGame() {
-      walletAddressEl.textContent = walletAddress;
+      walletAddressEl.textContent = tonMainnetAddress;
       try {
         const userCredential = await auth.signInAnonymously();
         gameState.userId = userCredential.user.uid;
@@ -859,12 +943,22 @@
         await loadGameState();
         initSkins();
         
-        // Start energy recharge
+        // Start energy recharge (faster)
         startEnergyRecharge();
         
         if (gameState.autoTap) {
           setInterval(autoTap, 1000);
         }
+        
+        // Setup currency selector
+        document.querySelectorAll('.currency-option').forEach(option => {
+          option.addEventListener('click', () => {
+            document.querySelectorAll('.currency-option').forEach(o => o.classList.remove('active'));
+            option.classList.add('active');
+            currentCurrency = option.dataset.currency;
+            updatePaymentDetails();
+          });
+        });
       } catch (error) {
         console.error('Authentication failed:', error);
         showNotification('Failed to authenticate. Using local storage.');
@@ -876,11 +970,11 @@
       clearInterval(rechargeInterval);
       rechargeInterval = setInterval(() => {
         if (gameState.energy < gameState.maxEnergy) {
-          gameState.energy++;
+          gameState.energy += 10;  // Recharge 10 energy per tick (faster)
           updateUI();
           saveGameState();
         }
-      }, 3000); // Recharge every 3 seconds
+      }, 1000); // Every 1 second
     }
     
     async function loadGameState() {
@@ -890,6 +984,7 @@
           if (snapshot.exists()) {
             Object.assign(gameState, snapshot.val());
             updateUI();
+            updatePendingTransactionsList();
             showNotification('Game loaded from cloud!');
           } else {
             saveGameState();
@@ -907,6 +1002,7 @@
       if (savedGame) {
         Object.assign(gameState, JSON.parse(savedGame));
         updateUI();
+        updatePendingTransactionsList();
         showNotification('Game loaded from local storage!');
       }
     }
@@ -945,7 +1041,7 @@
           <div class="item-card">
             <img src="https://via.placeholder.com/60?text=${skin.id}" class="item-icon">
             <div class="item-name">${skin.name}</div>
-            <div class="item-price">${skin.price} TON</div>
+            <div class="item-price">${skin.price} TON / ${skin.price} USDT</div>
             <button class="buy-btn ${gameState.currentSkin === skin.id ? 'active' : ''}" 
                     data-skin="${skin.id}" data-price="${skin.price}">
               ${owned ? (gameState.currentSkin === skin.id ? 'Equipped' : 'Equip') : 'Buy'}
@@ -953,6 +1049,19 @@
           </div>
         `;
       });
+    }
+    
+    function updatePaymentDetails() {
+      if (!currentPurchaseItem) return;
+      
+      const currencySymbolText = currentCurrency === 'ton' ? 'TON' : 'USDT';
+      currencySymbol.textContent = currencySymbolText;
+      
+      const address = currentCurrency === 'ton' ? tonMainnetAddress : usdtContractAddress;
+      walletAddressEl.textContent = address;
+      
+      // Prices are the same for TON and USDT in this implementation
+      itemPrice.textContent = currentPurchaseItem.price;
     }
     
     function showNotification(message) {
@@ -1023,6 +1132,28 @@
       levelProgress.style.width = `${progressPercent}%`;
     }
     
+    function updatePendingTransactionsList() {
+      transactionsList.innerHTML = '';
+      
+      if (gameState.pendingTransactions.length === 0) {
+        transactionsList.innerHTML = '<p style="text-align: center; padding: 10px;">No pending transactions</p>';
+        return;
+      }
+      
+      gameState.pendingTransactions.forEach(transaction => {
+        const transactionEl = document.createElement('div');
+        transactionEl.className = 'transaction-item';
+        transactionEl.innerHTML = `
+          <div class="transaction-details">
+            <div>${transaction.itemName}</div>
+            <div>${transaction.amount} ${transaction.currency}</div>
+          </div>
+          <div class="transaction-status">Status: ${transaction.status}</div>
+        `;
+        transactionsList.appendChild(transactionEl);
+      });
+    }
+    
     function tapCoin() {
       if (gameState.energy <= 0) {
         showNotification('Not enough energy! Wait for recharge');
@@ -1070,71 +1201,41 @@
         return;
       }
       
-      currentPurchaseItem = { type: itemType, id: itemId, price: price };
-      itemName.textContent = itemId;
-      itemPrice.textContent = price;
+      currentPurchaseItem = { 
+        type: itemType, 
+        id: itemId,
+        name: itemId,
+        price: price,
+        currency: currentCurrency
+      };
+      
+      // Get item name for display
+      if (itemType === 'skin') {
+        const skin = countrySkins.find(s => s.id === itemId);
+        if (skin) currentPurchaseItem.name = skin.name;
+      }
+      
+      itemName.textContent = currentPurchaseItem.name;
+      updatePaymentDetails();
       paymentModal.style.display = 'flex';
     }
     
-    async function sendTonTransaction(amount) {
-      try {
-        // In a real app, you would send the transaction to your wallet
-        // This is a simulation for demonstration
-        paymentSpinner.style.display = 'block';
-        
-        // Simulate transaction delay
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        paymentSpinner.style.display = 'none';
-        showNotification(`Successfully sent ${amount} TON!`);
-        return true;
-      } catch (error) {
-        console.error('Transaction failed:', error);
-        showNotification('Transaction failed!');
-        return false;
-      }
-    }
-    
-    async function processPurchase() {
-      if (!currentPurchaseItem) return;
+    function createPendingTransaction() {
+      const transaction = {
+        id: Date.now().toString(),
+        userId: gameState.userId,
+        itemType: currentPurchaseItem.type,
+        itemId: currentPurchaseItem.id,
+        itemName: currentPurchaseItem.name,
+        currency: currentCurrency,
+        amount: currentPurchaseItem.price,
+        status: 'Pending Admin Approval',
+        timestamp: new Date().toISOString()
+      };
       
-      const { type, id, price } = currentPurchaseItem;
-      const success = await sendTonTransaction(price);
-      
-      if (!success) return;
-      
-      switch (type) {
-        case 'skin':
-          if (!gameState.skins.includes(id)) gameState.skins.push(id);
-          gameState.currentSkin = id;
-          coin.style.backgroundImage = `url('https://via.placeholder.com/220?text=${id}')`;
-          showNotification(`${id.toUpperCase()} skin equipped!`);
-          break;
-        case 'upgrade':
-          switch (id) {
-            case 'multiplier2x':
-              gameState.multiplier = 2;
-              showNotification('2x multiplier activated!');
-              break;
-            case 'multiplier5x':
-              gameState.multiplier = 5;
-              showNotification('5x multiplier activated!');
-              break;
-            case 'energyRefill':
-              gameState.energy = gameState.maxEnergy;
-              showNotification('Energy fully recharged!');
-              break;
-            case 'autoTapper':
-              gameState.autoTap = true;
-              setInterval(autoTap, 1000);
-              showNotification('Auto Tapper activated!');
-              break;
-          }
-          break;
-      }
-      updateUI();
-      initSkins();
+      gameState.pendingTransactions.push(transaction);
       saveGameState();
+      updatePendingTransactionsList();
     }
     
     // Event listeners
@@ -1207,9 +1308,10 @@
     });
     
     confirmPayment.addEventListener('click', async () => {
-      await processPurchase();
+      // Instead of processing immediately, create pending transaction
+      createPendingTransaction();
+      showNotification('Transaction submitted. Waiting for admin approval.');
       paymentModal.style.display = 'none';
-      currentPurchaseItem = null;
     });
     
     walletButton.addEventListener('click', () => {
@@ -1227,4 +1329,4 @@
     initGame();
   </script>
 </body>
-  </html>
+                                                        </html>
