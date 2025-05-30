@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TON Tapping Game</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
     <style>
         * {
             margin: 0;
@@ -381,6 +379,10 @@
             transform: translateX(0);
         }
         
+        .notification.error {
+            background: rgba(239, 68, 68, 0.9);
+        }
+        
         .level-up {
             position: fixed;
             top: 50%;
@@ -450,7 +452,7 @@
         <!-- Firebase Connection Status -->
         <div class="firebase-status">
             <div class="status-dot" id="firebaseStatus"></div>
-            <span id="firebaseStatusText">Connecting...</span>
+            <span id="firebaseStatusText">Connecting to Firebase...</span>
         </div>
         
         <!-- Top Bar with Energy and Balance -->
@@ -624,7 +626,7 @@
     </div>
 
     <script>
-        // Firebase configuration (from previous chat)
+        // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDv5Xl1cYkQqy7dY7Q9X7bVZ1yJ8wY4jH0",
             authDomain: "ton-tapping-game.firebaseapp.com",
@@ -635,9 +637,25 @@
             appId: "1:123456789012:web:abcdef1234567890"
         };
         
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+        // Initialize Firebase with error handling
+        let firebaseInitialized = false;
+        let database;
+        
+        try {
+            // Initialize Firebase
+            firebase.initializeApp(firebaseConfig);
+            database = firebase.database();
+            firebaseInitialized = true;
+            console.log("Firebase initialized successfully");
+            
+            // Update Firebase status
+            document.getElementById('firebaseStatus').classList.add('connected');
+            document.getElementById('firebaseStatusText').textContent = "Firebase Connected";
+        } catch (error) {
+            console.error("Firebase initialization failed:", error);
+            document.getElementById('firebaseStatusText').textContent = "Firebase Offline";
+            document.getElementById('firebaseStatus').style.background = "#ff3300";
+        }
         
         // Game state
         const gameState = {
@@ -678,18 +696,13 @@
         const closeLevelUp = document.getElementById('closeLevelUp');
         const navItems = document.querySelectorAll('.nav-item');
         const tabContents = document.querySelectorAll('.tab-content');
-        const firebaseStatus = document.getElementById('firebaseStatus');
-        const firebaseStatusText = document.getElementById('firebaseStatusText');
         
         // Initialize game
         function initGame() {
             // Setup event listeners
             setupEventListeners();
             
-            // Check Firebase connection
-            checkFirebaseConnection();
-            
-            // Load game state from Firebase
+            // Load game state
             loadGameState();
             
             // Start auto tap if purchased
@@ -749,54 +762,64 @@
             });
         }
         
-        // Check Firebase connection
-        function checkFirebaseConnection() {
-            const connectedRef = firebase.database().ref(".info/connected");
-            connectedRef.on("value", (snap) => {
-                if (snap.val() === true) {
-                    firebaseStatus.classList.add('connected');
-                    firebaseStatusText.textContent = "Firebase Connected";
-                } else {
-                    firebaseStatus.classList.remove('connected');
-                    firebaseStatusText.textContent = "Firebase Offline";
-                }
-            });
-        }
-        
-        // Load game state from Firebase
+        // Load game state
         function loadGameState() {
-            const userId = getUserId();
-            const userRef = database.ref('users/' + userId);
-            
-            userRef.once('value').then((snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    Object.assign(gameState, data);
-                    updateGameUI();
-                    showNotification("Game data loaded successfully");
-                } else {
-                    showNotification("New game started");
+            // Try to load from Firebase
+            if (firebaseInitialized) {
+                try {
+                    const userId = getUserId();
+                    const userRef = database.ref('users/' + userId);
+                    
+                    userRef.once('value').then((snapshot) => {
+                        const data = snapshot.val();
+                        if (data) {
+                            Object.assign(gameState, data);
+                            updateGameUI();
+                            showNotification("Game data loaded from Firebase");
+                        } else {
+                            showNotification("New game started");
+                        }
+                    }).catch((error) => {
+                        console.error("Firebase load error:", error);
+                        showNotification("Using local storage", true);
+                        loadFromLocalStorage();
+                    });
+                } catch (error) {
+                    console.error("Firebase error:", error);
+                    showNotification("Using local storage", true);
+                    loadFromLocalStorage();
                 }
-            }).catch((error) => {
-                console.error("Error loading game data:", error);
-                showNotification("Error loading game data", true);
-            });
+            } else {
+                // Load from local storage if Firebase not available
+                loadFromLocalStorage();
+            }
         }
         
-        // Save game state to Firebase
+        // Save game state
         function saveGameState() {
-            const userId = getUserId();
-            const userRef = database.ref('users/' + userId);
-            
-            userRef.set(gameState).then(() => {
-                console.log("Game state saved to Firebase");
-            }).catch((error) => {
-                console.error("Error saving game data:", error);
-                showNotification("Error saving game data", true);
-            });
+            // Try to save to Firebase
+            if (firebaseInitialized) {
+                try {
+                    const userId = getUserId();
+                    const userRef = database.ref('users/' + userId);
+                    
+                    userRef.set(gameState).then(() => {
+                        console.log("Game state saved to Firebase");
+                    }).catch((error) => {
+                        console.error("Firebase save error:", error);
+                        saveToLocalStorage();
+                    });
+                } catch (error) {
+                    console.error("Firebase error:", error);
+                    saveToLocalStorage();
+                }
+            } else {
+                // Save to local storage if Firebase not available
+                saveToLocalStorage();
+            }
         }
         
-        // Get user ID (simplified for demo)
+        // Get user ID
         function getUserId() {
             let userId = localStorage.getItem('userId');
             if (!userId) {
@@ -804,6 +827,21 @@
                 localStorage.setItem('userId', userId);
             }
             return userId;
+        }
+        
+        // Load from local storage
+        function loadFromLocalStorage() {
+            const savedState = localStorage.getItem('tapGameState');
+            if (savedState) {
+                Object.assign(gameState, JSON.parse(savedState));
+                updateGameUI();
+                showNotification("Game data loaded from local storage");
+            }
+        }
+        
+        // Save to local storage
+        function saveToLocalStorage() {
+            localStorage.setItem('tapGameState', JSON.stringify(gameState));
         }
         
         // Update game UI
@@ -889,9 +927,9 @@
             notification.querySelector('span').textContent = message;
             
             if (isError) {
-                notification.style.background = 'rgba(239, 68, 68, 0.9)';
+                notification.classList.add('error');
             } else {
-                notification.style.background = 'rgba(16, 185, 129, 0.9)';
+                notification.classList.remove('error');
             }
             
             notification.classList.add('show');
@@ -914,4 +952,4 @@
         document.addEventListener('DOMContentLoaded', initGame);
     </script>
 </body>
-                        </html>
+    </html>
