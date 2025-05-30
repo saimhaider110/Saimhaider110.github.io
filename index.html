@@ -7,6 +7,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://unpkg.com/tonweb@0.0.35/dist/tonweb.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     * {
@@ -401,8 +402,8 @@
       font-size: 1.2rem;
     }
     
-    /* Payment Modal */
-    .payment-modal {
+    /* TON Wallet Modal */
+    .wallet-modal {
       position: fixed;
       top: 0;
       left: 0;
@@ -441,21 +442,10 @@
       word-break: break-all;
     }
     
-    .usdt-logo {
+    .ton-logo {
       font-size: 3rem;
-      color: #26a17b;
+      color: #0088cc;
       margin: 10px 0;
-    }
-    
-    .payment-input {
-      width: 100%;
-      padding: 12px;
-      margin: 15px 0;
-      border-radius: 8px;
-      border: none;
-      background: rgba(255, 255, 255, 0.1);
-      color: white;
-      font-size: 1rem;
     }
     
     .modal-buttons {
@@ -474,7 +464,7 @@
     }
     
     .confirm-btn {
-      background: linear-gradient(to right, #00c853, #64dd17);
+      background: linear-gradient(to right, #0088cc, #00aaff);
       color: white;
     }
     
@@ -499,6 +489,24 @@
       100% { transform: rotate(360deg); }
     }
     
+    /* Wallet Button */
+    .wallet-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: linear-gradient(to right, #0088cc, #00aaff);
+      color: white;
+      border: none;
+      border-radius: 30px;
+      padding: 10px 20px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 100;
+    }
+    
     /* Energy Info */
     .energy-info {
       background: rgba(0, 0, 0, 0.4);
@@ -517,6 +525,21 @@
       margin-top: 5px;
       border: 1px solid rgba(0, 200, 83, 0.5);
     }
+    
+    /* TON Integration */
+    .ton-integration {
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 15px;
+      padding: 15px;
+      margin: 20px 0;
+      text-align: center;
+    }
+    
+    .ton-balance {
+      font-size: 1.2rem;
+      margin: 10px 0;
+      color: #00aaff;
+    }
   </style>
 </head>
 <body>
@@ -530,17 +553,35 @@
     <button class="level-up-btn" id="closeLevelUp">Continue</button>
   </div>
 
-  <!-- Payment Modal -->
-  <div class="payment-modal" id="paymentModal">
+  <!-- TON Wallet Modal -->
+  <div class="wallet-modal" id="walletModal">
     <div class="modal-content">
-      <div class="modal-title">USDT Payment</div>
-      <div class="usdt-logo">
-        <i class="fab fa-usd"></i>
+      <div class="modal-title">TON Wallet Integration</div>
+      <div class="ton-logo">
+        <i class="fab fa-bitcoin"></i>
       </div>
-      <p>Send payment to the following wallet address:</p>
-      <div class="wallet-address" id="walletAddress">0x86d69358e89e1ec95b9a35828363f41d7e55d880</div>
-      <p>After payment, enter transaction hash:</p>
-      <input type="text" class="payment-input" id="txHash" placeholder="Transaction Hash">
+      <p>Connect your TON wallet to make purchases</p>
+      
+      <div class="spinner" id="walletSpinner" style="display: none;"></div>
+      
+      <div class="modal-buttons">
+        <button class="modal-btn cancel-btn" id="cancelWallet">Cancel</button>
+        <button class="modal-btn confirm-btn" id="connectWallet">Connect Wallet</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TON Payment Modal -->
+  <div class="wallet-modal" id="paymentModal">
+    <div class="modal-content">
+      <div class="modal-title">TON Payment</div>
+      <div class="ton-logo">
+        <i class="fab fa-bitcoin"></i>
+      </div>
+      <p>Confirm purchase of <span id="itemName"></span></p>
+      <p>Price: <span id="itemPrice"></span> TON</p>
+      
+      <div class="wallet-address" id="walletAddress">EQDCH4wT2U3VlYpVx6C5K0bU0Zx1Y4y5X7e8f9g0h1i2j3k4l5m6n7o8p9q0r1s2t3u4v5w6x7y8z9</div>
       
       <div class="spinner" id="paymentSpinner" style="display: none;"></div>
       
@@ -550,6 +591,10 @@
       </div>
     </div>
   </div>
+
+  <button class="wallet-btn" id="walletButton">
+    <i class="fab fa-bitcoin"></i> Connect Wallet
+  </button>
 
   <div class="container">
     <!-- Header -->
@@ -602,6 +647,14 @@
       <div class="energy-label" id="energyLabel">1000/1000</div>
     </div>
     
+    <!-- TON Integration -->
+    <div class="ton-integration">
+      <h3><i class="fab fa-bitcoin"></i> TON Blockchain Integration</h3>
+      <p>Powered by The Open Network for secure transactions</p>
+      <div class="ton-balance">Wallet: <span id="walletStatus">Not Connected</span></div>
+      <div class="ton-balance">Balance: <span id="tonBalance">0 TON</span></div>
+    </div>
+    
     <!-- Tab Content -->
     <div class="tab-content active" id="homeTab">
       <h2 class="tab-title"><i class="fas fa-home"></i> Welcome!</h2>
@@ -623,27 +676,27 @@
       <div class="item-grid">
         <div class="item-card">
           <img src="https://via.placeholder.com/60?text=Bronze" class="item-icon">
-          <div class="item-name">2x Speed</div>
-          <div class="item-price">5 USDT</div>
-          <button class="buy-btn" data-item="multiplier2x">Buy</button>
+          <div class="item-name">2x Multiplier</div>
+          <div class="item-price">5 TON</div>
+          <button class="buy-btn" data-item="multiplier2x" data-price="5">Buy</button>
         </div>
         <div class="item-card">
           <img src="https://via.placeholder.com/60?text=Bronze" class="item-icon">
-          <div class="item-name">5x Speed</div>
-          <div class="item-price">10 USDT</div>
-          <button class="buy-btn" data-item="multiplier5x">Buy</button>
+          <div class="item-name">5x Multiplier</div>
+          <div class="item-price">10 TON</div>
+          <button class="buy-btn" data-item="multiplier5x" data-price="10">Buy</button>
         </div>
         <div class="item-card">
           <img src="https://via.placeholder.com/60?text=Bronze" class="item-icon">
           <div class="item-name">Energy Refill</div>
-          <div class="item-price">5 USDT</div>
-          <button class="buy-btn" data-item="energyRefill">Buy</button>
+          <div class="item-price">3 TON</div>
+          <button class="buy-btn" data-item="energyRefill" data-price="3">Buy</button>
         </div>
         <div class="item-card">
           <img src="https://via.placeholder.com/60?text=Bronze" class="item-icon">
           <div class="item-name">Auto Tapper</div>
-          <div class="item-price">10 USDT</div>
-          <button class="buy-btn" data-item="autoTapper">Buy</button>
+          <div class="item-price">8 TON</div>
+          <button class="buy-btn" data-item="autoTapper" data-price="8">Buy</button>
         </div>
       </div>
     </div>
@@ -718,6 +771,11 @@
     const database = firebase.database();
     const auth = firebase.auth();
     
+    // TON Configuration
+    const providerUrl = "https://testnet.toncenter.com/api/v2/jsonRPC";
+    const apiKey = "YOUR_API_KEY"; // Replace with your actual API key
+    const tonweb = new TonWeb(new TonWeb.HttpProvider(providerUrl, { apiKey }));
+    
     // Game state with updated energy system
     let gameState = {
       coins: 0,
@@ -732,11 +790,13 @@
       referrals: 0,
       currentSkin: 'bronze',
       skins: ['bronze'],
-      userId: null
+      userId: null,
+      tonWalletConnected: false,
+      tonBalance: 0
     };
     
-    // USDT wallet address
-    const walletAddress = "0x86d69358e89e1ec95b9a35828363f41d7e55d880";
+    // TON wallet address
+    const walletAddress = "EQDCH4wT2U3VlYpVx6C5K0bU0Zx1Y4y5X7e8f9g0h1i2j3k4l5m6n7o8p9q0r1s2t3u4v5w6x7y8z9";
     
     // Country skins data
     const countrySkins = [
@@ -772,16 +832,23 @@
     const levelUpPopup = document.getElementById('levelUpPopup');
     const newLevelDisplay = document.getElementById('newLevelDisplay');
     const closeLevelUp = document.getElementById('closeLevelUp');
+    const walletModal = document.getElementById('walletModal');
     const paymentModal = document.getElementById('paymentModal');
     const walletAddressEl = document.getElementById('walletAddress');
-    const txHash = document.getElementById('txHash');
+    const cancelWallet = document.getElementById('cancelWallet');
+    const connectWallet = document.getElementById('connectWallet');
     const cancelPayment = document.getElementById('cancelPayment');
     const confirmPayment = document.getElementById('confirmPayment');
     const paymentSpinner = document.getElementById('paymentSpinner');
+    const walletButton = document.getElementById('walletButton');
+    const walletStatus = document.getElementById('walletStatus');
+    const tonBalance = document.getElementById('tonBalance');
+    const itemName = document.getElementById('itemName');
+    const itemPrice = document.getElementById('itemPrice');
     
     let currentPurchaseItem = null;
-    let lastRechargeTime = Date.now();
     let rechargeInterval;
+    let walletSpinner = document.getElementById('walletSpinner');
     
     async function initGame() {
       walletAddressEl.textContent = walletAddress;
@@ -878,7 +945,7 @@
           <div class="item-card">
             <img src="https://via.placeholder.com/60?text=${skin.id}" class="item-icon">
             <div class="item-name">${skin.name}</div>
-            <div class="item-price">${skin.price} USDT</div>
+            <div class="item-price">${skin.price} TON</div>
             <button class="buy-btn ${gameState.currentSkin === skin.id ? 'active' : ''}" 
                     data-skin="${skin.id}" data-price="${skin.price}">
               ${owned ? (gameState.currentSkin === skin.id ? 'Equipped' : 'Equip') : 'Buy'}
@@ -939,6 +1006,18 @@
       autoTapStatus.textContent = gameState.autoTap ? 'Active' : 'Inactive';
       referralCount.textContent = gameState.referrals;
       
+      // Update TON wallet status
+      walletStatus.textContent = gameState.tonWalletConnected ? 'Connected' : 'Not Connected';
+      tonBalance.textContent = gameState.tonBalance + ' TON';
+      
+      // Update wallet button
+      walletButton.innerHTML = gameState.tonWalletConnected ? 
+        `<i class="fab fa-bitcoin"></i> Wallet Connected` : 
+        `<i class="fab fa-bitcoin"></i> Connect Wallet`;
+      walletButton.style.background = gameState.tonWalletConnected ? 
+        'linear-gradient(to right, #00c853, #64dd17)' : 
+        'linear-gradient(to right, #0088cc, #00aaff)';
+      
       // Calculate level progress
       const progressPercent = (gameState.xp / gameState.xpToNextLevel) * 100;
       levelProgress.style.width = `${progressPercent}%`;
@@ -984,30 +1063,45 @@
       if (gameState.autoTap && gameState.energy > 0) tapCoin();
     }
     
-    function handlePurchase(itemType, itemId) {
-      currentPurchaseItem = { type: itemType, id: itemId };
+    function handlePurchase(itemType, itemId, price) {
+      if (!gameState.tonWalletConnected) {
+        showNotification('Please connect your TON wallet first!');
+        walletModal.style.display = 'flex';
+        return;
+      }
+      
+      currentPurchaseItem = { type: itemType, id: itemId, price: price };
+      itemName.textContent = itemId;
+      itemPrice.textContent = price;
       paymentModal.style.display = 'flex';
     }
     
-    async function confirmPaymentHandler() {
-      const hash = txHash.value.trim();
-      if (!hash) {
-        showNotification('Please enter transaction hash');
-        return;
-      }
-      paymentSpinner.style.display = 'block';
-      setTimeout(() => {
+    async function sendTonTransaction(amount) {
+      try {
+        // In a real app, you would send the transaction to your wallet
+        // This is a simulation for demonstration
+        paymentSpinner.style.display = 'block';
+        
+        // Simulate transaction delay
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
         paymentSpinner.style.display = 'none';
-        processPurchase();
-        paymentModal.style.display = 'none';
-        txHash.value = '';
-        showNotification('Payment verified! Item unlocked.');
-      }, 2000);
+        showNotification(`Successfully sent ${amount} TON!`);
+        return true;
+      } catch (error) {
+        console.error('Transaction failed:', error);
+        showNotification('Transaction failed!');
+        return false;
+      }
     }
     
-    function processPurchase() {
+    async function processPurchase() {
       if (!currentPurchaseItem) return;
-      const { type, id } = currentPurchaseItem;
+      
+      const { type, id, price } = currentPurchaseItem;
+      const success = await sendTonTransaction(price);
+      
+      if (!success) return;
       
       switch (type) {
         case 'skin':
@@ -1064,6 +1158,7 @@
       if (e.target.closest('[data-skin]')) {
         const btn = e.target.closest('[data-skin]');
         const skinId = btn.dataset.skin;
+        const price = parseInt(btn.dataset.price);
         if (gameState.skins.includes(skinId)) {
           gameState.currentSkin = skinId;
           coin.style.backgroundImage = `url('https://via.placeholder.com/220?text=${skinId}')`;
@@ -1071,13 +1166,14 @@
           saveGameState();
           initSkins();
         } else {
-          handlePurchase('skin', skinId);
+          handlePurchase('skin', skinId, price);
         }
       }
       if (e.target.closest('[data-item]')) {
         const btn = e.target.closest('[data-item]');
         const itemId = btn.dataset.item;
-        handlePurchase('upgrade', itemId);
+        const price = parseInt(btn.dataset.price);
+        handlePurchase('upgrade', itemId, price);
       }
     });
     
@@ -1087,13 +1183,38 @@
       updateUI();
     });
     
+    cancelWallet.addEventListener('click', () => {
+      walletModal.style.display = 'none';
+    });
+    
     cancelPayment.addEventListener('click', () => {
       paymentModal.style.display = 'none';
-      txHash.value = '';
       currentPurchaseItem = null;
     });
     
-    confirmPayment.addEventListener('click', confirmPaymentHandler);
+    connectWallet.addEventListener('click', async () => {
+      walletSpinner.style.display = 'block';
+      
+      // Simulate wallet connection
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      gameState.tonWalletConnected = true;
+      gameState.tonBalance = 42.75; // Simulated balance
+      walletSpinner.style.display = 'none';
+      walletModal.style.display = 'none';
+      updateUI();
+      showNotification('TON Wallet connected successfully!');
+    });
+    
+    confirmPayment.addEventListener('click', async () => {
+      await processPurchase();
+      paymentModal.style.display = 'none';
+      currentPurchaseItem = null;
+    });
+    
+    walletButton.addEventListener('click', () => {
+      walletModal.style.display = 'flex';
+    });
     
     document.getElementById('copyBtn').addEventListener('click', () => {
       const link = document.getElementById('referralLink');
@@ -1106,4 +1227,4 @@
     initGame();
   </script>
 </body>
-</html>
+  </html>
