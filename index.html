@@ -1,1247 +1,501 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TON Tapping Game</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
-            color: #fff;
-            min-height: 100vh;
-            padding: 0;
-            overflow-x: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        @keyframes gradientBG {
-            0% { background-position: 0% 50% }
-            50% { background-position: 100% 50% }
-            100% { background-position: 0% 50% }
-        }
-        
-        .container {
-            max-width: 100%;
-            margin: 0 auto;
-            padding: 0 15px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        /* Top Bar with Energy and Balance */
-        .top-bar {
-            background: rgba(0, 0, 0, 0.7);
-            padding: 10px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #0088cc;
-            backdrop-filter: blur(5px);
-        }
-        
-        .energy-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .energy-bar {
-            width: 150px;
-            height: 20px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            overflow: hidden;
-            position: relative;
-        }
-        
-        .energy-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #ff6600, #ff3300);
-            border-radius: 10px;
-            width: 80%;
-            transition: width 0.5s ease;
-        }
-        
-        .energy-text {
-            font-weight: bold;
-            font-size: 14px;
-            color: #ff9900;
-        }
-        
-        .balance-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 5px 15px;
-            border-radius: 20px;
-            border: 1px solid #0088cc;
-        }
-        
-        .balance-amount {
-            font-weight: bold;
-            color: #ffcc00;
-        }
-        
-        /* Game Content */
-        .game-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 20px 0;
-        }
-        
-        .level-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        
-        .level-display {
-            background: rgba(139, 92, 246, 0.2);
-            border: 2px solid #8b5cf6;
-            border-radius: 50%;
-            width: 70px;
-            height: 70px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            font-weight: bold;
-            backdrop-filter: blur(5px);
-        }
-        
-        .level-progress {
-            width: 80%;
-            max-width: 400px;
-            background: rgba(255, 255, 255, 0.1);
-            height: 20px;
-            border-radius: 10px;
-            overflow: hidden;
-            position: relative;
-            backdrop-filter: blur(5px);
-        }
-        
-        .progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, #8b5cf6, #c4b5fd);
-            border-radius: 10px;
-            transition: width 0.5s ease;
-        }
-        
-        .progress-text {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.9rem;
-            font-weight: bold;
-        }
-        
-        .coins-display {
-            font-size: 3rem;
-            font-weight: bold;
-            margin: 20px 0;
-            color: #ffcc00;
-            text-align: center;
-            text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
-            background: transparent;
-            border: none;
-            padding: 0;
-        }
-        
-        .tap-area {
-            width: 250px;
-            height: 250px;
-            background: linear-gradient(135deg, #0088cc, #ff6600);
-            border-radius: 50%;
-            margin: 20px auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
-            transition: transform 0.1s ease;
-            position: relative;
-            overflow: hidden;
-            border: none;
-        }
-        
-        .tap-area:active {
-            transform: scale(0.95);
-        }
-        
-        .tap-area::before {
-            content: "";
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 70%);
-            border-radius: 50%;
-        }
-        
-        .tap-area i {
-            font-size: 5rem;
-            color: white;
-            text-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-        
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-top: 20px;
-            max-width: 500px;
-            margin: 20px auto;
-        }
-        
-        .stat-card {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 15px;
-            border-radius: 15px;
-            text-align: center;
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin: 10px 0;
-            color: #00ccff;
-        }
-        
-        /* Bottom Navigation */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(10px);
-            display: flex;
-            justify-content: space-around;
-            padding: 10px 0;
-            border-top: 2px solid #0088cc;
-            z-index: 100;
-        }
-        
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 5px 15px;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .nav-item.active {
-            background: rgba(0, 136, 204, 0.3);
-        }
-        
-        .nav-item i {
-            font-size: 1.5rem;
-            margin-bottom: 5px;
-        }
-        
-        .nav-item span {
-            font-size: 0.8rem;
-        }
-        
-        /* Tab Content */
-        .tab-content {
-            display: none;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            border-radius: 20px;
-            margin: 15px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        /* Upgrades */
-        .upgrades-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-        
-        .upgrade-card {
-            background: rgba(30, 30, 40, 0.8);
-            border-radius: 15px;
-            padding: 15px;
-            text-align: center;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-        }
-        
-        .upgrade-card:hover {
-            border-color: #0088cc;
-            transform: translateY(-5px);
-        }
-        
-        .upgrade-icon {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            color: #ffcc00;
-        }
-        
-        .upgrade-title {
-            font-size: 1rem;
-            margin-bottom: 10px;
-        }
-        
-        .upgrade-price {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            margin: 5px 0;
-        }
-        
-        .btn {
-            background: linear-gradient(135deg, #0088cc, #006699);
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: bold;
-            margin-top: 10px;
-            transition: all 0.3s ease;
-        }
-        
-        .btn:hover {
-            transform: scale(1.05);
-            background: linear-gradient(135deg, #00aaff, #0088cc);
-        }
-        
-        .btn:disabled {
-            background: #555;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
-        /* Skins */
-        .skin-preview {
-            background: rgba(30, 30, 40, 0.8);
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-            margin-bottom: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .preview-image {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            background: linear-gradient(45deg, #1e3c72, #2a5298);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3rem;
-            margin: 0 auto;
-            border: 3px solid #0088cc;
-        }
-        
-        .preview-details {
-            text-align: center;
-        }
-        
-        .skin-name {
-            font-size: 1.5rem;
-            margin-bottom: 5px;
-        }
-        
-        .skin-description {
-            font-size: 0.9rem;
-            color: #aaa;
-            margin-bottom: 10px;
-        }
-        
-        .skin-price {
-            font-size: 1.2rem;
-            color: #ffcc00;
-            font-weight: bold;
-        }
-        
-        .skins-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-        
-        .skin-card {
-            background: rgba(30, 30, 40, 0.8);
-            border-radius: 15px;
-            overflow: hidden;
-            text-align: center;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-            cursor: pointer;
-        }
-        
-        .skin-card:hover {
-            border-color: #0088cc;
-            transform: translateY(-5px);
-        }
-        
-        .skin-card.selected {
-            border-color: #ffcc00;
-            box-shadow: 0 0 15px rgba(255, 204, 0, 0.5);
-        }
-        
-        .skin-image {
-            height: 100px;
-            background: linear-gradient(45deg, #1e3c72, #2a5298);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-        }
-        
-        .skin-card .skin-name {
-            padding: 10px;
-            font-size: 0.9rem;
-        }
-        
-        .skin-card .skin-price {
-            background: rgba(38, 161, 123, 0.2);
-            padding: 5px;
-            font-size: 0.8rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        /* Notifications and Modals */
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 25px;
-            border-radius: 15px;
-            background: rgba(16, 185, 129, 0.9);
-            color: white;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            transform: translateX(200%);
-            transition: transform 0.3s ease;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            backdrop-filter: blur(5px);
-        }
-        
-        .notification.show {
-            transform: translateX(0);
-        }
-        
-        .notification.error {
-            background: rgba(239, 68, 68, 0.9);
-        }
-        
-        .level-up {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0);
-            background: rgba(0, 0, 0, 0.9);
-            padding: 30px;
-            border-radius: 20px;
-            text-align: center;
-            z-index: 2000;
-            border: 3px solid #8b5cf6;
-            transition: transform 0.5s ease;
-            width: 90%;
-            max-width: 400px;
-            backdrop-filter: blur(10px);
-        }
-        
-        .level-up.show {
-            transform: translate(-50%, -50%) scale(1);
-        }
-        
-        /* Firebase Connection Indicator */
-        .firebase-status {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            padding: 5px 10px;
-            border-radius: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            font-size: 0.8rem;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            z-index: 100;
-        }
-        
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: #ff3300;
-        }
-        
-        .status-dot.connected {
-            background: #10b981;
-        }
-        
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .tap-area {
-                width: 200px;
-                height: 200px;
-            }
-            
-            .stats {
-                grid-template-columns: 1fr;
-            }
-            
-            .upgrades-container, .skins-container {
-                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-            }
-        }
-        
-        /* Animation for tap */
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-        
-        .pulse {
-            animation: pulse 0.3s ease;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Revolutionary Coin</title>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <style>
+    :root {
+      --primary-color: white;
+      --bg-opacity: 0.8;
+      --border-radius: 10px;
+      --max-width: 90%;
+    }
+
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: url('background.png') no-repeat center center fixed;
+      background-size: cover;
+      color: var(--primary-color);
+    }
+
+    .container {
+      padding: 20px;
+      text-align: center;
+    }
+
+    .coin-img {
+      width: 200px;
+      height: 200px;
+      margin: 20px auto;
+      display: block;
+      cursor: pointer;
+    }
+
+    .energy-bar {
+      background: #555;
+      height: 20px;
+      margin: 10px auto;
+      border-radius: var(--border-radius);
+      width: var(--max-width);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .energy-fill {
+      background: limegreen;
+      height: 100%;
+      width: 100%;
+      transition: width 0.5s;
+    }
+
+    .buy-coffee {
+      position: absolute;
+      left: 10px;
+      top: 30px;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, var(--bg-opacity));
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+      z-index: 999;
+    }
+
+    .bottom-nav button {
+      background: none;
+      border: none;
+      color: var(--primary-color);
+      font-size: 22px;
+      cursor: pointer;
+    }
+
+    .tab-section {
+      display: none;
+    }
+
+    .tab-section.active {
+      display: block;
+    }
+
+    .skin-item, .upgrade-item {
+      margin: 10px auto;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: var(--border-radius);
+      max-width: var(--max-width);
+    }
+
+    .preview-img {
+      width: 60px;
+      height: 60px;
+      vertical-align: middle;
+      margin-right: 10px;
+    }
+
+    .buy-btn {
+      padding: 6px 12px;
+      margin-left: 10px;
+      background: gold;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #222;
+      padding: 20px;
+      border-radius: var(--border-radius);
+      color: var(--primary-color);
+      z-index: 1000;
+      max-width: var(--max-width);
+      width: 400px;
+      text-align: center;
+    }
+
+    .modal.active {
+      display: block;
+    }
+
+    input, code {
+      width: var(--max-width);
+      padding: 10px;
+      border-radius: 5px;
+      margin-top: 10px;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Firebase Connection Status -->
-        <div class="firebase-status">
-            <div class="status-dot" id="firebaseStatus"></div>
-            <span id="firebaseStatusText">Connecting to Firebase...</span>
-        </div>
-        
-        <!-- Top Bar with Energy and Balance -->
-        <div class="top-bar">
-            <div class="energy-container">
-                <i class="fas fa-bolt" style="color: #ffcc00;"></i>
-                <div class="energy-bar">
-                    <div class="energy-fill" id="energyFill"></div>
-                </div>
-                <div class="energy-text" id="energyText">80/100</div>
-            </div>
-            
-            <div class="balance-container">
-                <i class="fas fa-coins" style="color: #ffcc00;"></i>
-                <span class="balance-amount" id="balance">0</span>
-            </div>
-        </div>
-        
-        <!-- Game Content -->
-        <div class="game-content">
-            <div class="tab-content active" id="game-tab">
-                <div class="level-container">
-                    <div class="level-display" id="level">1</div>
-                    <div class="level-progress">
-                        <div class="progress-bar" id="progressBar" style="width: 0%"></div>
-                        <div class="progress-text" id="progressText">0/1,000</div>
-                    </div>
-                </div>
-                
-                <div class="coins-display" id="coins">0</div>
-                
-                <div class="tap-area" id="tapArea">
-                    <i class="fas fa-hand-pointer"></i>
-                </div>
-                
-                <div class="stats">
-                    <div class="stat-card">
-                        <h3><i class="fas fa-bolt"></i> Tap Power</h3>
-                        <div class="stat-value" id="tapPower">1x</div>
-                    </div>
-                    <div class="stat-card">
-                        <h3><i class="fas fa-robot"></i> Auto Tap</h3>
-                        <div class="stat-value" id="autoTap">OFF</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="tab-content" id="upgrades-tab">
-                <h3 style="text-align: center; margin-bottom: 20px;"><i class="fas fa-arrow-up"></i> Power Upgrades</h3>
-                <div class="upgrades-container" id="upgradesContainer">
-                    <!-- Upgrades will be populated by JavaScript -->
-                </div>
-            </div>
-            
-            <div class="tab-content" id="skins-tab">
-                <h3 style="text-align: center; margin-bottom: 20px;"><i class="fas fa-flag"></i> Country Skins</h3>
-                
-                <div class="skin-preview">
-                    <div class="preview-image" id="skinPreviewImage">
-                        PK
-                    </div>
-                    <div class="preview-details">
-                        <div class="skin-name" id="skinPreviewName">Pakistan</div>
-                        <div class="skin-description">National skin with special effects</div>
-                        <div class="skin-price" id="skinPreviewPrice">5 USDT</div>
-                    </div>
-                    <button class="btn" id="purchaseSkinBtn">Purchase Skin</button>
-                </div>
-                
-                <div class="skins-container" id="skinsContainer">
-                    <!-- Skins will be populated by JavaScript -->
-                </div>
-            </div>
-        </div>
+  <div class="container">
+    <div class="energy-bar">
+      <div class="energy-fill" id="energyFill"></div>
+      <div class="buy-coffee">
+        <button class="buy-btn" data-tab="coffeeTab">Buy Me a Coffee</button>
+      </div>
     </div>
     
-    <!-- Bottom Navigation -->
-    <div class="bottom-nav">
-        <div class="nav-item active" data-tab="game-tab">
-            <i class="fas fa-gamepad"></i>
-            <span>Game</span>
-        </div>
-        <div class="nav-item" data-tab="upgrades-tab">
-            <i class="fas fa-arrow-up"></i>
-            <span>Upgrades</span>
-        </div>
-        <div class="nav-item" data-tab="skins-tab">
-            <i class="fas fa-flag"></i>
-            <span>Skins</span>
-        </div>
-        <div class="nav-item">
-            <i class="fas fa-cog"></i>
-            <span>Settings</span>
-        </div>
-    </div>
-    
-    <!-- Notification -->
-    <div class="notification" id="notification">
-        <i class="fas fa-check-circle"></i>
-        <span>Level up! You've reached level 2</span>
-    </div>
-    
-    <!-- Level Up Popup -->
-    <div class="level-up" id="levelUp">
-        <h2>LEVEL UP!</h2>
-        <p>You've reached level <span id="newLevel">2</span></p>
-        <p>+<span id="levelReward">100</span> coins bonus!</p>
-        <button class="btn" id="closeLevelUp" style="margin-top: 20px;">Continue</button>
-    </div>
+    <h1>Revolutionary Coin</h1>
+    <img src="bronze_coin.png" id="coinImage" class="coin-img" alt="Tap Coin" />
+    <h2 id="tapCount">UAS: 0</h2>
 
-    <script>
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyDv5Xl1cYkQqy7dY7Q9X7bVZ1yJ8wY4jH0",
-            authDomain: "ton-tapping-game.firebaseapp.com",
-            databaseURL: "https://ton-tapping-game-default-rtdb.firebaseio.com",
-            projectId: "ton-tapping-game",
-            storageBucket: "ton-tapping-game.appspot.com",
-            messagingSenderId: "123456789012",
-            appId: "1:123456789012:web:abcdef1234567890"
+    <div id="tabContent">
+      <div id="homeTab" class="tab-section active">
+        <p>Keep tapping the coin to earn UAS!</p>
+      </div>
+      <div id="earnTab" class="tab-section">
+        <p>Watch monetization videos to earn rewards. (Coming Soon)</p>
+      </div>
+      <div id="skinsTab" class="tab-section">
+        <h2>Country Themed Skins (5 USDT each)</h2>
+        <div id="skinsList"></div>
+      </div>
+      <div id="upgradesTab" class="tab-section">
+        <h2>Upgrade Packages</h2>
+        <div class="upgrade-item">x2 Speed Boost (5 USDT) <button class="buy-btn" data-item="speedBoost2">Buy</button></div>
+        <div class="upgrade-item">x5 Speed Boost (10 USDT) <button class="buy-btn" data-item="speedBoost5">Buy</button></div>
+        <div class="upgrade-item">x10 Speed Boost (15 USDT) <button class="buy-btn" data-item="speedBoost10">Buy</button></div>
+        <div class="upgrade-item">Energy Refill x2 (5 USDT) <button class="buy-btn" data-item="energyRefill2">Buy</button></div>
+        <div class="upgrade-item">Energy Refill x10 (10 USDT) <button class="buy-btn" data-item="energyRefill10">Buy</button></div>
+        <div class="upgrade-item">AutoBot Mode (10 USDT) <button class="buy-btn" data-item="autoBot">Buy</button></div>
+      </div>
+      <div id="referralTab" class="tab-section">
+        <h2>Referral System</h2>
+        <p id="refStatus">Invite friends & earn 10% of their UAS + 1000 UAS bonus!</p>
+        <p>Your Referral Link:</p>
+        <input type="text" id="referralLink" value="" readonly>
+        <p style="font-size:14px">Share with friends to grow your team!</p>
+      </div>
+      <div id="coffeeTab" class="tab-section">
+        <h2>Support Development</h2>
+        <p>Donate USDT to support future updates!</p>
+        <p><strong>Wallet Address:</strong></p>
+        <code id="walletAddress"></code>
+        <p style="margin-top:10px">Note: Whatever amount you donate for development, you'll receive 20x its value upon official launch. Guaranteed, as your data is securely saved with us.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <button data-tab="homeTab">Home</button>
+    <button data-tab="earnTab">Earn</button>
+    <button data-tab="skinsTab">Skins</button>
+    <button data-tab="upgradesTab">Upgrades</button>
+    <button data-tab="referralTab">Referral</button>
+  </div>
+
+  <div id="paymentModal" class="modal">
+    <h3>Purchase Item</h3>
+    <p>Send USDT to this wallet:</p>
+    <code id="modalWalletAddress"></code>
+    <p>After payment, enter your transaction hash:</p>
+    <input type="text" id="txHash" placeholder="Transaction Hash">
+    <button style="margin-top:10px;padding:10px 20px;" id="submitPayment">Submit</button>
+  </div>
+
+  <script type="module">
+    // config.js
+    const CONFIG = {
+      firebase: {
+        apiKey: "AIzaSyBbfR-0LMAPCEIxnpXpp6oWcfqKT0Z3Ai8",
+        authDomain: "uascoin-game.firebaseapp.com",
+        databaseURL: "https://uascoin-game-default-rtdb.firebaseio.com",
+        projectId: "uascoin-game",
+        storageBucket: "uascoin-game.appspot.com",
+        messagingSenderId: "517394758183",
+        appId: "1:517394758183:web:85a1c0164ce16a22f3e23a"
+      },
+      walletAddress: "0x86d69358e89e1ec95b9a35828363f41d7e55d880",
+      skinPrices: {
+        pakistan: 5, india: 5, iran: 5, turkey: 5,
+        china: 5, usa: 5, uk: 5, germany: 5,
+        france: 5, italy: 5, africa: 5, brazil: 5,
+        suadiaarab: 5
+      }
+    };
+
+    // firebase.js
+    import firebase from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js';
+    import 'https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js';
+
+    firebase.initializeApp(CONFIG.firebase);
+    const db = firebase.database();
+
+    // user.js
+    class UserManager {
+      constructor() {
+        this.userId = localStorage.getItem("userId") || `user_${Date.now()}`;
+        if (!localStorage.getItem("userId")) {
+          localStorage.setItem("userId", this.userId);
+        }
+        this.userData = {
+          coins: 0,
+          energy: 100,
+          skin: "bronze",
+          skinInventory: ["bronze"],
+          referralCode: this.userId,
+          referredBy: null,
+          referralTeam: [],
+          autoBot: false,
+          multiplier: 1,
+          bonuses: 0
         };
-        
-        // Initialize Firebase with error handling
-        let firebaseInitialized = false;
-        let database;
-        
+      }
+
+      async loadUserData() {
         try {
-            // Initialize Firebase
-            firebase.initializeApp(firebaseConfig);
-            database = firebase.database();
-            firebaseInitialized = true;
-            console.log("Firebase initialized successfully");
-            
-            // Update Firebase status
-            document.getElementById('firebaseStatus').classList.add('connected');
-            document.getElementById('firebaseStatusText').textContent = "Firebase Connected";
+          const snapshot = await db.ref(`users/${this.userId}`).once("value");
+          const data = snapshot.val();
+          if (data) {
+            this.userData = { ...this.userData, ...data };
+          } else {
+            await this.saveUserData();
+          }
+          return this.userData;
         } catch (error) {
-            console.error("Firebase initialization failed:", error);
-            document.getElementById('firebaseStatusText').textContent = "Firebase Offline";
-            document.getElementById('firebaseStatus').style.background = "#ff3300";
+          console.error("Error loading user data:", error);
+          alert("Failed to load user data. Please try again.");
         }
-        
-        // Game state
-        const gameState = {
-            coins: 100,
-            tapPower: 1,
-            autoTap: false,
-            level: 1,
-            exp: 0,
-            energy: 80,
-            upgrades: {
-                x2: false,
-                x4: false,
-                x8: false,
-                autobot: false
-            },
-            skins: [],
-            selectedSkin: null
-        };
-        
-        // Level requirements
-        const levelRequirements = [0, 1000, 2500, 5000, 10000, 20000, 40000, 80000, 150000, 300000];
-        
-        // Upgrade data
-        const upgradesData = [
-            {
-                id: "x2",
-                icon: '<i class="fas fa-bolt"></i>',
-                title: "2x Tap Power",
-                description: "Double your tapping power",
-                tonPrice: 1,
-                usdtPrice: 3,
-                purchased: false
-            },
-            {
-                id: "x4",
-                icon: '<i class="fas fa-bolt"></i><i class="fas fa-bolt"></i>',
-                title: "4x Tap Power",
-                description: "Quadruple your tapping power",
-                tonPrice: 2,
-                usdtPrice: 6,
-                purchased: false
-            },
-            {
-                id: "x8",
-                icon: '<i class="fas fa-bolt"></i><i class="fas fa-bolt"></i><i class="fas fa-bolt"></i>',
-                title: "8x Tap Power",
-                description: "Octuple your tapping power",
-                tonPrice: 5,
-                usdtPrice: 17,
-                purchased: false
-            },
-            {
-                id: "autobot",
-                icon: '<i class="fas fa-robot"></i>',
-                title: "Auto Tap Bot",
-                description: "Automatically taps every 3 seconds",
-                tonPrice: 0,
-                usdtPrice: 20,
-                purchased: false
+      }
+
+      async saveUserData() {
+        try {
+          await db.ref(`users/${this.userId}`).set(this.userData);
+        } catch (error) {
+          console.error("Error saving user data:", error);
+          alert("Failed to save user data.");
+        }
+      }
+
+      async handleReferral() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const refCode = urlParams.get('start');
+        if (refCode && refCode !== this.userId && !this.userData.referredBy) {
+          this.userData.referredBy = refCode;
+          try {
+            const snapshot = await db.ref(`users/${refCode}/referralTeam`).once("value");
+            const team = snapshot.val() || [];
+            if (!team.includes(this.userId)) {
+              team.push(this.userId);
+              await db.ref(`users/${refCode}`).update({
+                referralTeam: team,
+                bonuses: firebase.database.ServerValue.increment(1000)
+              });
             }
-        ];
-        
-        // Skin data
-        const skinsData = [
-            {
-                id: "pakistan",
-                code: "PK",
-                name: "Pakistan",
-                description: "Green and white theme with crescent effects",
-                price: 5,
-                selected: false
-            },
-            {
-                id: "india",
-                code: "IN",
-                name: "India",
-                description: "Saffron, white and green theme with Ashoka Chakra",
-                price: 5,
-                selected: false
-            },
-            {
-                id: "usa",
-                code: "US",
-                name: "USA",
-                description: "Red, white and blue theme with stars effects",
-                price: 5,
-                selected: false
-            },
-            {
-                id: "uk",
-                code: "UK",
-                name: "UK",
-                description: "Union Jack theme with royal effects",
-                price: 5,
-                selected: false
-            },
-            {
-                id: "france",
-                code: "FR",
-                name: "France",
-                description: "Blue, white and red theme with Eiffel Tower effects",
-                price: 5,
-                selected: false
-            },
-            {
-                id: "germany",
-                code: "DE",
-                name: "Germany",
-                description: "Black, red and gold theme with eagle effects",
-                price: 5,
-                selected: false
-            }
-        ];
-        
-        // DOM Elements
-        const coinsEl = document.getElementById('coins');
-        const levelEl = document.getElementById('level');
-        const progressBar = document.getElementById('progressBar');
-        const progressText = document.getElementById('progressText');
-        const tapPowerEl = document.getElementById('tapPower');
-        const autoTapEl = document.getElementById('autoTap');
-        const tapArea = document.getElementById('tapArea');
-        const balanceEl = document.getElementById('balance');
-        const energyFill = document.getElementById('energyFill');
-        const energyText = document.getElementById('energyText');
-        const notification = document.getElementById('notification');
-        const levelUpPopup = document.getElementById('levelUp');
-        const newLevelEl = document.getElementById('newLevel');
-        const levelRewardEl = document.getElementById('levelReward');
-        const closeLevelUp = document.getElementById('closeLevelUp');
-        const navItems = document.querySelectorAll('.nav-item');
-        const tabContents = document.querySelectorAll('.tab-content');
-        const upgradesContainer = document.getElementById('upgradesContainer');
-        const skinsContainer = document.getElementById('skinsContainer');
-        const skinPreviewImage = document.getElementById('skinPreviewImage');
-        const skinPreviewName = document.getElementById('skinPreviewName');
-        const skinPreviewPrice = document.getElementById('skinPreviewPrice');
-        const purchaseSkinBtn = document.getElementById('purchaseSkinBtn');
-        
-        // Initialize game
-        function initGame() {
-            // Setup event listeners
-            setupEventListeners();
-            
-            // Render upgrades
-            renderUpgrades();
-            
-            // Render skins
-            renderSkins();
-            
-            // Select first skin by default
-            selectSkin(skinsData[0]);
-            
-            // Load game state
-            loadGameState();
-            
-            // Start auto tap if purchased
-            if (gameState.autoTap) {
-                startAutoTap();
-            }
-            
-            // Initial UI update
-            updateGameUI();
+            await this.saveUserData();
+          } catch (error) {
+            console.error("Error handling referral:", error);
+          }
         }
-        
-        // Setup event listeners
-        function setupEventListeners() {
-            // Tap area
-            tapArea.addEventListener('click', () => {
-                if (gameState.energy > 0) {
-                    addCoins(gameState.tapPower);
-                    gameState.energy -= 1;
-                    updateGameUI();
-                    
-                    tapArea.classList.add('pulse');
-                    setTimeout(() => {
-                        tapArea.classList.remove('pulse');
-                    }, 300);
-                    
-                    // Save state
-                    saveGameState();
-                } else {
-                    showNotification("Energy depleted! Wait to recharge", true);
-                }
-            });
-            
-            // Bottom navigation
-            navItems.forEach(item => {
-                item.addEventListener('click', () => {
-                    const tabId = item.dataset.tab;
-                    
-                    // Remove active class from all items
-                    navItems.forEach(navItem => navItem.classList.remove('active'));
-                    
-                    // Add active class to clicked item
-                    item.classList.add('active');
-                    
-                    // Hide all tab contents
-                    tabContents.forEach(tab => tab.classList.remove('active'));
-                    
-                    // Show the selected tab content
-                    if (tabId) {
-                        document.getElementById(tabId).classList.add('active');
-                    }
-                });
-            });
-            
-            // Close level up popup
-            closeLevelUp.addEventListener('click', () => {
-                levelUpPopup.classList.remove('show');
-            });
-            
-            // Purchase skin button
-            purchaseSkinBtn.addEventListener('click', purchaseSkin);
+      }
+    }
+
+    // game.js
+    class Game {
+      constructor(userManager, uiManager) {
+        this.userManager = userManager;
+        this.uiManager = uiManager;
+        this.pendingPurchase = null;
+      }
+
+      tapCoin() {
+        if (this.userManager.userData.energy <= 0) return;
+
+        const earned = this.userManager.userData.multiplier;
+        this.userManager.userData.coins += earned;
+        this.userManager.userData.energy -= 2;
+
+        if (this.userManager.userData.referredBy) {
+          db.ref(`users/${this.userManager.userData.referredBy}/bonuses`)
+            .transaction(current => (current || 0) + Math.round(earned * 0.1))
+            .catch(error => console.error("Error updating referral bonus:", error));
         }
-        
-        // Render upgrades
-        function renderUpgrades() {
-            upgradesContainer.innerHTML = '';
-            
-            upgradesData.forEach(upgrade => {
-                const upgradeCard = document.createElement('div');
-                upgradeCard.className = 'upgrade-card';
-                upgradeCard.innerHTML = `
-                    <div class="upgrade-icon">${upgrade.icon}</div>
-                    <div class="upgrade-title">${upgrade.title}</div>
-                    <div class="upgrade-description">${upgrade.description}</div>
-                    ${upgrade.tonPrice > 0 ? `<div class="upgrade-price ton-price"><i class="fab fa-bitcoin"></i> ${upgrade.tonPrice} TON</div>` : ''}
-                    <div class="upgrade-price usdt-price"><i class="fas fa-dollar-sign"></i> ${upgrade.usdtPrice} USDT</div>
-                    <button class="btn purchase-upgrade-btn" data-id="${upgrade.id}" ${gameState.upgrades[upgrade.id] ? 'disabled' : ''}>
-                        ${gameState.upgrades[upgrade.id] ? 'Purchased' : 'Purchase'}
-                    </button>
-                `;
-                
-                upgradesContainer.appendChild(upgradeCard);
-            });
-            
-            // Add event listeners to purchase buttons
-            document.querySelectorAll('.purchase-upgrade-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const upgradeId = btn.dataset.id;
-                    purchaseUpgrade(upgradeId);
-                });
-            });
-        }
-        
-        // Render skins
-        function renderSkins() {
-            skinsContainer.innerHTML = '';
-            
-            skinsData.forEach(skin => {
-                const skinCard = document.createElement('div');
-                skinCard.className = `skin-card ${skin.selected ? 'selected' : ''}`;
-                skinCard.dataset.id = skin.id;
-                skinCard.innerHTML = `
-                    <div class="skin-image">
-                        ${skin.code}
-                    </div>
-                    <div class="skin-name">${skin.name}</div>
-                    <div class="skin-price"><i class="fas fa-dollar-sign"></i> ${skin.price} USDT</div>
-                `;
-                
-                skinCard.addEventListener('click', () => {
-                    selectSkin(skin);
-                });
-                
-                skinsContainer.appendChild(skinCard);
-            });
-        }
-        
-        // Select a skin
-        function selectSkin(skin) {
-            // Deselect all skins
-            skinsData.forEach(s => s.selected = false);
-            document.querySelectorAll('.skin-card').forEach(card => {
-                card.classList.remove('selected');
-            });
-            
-            // Select the new skin
-            skin.selected = true;
-            const skinCard = document.querySelector(`.skin-card[data-id="${skin.id}"]`);
-            if (skinCard) {
-                skinCard.classList.add('selected');
-            }
-            
-            // Update preview
-            skinPreviewImage.textContent = skin.code;
-            skinPreviewName.textContent = skin.name;
-            skinPreviewPrice.textContent = `${skin.price} USDT`;
-            
-            // Check if already purchased
-            const purchased = gameState.skins.includes(skin.id);
-            purchaseSkinBtn.disabled = purchased;
-            purchaseSkinBtn.textContent = purchased ? 'Already Purchased' : 'Purchase Skin';
-        }
-        
-        // Purchase an upgrade
-        function purchaseUpgrade(upgradeId) {
-            const upgrade = upgradesData.find(u => u.id === upgradeId);
-            if (!upgrade) return;
-            
-            const price = upgrade.usdtPrice;
-            
-            if (gameState.coins >= price) {
-                gameState.coins -= price;
-                gameState.upgrades[upgradeId] = true;
-                
-                // Apply upgrade effects
-                if (upgradeId === 'x2') {
-                    gameState.tapPower *= 2;
-                } else if (upgradeId === 'x4') {
-                    gameState.tapPower *= 4;
-                } else if (upgradeId === 'x8') {
-                    gameState.tapPower *= 8;
-                } else if (upgradeId === 'autobot') {
-                    gameState.autoTap = true;
-                    startAutoTap();
-                }
-                
-                showNotification(`Purchased: ${upgrade.title}`);
-                updateGameUI();
-                renderUpgrades();
-                saveGameState();
-            } else {
-                showNotification(`Not enough coins! Need ${price} USDT`, true);
-            }
-        }
-        
-        // Purchase a skin
-        function purchaseSkin() {
-            const skinId = skinsData.find(s => s.selected).id;
-            const skin = skinsData.find(s => s.id === skinId);
-            
-            if (gameState.skins.includes(skinId)) {
-                showNotification("You already own this skin!");
-                return;
-            }
-            
-            if (gameState.coins >= skin.price) {
-                gameState.coins -= skin.price;
-                gameState.skins.push(skinId);
-                
-                showNotification(`Purchased skin: ${skin.name}`);
-                updateGameUI();
-                renderSkins();
-                purchaseSkinBtn.disabled = true;
-                purchaseSkinBtn.textContent = 'Already Purchased';
-                saveGameState();
-            } else {
-                showNotification(`Not enough coins! Need ${skin.price} USDT`, true);
-            }
-        }
-        
-        // Load game state
-        function loadGameState() {
-            // Try to load from Firebase
-            if (firebaseInitialized) {
-                try {
-                    const userId = getUserId();
-                    const userRef = database.ref('users/' + userId);
-                    
-                    userRef.once('value').then((snapshot) => {
-                        const data = snapshot.val();
-                        if (data) {
-                            Object.assign(gameState, data);
-                            updateGameUI();
-                            renderUpgrades();
-                            renderSkins();
-                            showNotification("Game data loaded from Firebase");
-                        } else {
-                            showNotification("New game started");
-                        }
-                    }).catch((error) => {
-                        console.error("Firebase load error:", error);
-                        showNotification("Using local storage", true);
-                        loadFromLocalStorage();
-                    });
-                } catch (error) {
-                    console.error("Firebase error:", error);
-                    showNotification("Using local storage", true);
-                    loadFromLocalStorage();
-                }
-            } else {
-                // Load from local storage if Firebase not available
-                loadFromLocalStorage();
-            }
-        }
-        
-        // Save game state
-        function saveGameState() {
-            // Try to save to Firebase
-            if (firebaseInitialized) {
-                try {
-                    const userId = getUserId();
-                    const userRef = database.ref('users/' + userId);
-                    
-                    userRef.set(gameState).then(() => {
-                        console.log("Game state saved to Firebase");
-                    }).catch((error) => {
-                        console.error("Firebase save error:", error);
-                        saveToLocalStorage();
-                    });
-                } catch (error) {
-                    console.error("Firebase error:", error);
-                    saveToLocalStorage();
-                }
-            } else {
-                // Save to local storage if Firebase not available
-                saveToLocalStorage();
-            }
-        }
-        
-        // Get user ID
-        function getUserId() {
-            let userId = localStorage.getItem('userId');
-            if (!userId) {
-                userId = 'user_' + Math.random().toString(36).substr(2, 9);
-                localStorage.setItem('userId', userId);
-            }
-            return userId;
-        }
-        
-        // Load from local storage
-        function loadFromLocalStorage() {
-            const savedState = localStorage.getItem('tapGameState');
-            if (savedState) {
-                Object.assign(gameState, JSON.parse(savedState));
-                updateGameUI();
-                renderUpgrades();
-                renderSkins();
-                showNotification("Game data loaded from local storage");
-            }
-        }
-        
-        // Save to local storage
-        function saveToLocalStorage() {
-            localStorage.setItem('tapGameState', JSON.stringify(gameState));
-        }
-        
-        // Update game UI
-        function updateGameUI() {
-            coinsEl.textContent = gameState.coins.toLocaleString();
-            balanceEl.textContent = gameState.coins.toLocaleString();
-            tapPowerEl.textContent = `${gameState.tapPower}x`;
-            levelEl.textContent = gameState.level;
-            autoTapEl.textContent = gameState.autoTap ? 'ON' : 'OFF';
-            
-            // Update energy bar
-            energyFill.style.width = `${gameState.energy}%`;
-            energyText.textContent = `${gameState.energy}/100`;
-            
-            // Update progress bar
-            const currentLevelExp = levelRequirements[gameState.level - 1];
-            const nextLevelExp = levelRequirements[gameState.level] || levelRequirements[levelRequirements.length - 1];
-            const expProgress = gameState.exp - currentLevelExp;
-            const expRequired = nextLevelExp - currentLevelExp;
-            const progressPercent = (expProgress / expRequired) * 100;
-            
-            progressBar.style.width = `${progressPercent}%`;
-            progressText.textContent = `${expProgress.toLocaleString()}/${expRequired.toLocaleString()}`;
-        }
-        
-        // Add coins
-        function addCoins(amount) {
-            const prevLevel = gameState.level;
-            gameState.coins += amount;
-            gameState.exp += amount;
-            
-            // Check for level up
-            checkLevelUp(prevLevel);
-            
-            updateGameUI();
-        }
-        
-        // Check for level up
-        function checkLevelUp(prevLevel) {
-            if (gameState.level < levelRequirements.length) {
-                const nextLevelExp = levelRequirements[gameState.level];
-                
-                if (gameState.exp >= nextLevelExp) {
-                    gameState.level += 1;
-                    
-                    // Award bonus coins
-                    const bonus = (gameState.level - 1) * 100;
-                    gameState.coins += bonus;
-                    
-                    // Show level up popup
-                    showLevelUp(prevLevel);
-                    
-                    // Save state
-                    saveGameState();
-                    
-                    // Check for further level ups
-                    checkLevelUp(prevLevel);
-                }
-            }
-        }
-        
-        // Show level up popup
-        function showLevelUp(prevLevel) {
-            newLevelEl.textContent = gameState.level;
-            levelRewardEl.textContent = (gameState.level - prevLevel) * 100;
-            levelUpPopup.classList.add('show');
-        }
-        
-        // Start auto tap
-        function startAutoTap() {
-            setInterval(() => {
-                if (gameState.autoTap && gameState.energy > 0) {
-                    addCoins(gameState.tapPower * 2);
-                    gameState.energy -= 1;
-                    updateGameUI();
-                    saveGameState();
-                    
-                    // Add pulse effect to tap area
-                    tapArea.classList.add('pulse');
-                    setTimeout(() => {
-                        tapArea.classList.remove('pulse');
-                    }, 300);
-                }
-            }, 3000);
-        }
-        
-        // Show notification
-        function showNotification(message, isError = false) {
-            notification.querySelector('span').textContent = message;
-            
-            if (isError) {
-                notification.classList.add('error');
-            } else {
-                notification.classList.remove('error');
-            }
-            
-            notification.classList.add('show');
-            
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, 3000);
-        }
-        
-        // Energy recharge
+
+        this.uiManager.updateUI(this.userManager.userData);
+        this.userManager.saveUserData();
+      }
+
+      startAutoTap() {
         setInterval(() => {
-            if (gameState.energy < 100) {
-                gameState.energy += 1;
-                updateGameUI();
-                saveGameState();
+          if (this.userManager.userData.autoBot && this.userManager.userData.energy > 0) {
+            this.tapCoin();
+          }
+        }, 2000);
+      }
+
+      startEnergyRecharge() {
+        setInterval(() => {
+          if (this.userManager.userData.energy < 100) {
+            this.userManager.userData.energy = Math.min(this.userManager.userData.energy + 1, 100);
+            this.uiManager.updateUI(this.userManager.userData);
+            this.userManager.saveUserData();
+          }
+        }, 3000);
+      }
+
+      buySkin(skinName) {
+        if (!this.userManager.userData.skinInventory.includes(skinName)) {
+          this.uiManager.openModal(skinName);
+        } else {
+          this.equipSkin(skinName);
+        }
+      }
+
+      equipSkin(skinName) {
+        if (this.userManager.userData.skinInventory.includes(skinName)) {
+          this.userManager.userData.skin = skinName;
+          this.uiManager.updateCoinImage(skinName);
+          this.userManager.saveUserData();
+        }
+      }
+
+      handlePurchaseSuccess(item) {
+        switch (item) {
+          case 'speedBoost2':
+            this.userManager.userData.multiplier = 2;
+            break;
+          case 'speedBoost5':
+            this.userManager.userData.multiplier = 5;
+            break;
+          case 'speedBoost10':
+            this.userManager.userData.multiplier = 10;
+            break;
+          case 'energyRefill2':
+            this.userManager.userData.energy += 2;
+            break;
+          case 'energyRefill10':
+            this.userManager.userData.energy += 10;
+            break;
+          case 'autoBot':
+            this.userManager.userData.autoBot = true;
+            break;
+          default:
+            if (CONFIG.skinPrices[item]) {
+              if (!this.userManager.userData.skinInventory.includes(item)) {
+                this.userManager.userData.skinInventory.push(item);
+              }
+              this.equipSkin(item);
             }
-        }, 10000);
-        
-        // Initialize the game when DOM is loaded
-        document.addEventListener('DOMContentLoaded', initGame);
-    </script>
+        }
+        this.userManager.saveUserData();
+        this.uiManager.updateUI(this.userManager.userData);
+      }
+
+      verifyPayment(txHash) {
+        // Placeholder: In production, integrate with a blockchain API to verify transaction
+        if (txHash.length > 10) {
+          this.handlePurchaseSuccess(this.pendingPurchase);
+          this.uiManager.closeModal();
+        } else {
+          alert("Invalid transaction hash. Please try again.");
+        }
+      }
+    }
+
+    // ui.js
+    class UIManager {
+      constructor() {
+        this.tabContent = document.getElementById("tabContent");
+        this.skinsList = document.getElementById("skinsList");
+        this.paymentModal = document.getElementById("paymentModal");
+        this.txHashInput = document.getElementById("txHash");
+        this.walletAddressElements = [
+          document.getElementById("walletAddress"),
+          document.getElementById("modalWalletAddress")
+        ];
+      }
+
+      updateUI(userData) {
+        document.getElementById("tapCount").textContent = `UAS: ${userData.coins}`;
+        document.getElementById("energyFill").style.width = `${userData.energy}%`;
+        document.getElementById("referralLink").value = 
+          `https://t.me/UASReferralBot?start=${userData.referralCode}`;
+        this.updateCoinImage(userData.skin);
+        this.walletAddressElements.forEach(el => el.textContent = CONFIG.walletAddress);
+      }
+
+      updateCoinImage(skinName) {
+        document.getElementById("coinImage").src = `${skinName}_coin.png`;
+      }
+
+      showTab(tabId) {
+        this.tabContent.querySelectorAll(".tab-section").forEach(el => el.classList.remove("active"));
+        document.getElementById(tabId).classList.add("active");
+      }
+
+      openModal(item) {
+        game.pendingPurchase = item;
+        this.paymentModal.classList.add("active");
+      }
+
+      closeModal() {
+        this.paymentModal.classList.remove("active");
+        this.txHashInput.value = "";
+      }
+
+      initSkinsList(userData) {
+        this.skinsList.innerHTML = "";
+        Object.keys(CONFIG.skinPrices).forEach(skin => {
+          const div = document.createElement("div");
+          div.className = "skin-item";
+          div.innerHTML = `
+            <img src="${skin}.png" class="preview-img" alt="${skin}">
+            ${skin.charAt(0).toUpperCase() + skin.slice(1)}
+            <button class="buy-btn" data-skin="${skin}">
+              ${userData.skinInventory.includes(skin) ? 'Equip' : '5 USDT'}
+            </button>
+          `;
+          this.skinsList.appendChild(div);
+        });
+      }
+    }
+
+    // main.js
+    const userManager = new UserManager();
+    const uiManager = new UIManager();
+    const game = new Game(userManager, uiManager);
+
+    async function init() {
+      await userManager.loadUserData();
+      uiManager.initSkinsList(userManager.userData);
+      uiManager.updateUI(userManager.userData);
+      await userManager.handleReferral();
+      game.startAutoTap();
+      game.startEnergyRecharge();
+
+      // Event Listeners
+      document.getElementById("coinImage").addEventListener("click", () => game.tapCoin());
+      document.querySelectorAll(".bottom-nav button").forEach(btn => {
+        btn.addEventListener("click", () => uiManager.showTab(btn.dataset.tab));
+      });
+      document.querySelectorAll(".buy-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const tab = btn.dataset.tab;
+          const item = btn.dataset.item;
+          const skin = btn.dataset.skin;
+          if (tab) uiManager.showTab(tab);
+          else if (item) uiManager.openModal(item);
+          else if (skin) game.buySkin(skin);
+        });
+      });
+      document.getElementById("submitPayment").addEventListener("click", () => {
+        game.verifyPayment(uiManager.txHashInput.value);
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", init);
+  </script>
 </body>
-    </html>
+</html>
