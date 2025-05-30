@@ -3,10 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Revolutionary Coin - TON & USDT</title>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <title>TON Tapping Game - Skin Preview</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     * {
@@ -275,11 +272,17 @@
       text-align: center;
       transition: transform 0.3s;
       border: 1px solid rgba(255, 255, 255, 0.1);
+      cursor: pointer;
     }
     
     .item-card:hover {
       transform: translateY(-5px);
       background: rgba(255, 255, 255, 0.15);
+    }
+    
+    .item-card.selected {
+      border: 2px solid #ffd700;
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
     }
     
     .item-icon {
@@ -317,11 +320,6 @@
     .buy-btn:hover {
       transform: scale(1.05);
       box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-    }
-    
-    .buy-btn.pending {
-      background: linear-gradient(to right, #555, #777);
-      cursor: not-allowed;
     }
     
     /* Notification */
@@ -367,309 +365,127 @@
       color: rgba(255, 255, 255, 0.6);
     }
     
-    /* Level Up Animation */
-    .level-up {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.8);
+    /* Skin Preview Section */
+    .skin-preview {
+      background: rgba(30, 30, 40, 0.8);
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 20px;
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
-      z-index: 1001;
-      animation: fadeIn 0.5s;
+      gap: 15px;
+      border: 2px solid rgba(255, 215, 0, 0.3);
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
     }
     
-    .level-up h1 {
-      font-size: 3rem;
-      color: #ffd700;
-      margin-bottom: 20px;
-      text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
-    }
-    
-    .level-up p {
+    .preview-title {
       font-size: 1.5rem;
-      margin-bottom: 30px;
-    }
-    
-    .level-up-btn {
-      background: linear-gradient(to right, #ffd700, #ffa500);
-      border: none;
-      border-radius: 8px;
-      color: #8b4513;
-      padding: 12px 25px;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: 1.2rem;
-    }
-    
-    /* TON Wallet Modal */
-    .wallet-modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.8);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 1002;
-      display: none;
-    }
-    
-    .modal-content {
-      background: #222;
-      padding: 30px;
-      border-radius: 15px;
-      width: 90%;
-      max-width: 500px;
+      color: #ffd700;
       text-align: center;
-      border: 2px solid gold;
+      margin-bottom: 10px;
     }
     
-    .modal-title {
-      font-size: 1.8rem;
-      margin-bottom: 20px;
+    .preview-content {
+      display: flex;
+      width: 100%;
+      gap: 20px;
+      align-items: center;
+    }
+    
+    .preview-image {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: linear-gradient(45deg, #1e3c72, #2a5298);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      border: 3px solid #0088cc;
+      flex-shrink: 0;
+    }
+    
+    .preview-details {
+      flex: 1;
+    }
+    
+    .preview-name {
+      font-size: 1.5rem;
+      margin-bottom: 10px;
       color: #ffd700;
     }
     
-    .wallet-address {
-      background: rgba(255, 255, 255, 0.1);
-      padding: 15px;
-      border-radius: 10px;
-      font-family: monospace;
-      margin: 15px 0;
-      word-break: break-all;
+    .preview-price {
+      font-size: 1.2rem;
+      margin-bottom: 15px;
+      color: #00ccff;
     }
     
-    .ton-logo {
-      font-size: 3rem;
-      color: #0088cc;
-      margin: 10px 0;
+    .preview-desc {
+      font-size: 0.95rem;
+      color: #aaa;
+      margin-bottom: 15px;
     }
     
-    .modal-buttons {
+    .preview-action {
       display: flex;
       gap: 10px;
-      margin-top: 20px;
     }
     
-    .modal-btn {
+    .preview-btn {
       flex: 1;
-      padding: 12px;
+      padding: 10px;
       border-radius: 8px;
       border: none;
       font-weight: bold;
-      cursor: pointer;
-    }
-    
-    .confirm-btn {
-      background: linear-gradient(to right, #0088cc, #00aaff);
-      color: white;
-    }
-    
-    .cancel-btn {
-      background: linear-gradient(to right, #ff5252, #ff1744);
-      color: white;
-    }
-    
-    /* Loading Spinner */
-    .spinner {
-      border: 4px solid rgba(255, 255, 255, 0.3);
-      border-radius: 50%;
-      border-top: 4px solid #ffd700;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
-      margin: 20px auto;
-    }
-    
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    
-    /* Wallet Button */
-    .wallet-btn {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      background: linear-gradient(to right, #0088cc, #00aaff);
-      color: white;
-      border: none;
-      border-radius: 30px;
-      padding: 10px 20px;
-      font-weight: bold;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      z-index: 100;
-    }
-    
-    /* Energy Info */
-    .energy-info {
-      background: rgba(0, 0, 0, 0.4);
-      padding: 10px;
-      border-radius: 10px;
-      text-align: center;
-      margin: 10px 0;
-      font-size: 0.9rem;
-    }
-    
-    .recharge-indicator {
-      display: inline-block;
-      padding: 5px 10px;
-      background: rgba(0, 200, 83, 0.2);
-      border-radius: 15px;
-      margin-top: 5px;
-      border: 1px solid rgba(0, 200, 83, 0.5);
-    }
-    
-    /* TON Integration */
-    .ton-integration {
-      background: rgba(0, 0, 0, 0.5);
-      border-radius: 15px;
-      padding: 15px;
-      margin: 20px 0;
-      text-align: center;
-    }
-    
-    .ton-balance {
-      font-size: 1.2rem;
-      margin: 10px 0;
-      color: #00aaff;
-    }
-    
-    /* Currency selector */
-    .currency-selector {
-      display: flex;
-      justify-content: center;
-      margin: 15px 0;
-    }
-    
-    .currency-option {
-      padding: 10px 20px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 10px;
-      margin: 0 5px;
       cursor: pointer;
       transition: all 0.3s;
-      border: 2px solid transparent;
     }
     
-    .currency-option.active {
-      background: rgba(0, 136, 204, 0.3);
-      border-color: #0088cc;
+    .purchase-btn {
+      background: linear-gradient(to right, #00c853, #64dd17);
+      color: white;
     }
     
-    .currency-option:hover {
-      background: rgba(255, 255, 255, 0.2);
+    .equip-btn {
+      background: linear-gradient(to right, #ffd700, #ffa500);
+      color: #8b4513;
     }
     
-    /* Pending Transactions */
-    .pending-transactions {
-      background: rgba(255, 255, 255, 0.1);
-      padding: 15px;
-      border-radius: 15px;
-      margin-top: 20px;
+    .preview-btn:disabled {
+      background: #555;
+      cursor: not-allowed;
     }
     
-    .pending-title {
-      color: #ffd700;
-      margin-bottom: 10px;
-      text-align: center;
-    }
-    
-    .transaction-item {
-      background: rgba(0, 0, 0, 0.3);
-      padding: 10px;
-      border-radius: 10px;
-      margin: 10px 0;
-      border-left: 4px solid #ffd700;
-    }
-    
-    .transaction-details {
+    /* Country flags */
+    .flag {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background-size: cover;
+      background-position: center;
       display: flex;
-      justify-content: space-between;
-      margin-bottom: 5px;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      font-weight: bold;
+      text-shadow: 0 0 5px rgba(0,0,0,0.8);
     }
     
-    .transaction-status {
-      color: #ffcc00;
-      font-size: 0.9rem;
-      text-align: right;
-    }
+    .flag-pk { background: linear-gradient(90deg, #006600 33%, white 33%, white 66%, #006600 66%); }
+    .flag-in { background: linear-gradient(90deg, #FF9933 33%, white 33%, white 66%, #138808 66%); }
+    .flag-us { background: linear-gradient(red, red, white, white, red, red); }
+    .flag-uk { background: linear-gradient(blue, blue, white, white, red, red); }
+    .flag-fr { background: linear-gradient(90deg, blue 33%, white 33%, white 66%, red 66%); }
+    .flag-de { background: linear-gradient(black, black, red, red, gold, gold); }
+    .flag-ir { background: linear-gradient(green, green, white, white, red, red); }
+    .flag-sa { background: linear-gradient(green, green, white, white, black, black); }
+    .flag-cn { background: linear-gradient(red, red, gold, gold); }
+    .flag-br { background: linear-gradient(green, green, yellow, yellow, blue, blue); }
   </style>
 </head>
 <body>
-  <!-- Notification -->
-  <div class="notification" id="notification"></div>
-  
-  <!-- Level Up Popup -->
-  <div class="level-up" id="levelUpPopup" style="display: none;">
-    <h1>LEVEL UP!</h1>
-    <p>You reached level <span id="newLevelDisplay">1</span>!</p>
-    <button class="level-up-btn" id="closeLevelUp">Continue</button>
-  </div>
-
-  <!-- TON Wallet Modal -->
-  <div class="wallet-modal" id="walletModal">
-    <div class="modal-content">
-      <div class="modal-title">TON Wallet Integration</div>
-      <div class="ton-logo">
-        <i class="fab fa-bitcoin"></i>
-      </div>
-      <p>Connect your TON wallet to make purchases</p>
-      
-      <div class="spinner" id="walletSpinner" style="display: none;"></div>
-      
-      <div class="modal-buttons">
-        <button class="modal-btn cancel-btn" id="cancelWallet">Cancel</button>
-        <button class="modal-btn confirm-btn" id="connectWallet">Connect Wallet</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- TON Payment Modal -->
-  <div class="wallet-modal" id="paymentModal">
-    <div class="modal-content">
-      <div class="modal-title">TON Payment</div>
-      <div class="ton-logo">
-        <i class="fab fa-bitcoin"></i>
-      </div>
-      <p>Confirm purchase of <span id="itemName"></span></p>
-      
-      <div class="currency-selector">
-        <div class="currency-option active" data-currency="ton">
-          <i class="fab fa-bitcoin"></i> TON
-        </div>
-        <div class="currency-option" data-currency="usdt">
-          <i class="fas fa-dollar-sign"></i> USDT
-        </div>
-      </div>
-      
-      <p>Price: <span id="itemPrice"></span> <span id="currencySymbol">TON</span></p>
-      
-      <div class="wallet-address" id="walletAddress">EQDCH4wT2U3VlYpVx6C5K0bU0Zx1Y4y5X7e8f9g0h1i2j3k4l5m6n7o8p9q0r1s2t3u4v5w6x7y8z9</div>
-      
-      <div class="spinner" id="paymentSpinner" style="display: none;"></div>
-      
-      <div class="modal-buttons">
-        <button class="modal-btn cancel-btn" id="cancelPayment">Cancel</button>
-        <button class="modal-btn confirm-btn" id="confirmPayment">Confirm Payment</button>
-      </div>
-    </div>
-  </div>
-
-  <button class="wallet-btn" id="walletButton">
-    <i class="fab fa-bitcoin"></i> Connect Wallet
-  </button>
-
   <div class="container">
     <!-- Header -->
     <div class="header">
@@ -721,14 +537,6 @@
       <div class="energy-label" id="energyLabel">1000/1000</div>
     </div>
     
-    <!-- TON Integration -->
-    <div class="ton-integration">
-      <h3><i class="fab fa-bitcoin"></i> TON Blockchain Integration</h3>
-      <p>Powered by The Open Network for secure transactions</p>
-      <div class="ton-balance">Wallet: <span id="walletStatus">Not Connected</span></div>
-      <div class="ton-balance">Balance: <span id="tonBalance">0 TON</span></div>
-    </div>
-    
     <!-- Tab Content -->
     <div class="tab-content active" id="homeTab">
       <h2 class="tab-title"><i class="fas fa-home"></i> Welcome!</h2>
@@ -743,14 +551,6 @@
           <p><i class="fas fa-bolt"></i> Energy Recharge: 10 every 1s</p>
         </div>
       </div>
-      
-      <!-- Pending Transactions -->
-      <div class="pending-transactions" id="pendingTransactions">
-        <h3 class="pending-title">Pending Transactions</h3>
-        <div id="transactionsList">
-          <!-- Pending transactions will appear here -->
-        </div>
-      </div>
     </div>
     
     <div class="tab-content" id="upgradesTab">
@@ -760,31 +560,53 @@
           <img src="https://via.placeholder.com/60?text=Bronze" class="item-icon">
           <div class="item-name">2x Multiplier</div>
           <div class="item-price">5 TON / 5 USDT</div>
-          <button class="buy-btn" data-item="multiplier2x" data-price="5">Buy</button>
+          <button class="buy-btn">Buy</button>
         </div>
         <div class="item-card">
           <img src="https://via.placeholder.com/60?text=Bronze" class="item-icon">
           <div class="item-name">5x Multiplier</div>
           <div class="item-price">10 TON / 10 USDT</div>
-          <button class="buy-btn" data-item="multiplier5x" data-price="10">Buy</button>
+          <button class="buy-btn">Buy</button>
         </div>
         <div class="item-card">
           <img src="https://via.placeholder.com/60?text=Bronze" class="item-icon">
           <div class="item-name">Energy Refill</div>
           <div class="item-price">3 TON / 3 USDT</div>
-          <button class="buy-btn" data-item="energyRefill" data-price="3">Buy</button>
+          <button class="buy-btn">Buy</button>
         </div>
         <div class="item-card">
           <img src="https://via.placeholder.com/60?text=Bronze" class="item-icon">
           <div class="item-name">Auto Tapper</div>
           <div class="item-price">8 TON / 8 USDT</div>
-          <button class="buy-btn" data-item="autoTapper" data-price="8">Buy</button>
+          <button class="buy-btn">Buy</button>
         </div>
       </div>
     </div>
     
     <div class="tab-content" id="skinsTab">
       <h2 class="tab-title"><i class="fas fa-palette"></i> Country Skins</h2>
+      
+      <!-- Skin Preview Section -->
+      <div class="skin-preview">
+        <h3 class="preview-title">Skin Preview</h3>
+        <div class="preview-content">
+          <div class="preview-image">
+            <div class="flag flag-pk" id="previewFlag">PK</div>
+          </div>
+          <div class="preview-details">
+            <div class="preview-name" id="previewName">Pakistan</div>
+            <div class="preview-price" id="previewPrice">5 TON / 5 USDT</div>
+            <div class="preview-desc" id="previewDesc">Green and white theme with crescent effects</div>
+            <div class="preview-action">
+              <button class="preview-btn purchase-btn" id="purchaseBtn">Purchase</button>
+              <button class="preview-btn equip-btn" id="equipBtn">Equip</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Skin Grid -->
+      <h3 style="text-align: center; margin: 20px 0 15px; color: #ffd700;">Available Skins</h3>
       <div class="item-grid" id="skinsGrid"></div>
     </div>
     
@@ -837,31 +659,9 @@
   </div>
 
   <script>
-    // Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyBbfR-0LMAPCEIxnpXpp6oWcfqKT0Z3Ai8",
-      authDomain: "uascoin-game.firebaseapp.com",
-      databaseURL: "https://uascoin-game-default-rtdb.firebaseio.com",
-      projectId: "uascoin-game",
-      storageBucket: "uascoin-game.appspot.com",
-      messagingSenderId: "517394758183",
-      appId: "1:517394758183:web:85a1c0164ce16a22f3e23a"
-    };
-    
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-    const auth = firebase.auth();
-    
-    // TON Configuration (MAINNET)
-    const providerUrl = "https://toncenter.com/api/v2/jsonRPC"; // Mainnet endpoint
-    const apiKey = "YOUR_MAINNET_API_KEY"; // Replace with your mainnet API key
-    const tonMainnetAddress = "EQDCH4wT2U3VlYpVx6C5K0bU0Zx1Y4y5X7e8f9g0h1i2j3k4l5m6n7o8p9q0r1s2t3u4v5w6x7y8z9";
-    const usdtContractAddress = "EQD2NmD_lH5f5u1Kj3KfGyTvhZSX0Eg6qp2a5IQUKXxOG21n"; // USDT contract on TON
-    
-    // Game state with updated energy system
+    // Game state
     let gameState = {
-      coins: 0,
+      coins: 1000,
       energy: 1000,
       maxEnergy: 1000,
       multiplier: 1,
@@ -875,9 +675,32 @@
       skins: ['bronze'],
       userId: null,
       tonWalletConnected: false,
-      tonBalance: 0,
-      pendingTransactions: []
+      tonBalance: 0
     };
+    
+    // Country skins data
+    const countrySkins = [
+      { id: 'pk', code: 'PK', name: 'Pakistan', price: 5, 
+        desc: 'Green and white theme with crescent effects' },
+      { id: 'in', code: 'IN', name: 'India', price: 5, 
+        desc: 'Saffron, white and green theme with Ashoka Chakra' },
+      { id: 'us', code: 'US', name: 'USA', price: 5, 
+        desc: 'Red, white and blue theme with stars effects' },
+      { id: 'uk', code: 'UK', name: 'UK', price: 5, 
+        desc: 'Union Jack theme with royal effects' },
+      { id: 'fr', code: 'FR', name: 'France', price: 5, 
+        desc: 'Blue, white and red theme with Eiffel Tower effects' },
+      { id: 'de', code: 'DE', name: 'Germany', price: 5, 
+        desc: 'Black, red and gold theme with eagle effects' },
+      { id: 'ir', code: 'IR', name: 'Iran', price: 5, 
+        desc: 'Green, white and red theme with emblem effects' },
+      { id: 'sa', code: 'SA', name: 'Saudi Arabia', price: 5, 
+        desc: 'Green theme with sword and Arabic script effects' },
+      { id: 'cn', code: 'CN', name: 'China', price: 5, 
+        desc: 'Red theme with golden stars effects' },
+      { id: 'br', code: 'BR', name: 'Brazil', price: 5, 
+        desc: 'Green, yellow and blue theme with globe effects' }
+    ];
     
     // DOM elements
     const coin = document.getElementById('coin');
@@ -895,75 +718,33 @@
     const autoTapStatus = document.getElementById('autoTapStatus');
     const referralCount = document.getElementById('referralCount');
     const skinsGrid = document.getElementById('skinsGrid');
-    const levelUpPopup = document.getElementById('levelUpPopup');
-    const newLevelDisplay = document.getElementById('newLevelDisplay');
-    const closeLevelUp = document.getElementById('closeLevelUp');
-    const walletModal = document.getElementById('walletModal');
-    const paymentModal = document.getElementById('paymentModal');
-    const walletAddressEl = document.getElementById('walletAddress');
-    const cancelWallet = document.getElementById('cancelWallet');
-    const connectWallet = document.getElementById('connectWallet');
-    const cancelPayment = document.getElementById('cancelPayment');
-    const confirmPayment = document.getElementById('confirmPayment');
-    const paymentSpinner = document.getElementById('paymentSpinner');
-    const walletButton = document.getElementById('walletButton');
-    const walletStatus = document.getElementById('walletStatus');
-    const tonBalance = document.getElementById('tonBalance');
-    const itemName = document.getElementById('itemName');
-    const itemPrice = document.getElementById('itemPrice');
-    const currencySymbol = document.getElementById('currencySymbol');
-    const transactionsList = document.getElementById('transactionsList');
     
-    let currentPurchaseItem = null;
+    // Skin preview elements
+    const previewFlag = document.getElementById('previewFlag');
+    const previewName = document.getElementById('previewName');
+    const previewPrice = document.getElementById('previewPrice');
+    const previewDesc = document.getElementById('previewDesc');
+    const purchaseBtn = document.getElementById('purchaseBtn');
+    const equipBtn = document.getElementById('equipBtn');
+    
+    let currentSkin = countrySkins[0];
     let rechargeInterval;
-    let walletSpinner = document.getElementById('walletSpinner');
-    let currentCurrency = 'ton';
     
-    // Country skins data
-    const countrySkins = [
-      { id: 'usa.png', name: 'USA Flag', price: 5 },
-      { id: 'uk.png', name: 'UK Flag', price: 5 },
-      { id: 'germany.png', name: 'Germany Flag', price: 5 },
-      { id: 'france.png', name: 'France Flag', price: 5 },
-      { id: 'italy.png', name: 'Italy Flag', price: 5 },
-      { id: 'iran.png', name: 'Iran Flag', price: 5 },
-      { id: 'pakistan.png', name: 'Pakistan Flag', price: 5 },
-      { id: 'china.png', name: 'China Flag', price: 5 },
-      { id: 'suadiaarab.png', name: 'Saudi Arabia Flag', price: 5 },
-      { id: 'india.png', name: 'India Flag', price: 5 },
-      { id: 'brazil.png', name: 'Brazil Flag', price: 5 }
-    ];
-    
-    async function initGame() {
-      walletAddressEl.textContent = tonMainnetAddress;
-      try {
-        const userCredential = await auth.signInAnonymously();
-        gameState.userId = userCredential.user.uid;
-        showNotification('User authenticated successfully!');
-        await loadGameState();
-        initSkins();
-        
-        // Start energy recharge (faster)
-        startEnergyRecharge();
-        
-        if (gameState.autoTap) {
-          setInterval(autoTap, 1000);
-        }
-        
-        // Setup currency selector
-        document.querySelectorAll('.currency-option').forEach(option => {
-          option.addEventListener('click', () => {
-            document.querySelectorAll('.currency-option').forEach(o => o.classList.remove('active'));
-            option.classList.add('active');
-            currentCurrency = option.dataset.currency;
-            updatePaymentDetails();
-          });
-        });
-      } catch (error) {
-        console.error('Authentication failed:', error);
-        showNotification('Failed to authenticate. Using local storage.');
-        loadLocalGameState();
-      }
+    function initGame() {
+      // Start energy recharge (faster)
+      startEnergyRecharge();
+      
+      // Initialize skins
+      initSkins();
+      
+      // Set initial preview
+      updatePreview(currentSkin);
+      
+      // Setup event listeners
+      setupEventListeners();
+      
+      // Initial UI update
+      updateUI();
     }
     
     function startEnergyRecharge() {
@@ -972,96 +753,53 @@
         if (gameState.energy < gameState.maxEnergy) {
           gameState.energy += 10;  // Recharge 10 energy per tick (faster)
           updateUI();
-          saveGameState();
         }
       }, 1000); // Every 1 second
-    }
-    
-    async function loadGameState() {
-      try {
-        const userRef = firebase.database().ref(`users/${gameState.userId}`);
-        userRef.on('value', (snapshot) => {
-          if (snapshot.exists()) {
-            Object.assign(gameState, snapshot.val());
-            updateUI();
-            updatePendingTransactionsList();
-            showNotification('Game loaded from cloud!');
-          } else {
-            saveGameState();
-          }
-        });
-      } catch (error) {
-        console.error('Error loading game state:', error);
-        showNotification('Failed to load from cloud. Using local data.');
-        loadLocalGameState();
-      }
-    }
-    
-    function loadLocalGameState() {
-      const savedGame = localStorage.getItem('revolutionaryCoin');
-      if (savedGame) {
-        Object.assign(gameState, JSON.parse(savedGame));
-        updateUI();
-        updatePendingTransactionsList();
-        showNotification('Game loaded from local storage!');
-      }
-    }
-    
-    async function saveGameState() {
-      try {
-        await firebase.database().ref(`users/${gameState.userId}`).set(gameState);
-        localStorage.setItem('revolutionaryCoin', JSON.stringify(gameState));
-      } catch (error) {
-        console.error('Error saving game state:', error);
-        localStorage.setItem('revolutionaryCoin', JSON.stringify(gameState));
-        showNotification('Saved to local storage due to cloud error.');
-      }
     }
     
     function initSkins() {
       skinsGrid.innerHTML = '';
       
-      // Add default bronze skin
-      skinsGrid.innerHTML += `
-        <div class="item-card">
-          <img src="https://via.placeholder.com/60?text=Bronze" class="item-icon">
-          <div class="item-name">Bronze Coin</div>
-          <div class="item-price">Default Skin</div>
-          <button class="buy-btn ${gameState.currentSkin === 'bronze' ? 'active' : ''}" 
-                  data-skin="bronze" data-price="0">
-            ${gameState.currentSkin === 'bronze' ? 'Equipped' : 'Equip'}
-          </button>
-        </div>
-      `;
-      
       // Add country skins
       countrySkins.forEach(skin => {
-        const owned = gameState.skins.includes(skin.id);
-        skinsGrid.innerHTML += `
-          <div class="item-card">
-            <img src="https://via.placeholder.com/60?text=${skin.id}" class="item-icon">
-            <div class="item-name">${skin.name}</div>
-            <div class="item-price">${skin.price} TON / ${skin.price} USDT</div>
-            <button class="buy-btn ${gameState.currentSkin === skin.id ? 'active' : ''}" 
-                    data-skin="${skin.id}" data-price="${skin.price}">
-              ${owned ? (gameState.currentSkin === skin.id ? 'Equipped' : 'Equip') : 'Buy'}
-            </button>
-          </div>
+        const skinCard = document.createElement('div');
+        skinCard.className = 'item-card';
+        skinCard.dataset.skin = skin.id;
+        skinCard.innerHTML = `
+          <div class="flag flag-${skin.id}">${skin.code}</div>
+          <div class="item-name">${skin.name}</div>
+          <div class="item-price">${skin.price} TON / ${skin.price} USDT</div>
         `;
+        
+        skinsGrid.appendChild(skinCard);
       });
     }
     
-    function updatePaymentDetails() {
-      if (!currentPurchaseItem) return;
+    function updatePreview(skin) {
+      // Update preview flag
+      previewFlag.className = `flag flag-${skin.id}`;
+      previewFlag.textContent = skin.code;
       
-      const currencySymbolText = currentCurrency === 'ton' ? 'TON' : 'USDT';
-      currencySymbol.textContent = currencySymbolText;
+      // Update preview details
+      previewName.textContent = skin.name;
+      previewPrice.textContent = `${skin.price} TON / ${skin.price} USDT`;
+      previewDesc.textContent = skin.desc;
       
-      const address = currentCurrency === 'ton' ? tonMainnetAddress : usdtContractAddress;
-      walletAddressEl.textContent = address;
+      // Update buttons based on ownership
+      const owned = gameState.skins.includes(skin.id);
+      purchaseBtn.disabled = owned;
+      purchaseBtn.textContent = owned ? 'Already Purchased' : `Purchase for ${skin.price} TON`;
+      equipBtn.disabled = !owned || gameState.currentSkin === skin.id;
+      equipBtn.textContent = (gameState.currentSkin === skin.id) ? 'Equipped' : 'Equip Skin';
       
-      // Prices are the same for TON and USDT in this implementation
-      itemPrice.textContent = currentPurchaseItem.price;
+      // Highlight selected skin in grid
+      document.querySelectorAll('.item-card').forEach(card => {
+        card.classList.remove('selected');
+      });
+      const selectedCard = document.querySelector(`.item-card[data-skin="${skin.id}"]`);
+      if (selectedCard) {
+        selectedCard.classList.add('selected');
+      }
     }
     
     function showNotification(message) {
@@ -1115,43 +853,9 @@
       autoTapStatus.textContent = gameState.autoTap ? 'Active' : 'Inactive';
       referralCount.textContent = gameState.referrals;
       
-      // Update TON wallet status
-      walletStatus.textContent = gameState.tonWalletConnected ? 'Connected' : 'Not Connected';
-      tonBalance.textContent = gameState.tonBalance + ' TON';
-      
-      // Update wallet button
-      walletButton.innerHTML = gameState.tonWalletConnected ? 
-        `<i class="fab fa-bitcoin"></i> Wallet Connected` : 
-        `<i class="fab fa-bitcoin"></i> Connect Wallet`;
-      walletButton.style.background = gameState.tonWalletConnected ? 
-        'linear-gradient(to right, #00c853, #64dd17)' : 
-        'linear-gradient(to right, #0088cc, #00aaff)';
-      
       // Calculate level progress
       const progressPercent = (gameState.xp / gameState.xpToNextLevel) * 100;
       levelProgress.style.width = `${progressPercent}%`;
-    }
-    
-    function updatePendingTransactionsList() {
-      transactionsList.innerHTML = '';
-      
-      if (gameState.pendingTransactions.length === 0) {
-        transactionsList.innerHTML = '<p style="text-align: center; padding: 10px;">No pending transactions</p>';
-        return;
-      }
-      
-      gameState.pendingTransactions.forEach(transaction => {
-        const transactionEl = document.createElement('div');
-        transactionEl.className = 'transaction-item';
-        transactionEl.innerHTML = `
-          <div class="transaction-details">
-            <div>${transaction.itemName}</div>
-            <div>${transaction.amount} ${transaction.currency}</div>
-          </div>
-          <div class="transaction-status">Status: ${transaction.status}</div>
-        `;
-        transactionsList.appendChild(transactionEl);
-      });
     }
     
     function tapCoin() {
@@ -1166,9 +870,7 @@
       gameState.energy -= 1; // Using 1 energy per tap
       gameState.totalTaps++;
       gameState.xp += earned;
-      checkLevelUp();
       updateUI();
-      saveGameState();
       const rect = coin.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
@@ -1176,157 +878,79 @@
       if (earned > 1) showNotification(`+${earned} UAS coins!`);
     }
     
-    function checkLevelUp() {
-      if (gameState.xp >= gameState.xpToNextLevel) {
-        gameState.level++;
-        gameState.xp -= gameState.xpToNextLevel;
-        gameState.xpToNextLevel = Math.floor(gameState.xpToNextLevel * 1.5);
-        showLevelUp();
-      }
-    }
-    
-    function showLevelUp() {
-      newLevelDisplay.textContent = gameState.level;
-      levelUpPopup.style.display = 'flex';
-    }
-    
-    function autoTap() {
-      if (gameState.autoTap && gameState.energy > 0) tapCoin();
-    }
-    
-    function handlePurchase(itemType, itemId, price) {
-      if (!gameState.tonWalletConnected) {
-        showNotification('Please connect your TON wallet first!');
-        walletModal.style.display = 'flex';
+    function purchaseSkin() {
+      if (gameState.skins.includes(currentSkin.id)) {
+        showNotification('You already own this skin!');
         return;
       }
       
-      currentPurchaseItem = { 
-        type: itemType, 
-        id: itemId,
-        name: itemId,
-        price: price,
-        currency: currentCurrency
-      };
-      
-      // Get item name for display
-      if (itemType === 'skin') {
-        const skin = countrySkins.find(s => s.id === itemId);
-        if (skin) currentPurchaseItem.name = skin.name;
+      if (gameState.coins >= currentSkin.price) {
+        gameState.coins -= currentSkin.price;
+        gameState.skins.push(currentSkin.id);
+        updateUI();
+        updatePreview(currentSkin);
+        showNotification(`${currentSkin.name} skin purchased!`);
+      } else {
+        showNotification(`Not enough coins! Need ${currentSkin.price} UAS`);
+      }
+    }
+    
+    function equipSkin() {
+      if (!gameState.skins.includes(currentSkin.id)) {
+        showNotification('You need to purchase this skin first!');
+        return;
       }
       
-      itemName.textContent = currentPurchaseItem.name;
-      updatePaymentDetails();
-      paymentModal.style.display = 'flex';
+      gameState.currentSkin = currentSkin.id;
+      updatePreview(currentSkin);
+      showNotification(`${currentSkin.name} skin equipped!`);
     }
     
-    function createPendingTransaction() {
-      const transaction = {
-        id: Date.now().toString(),
-        userId: gameState.userId,
-        itemType: currentPurchaseItem.type,
-        itemId: currentPurchaseItem.id,
-        itemName: currentPurchaseItem.name,
-        currency: currentCurrency,
-        amount: currentPurchaseItem.price,
-        status: 'Pending Admin Approval',
-        timestamp: new Date().toISOString()
-      };
-      
-      gameState.pendingTransactions.push(transaction);
-      saveGameState();
-      updatePendingTransactionsList();
-    }
-    
-    // Event listeners
-    coin.addEventListener('click', tapCoin);
-    coin.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      tapCoin();
-    });
-    
-    tabBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const tabId = btn.dataset.tab;
-        tabBtns.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        tabContents.forEach(content => content.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
+    function setupEventListeners() {
+      // Tap coin
+      coin.addEventListener('click', tapCoin);
+      coin.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        tapCoin();
       });
-    });
-    
-    document.addEventListener('click', (e) => {
-      if (e.target.closest('[data-skin]')) {
-        const btn = e.target.closest('[data-skin]');
-        const skinId = btn.dataset.skin;
-        const price = parseInt(btn.dataset.price);
-        if (gameState.skins.includes(skinId)) {
-          gameState.currentSkin = skinId;
-          coin.style.backgroundImage = `url('https://via.placeholder.com/220?text=${skinId}')`;
-          showNotification(`${skinId.toUpperCase()} skin equipped!`);
-          saveGameState();
-          initSkins();
-        } else {
-          handlePurchase('skin', skinId, price);
-        }
-      }
-      if (e.target.closest('[data-item]')) {
-        const btn = e.target.closest('[data-item]');
-        const itemId = btn.dataset.item;
-        const price = parseInt(btn.dataset.price);
-        handlePurchase('upgrade', itemId, price);
-      }
-    });
-    
-    closeLevelUp.addEventListener('click', () => {
-      levelUpPopup.style.display = 'none';
-      showNotification(`Welcome to level ${gameState.level}!`);
-      updateUI();
-    });
-    
-    cancelWallet.addEventListener('click', () => {
-      walletModal.style.display = 'none';
-    });
-    
-    cancelPayment.addEventListener('click', () => {
-      paymentModal.style.display = 'none';
-      currentPurchaseItem = null;
-    });
-    
-    connectWallet.addEventListener('click', async () => {
-      walletSpinner.style.display = 'block';
       
-      // Simulate wallet connection
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Tab navigation
+      tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const tabId = btn.dataset.tab;
+          tabBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          tabContents.forEach(content => content.classList.remove('active'));
+          document.getElementById(tabId).classList.add('active');
+        });
+      });
       
-      gameState.tonWalletConnected = true;
-      gameState.tonBalance = 42.75; // Simulated balance
-      walletSpinner.style.display = 'none';
-      walletModal.style.display = 'none';
-      updateUI();
-      showNotification('TON Wallet connected successfully!');
-    });
-    
-    confirmPayment.addEventListener('click', async () => {
-      // Instead of processing immediately, create pending transaction
-      createPendingTransaction();
-      showNotification('Transaction submitted. Waiting for admin approval.');
-      paymentModal.style.display = 'none';
-    });
-    
-    walletButton.addEventListener('click', () => {
-      walletModal.style.display = 'flex';
-    });
-    
-    document.getElementById('copyBtn').addEventListener('click', () => {
-      const link = document.getElementById('referralLink');
-      link.select();
-      document.execCommand('copy');
-      showNotification('Referral link copied to clipboard!');
-    });
+      // Skin selection
+      document.querySelectorAll('.item-card[data-skin]').forEach(card => {
+        card.addEventListener('click', (e) => {
+          const skinId = card.dataset.skin;
+          currentSkin = countrySkins.find(skin => skin.id === skinId);
+          updatePreview(currentSkin);
+        });
+      });
+      
+      // Purchase skin button
+      purchaseBtn.addEventListener('click', purchaseSkin);
+      
+      // Equip skin button
+      equipBtn.addEventListener('click', equipSkin);
+      
+      // Copy referral link
+      document.getElementById('copyBtn').addEventListener('click', () => {
+        const link = document.getElementById('referralLink');
+        link.select();
+        document.execCommand('copy');
+        showNotification('Referral link copied to clipboard!');
+      });
+    }
     
     // Initialize the game
     initGame();
   </script>
 </body>
-                                                        </html>
+  </html>
